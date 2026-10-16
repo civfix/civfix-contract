@@ -6,12 +6,11 @@ import {
   monogram,
   AVATAR_PALETTE,
 } from "../src/avatar.js"
-import { tokens } from "../src/tokens/design-tokens.js"
 
 /**
  * The avatar gradient is the single source server + clients share, so these lock its determinism,
- * palette membership, distinctness, and (critically) that the palette is DERIVED from the brand tokens
- * rather than re-copied.
+ * palette membership and distinctness. That the palette still equals the brand tokens is checked in
+ * civfix-app, where `@civfix/tokens` lives.
  */
 
 const A = "11111111-1111-1111-1111-111111111111"
@@ -19,18 +18,8 @@ const B = "22222222-2222-2222-2222-222222222222"
 const C = "33333333-3333-3333-3333-333333333333"
 
 describe("AVATAR_PALETTE", () => {
-  it("is derived from tokens.color.brand (bloom, moss, sun, sky, lilac), not re-copied literals", () => {
-    expect(AVATAR_PALETTE).toEqual([
-      tokens.color.brand.bloom,
-      tokens.color.brand.moss,
-      tokens.color.brand.sun,
-      tokens.color.brand.sky,
-      tokens.color.brand.lilac,
-    ])
-  })
-
-  it("excludes the sunDark accent", () => {
-    expect(AVATAR_PALETTE as readonly string[]).not.toContain(tokens.color.brand.sunDark)
+  it("holds the five brand hexes in the fixed order the stored gradients depend on", () => {
+    expect(AVATAR_PALETTE).toEqual(["#F0685C", "#63A45A", "#D9A21B", "#74A9D8", "#9B7ED9"])
   })
 })
 

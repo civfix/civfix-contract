@@ -18,7 +18,6 @@ import {
   formatCertificateCode,
   normalizeCertificateCode,
 } from "../src/schemas/certificates.js"
-import { FakeStorage } from "../src/fakes/storage.fake.js"
 
 const CODE = "A1B2C3D4E5F6"
 /** A genuine 12-char code that happens to START with the display prefix. */
@@ -276,25 +275,3 @@ describe("certificate response schemas (tolerant)", () => {
   })
 })
 
-describe("FakeStorage contentDisposition", () => {
-  it("stores the disposition on put() and surfaces it from head()", async () => {
-    const s = new FakeStorage()
-    const disposition = `inline; filename="civfix-service-hours-${formatCertificateCode(CODE)}.pdf"`
-    await s.put("certificates/service-hours/2026/07/x.pdf", new Uint8Array([1, 2, 3]), {
-      contentType: "application/pdf",
-      contentDisposition: disposition,
-    })
-    const head = await s.head("certificates/service-hours/2026/07/x.pdf")
-    expect(head).toEqual({
-      size: 3,
-      contentType: "application/pdf",
-      contentDisposition: disposition,
-    })
-  })
-
-  it("omits the disposition when put() was given none", async () => {
-    const s = new FakeStorage()
-    await s.put("k", new Uint8Array([1]), { contentType: "image/png" })
-    expect(await s.head("k")).toEqual({ size: 1, contentType: "image/png" })
-  })
-})

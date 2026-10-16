@@ -1,27 +1,28 @@
 import eslint from "@eslint/js"
 import tseslint from "typescript-eslint"
 
-// The @civfix/shared contract must stay framework-free: never import or re-export react / react-dom /
+// The @civfix/contract contract must stay framework-free: never import or re-export react / react-dom /
 // react-native (or any react-native-* lib) or @civfix/ui. @civfix/ui depends ON this package, never the
-// reverse, and the backend pins @civfix/shared and must not be able to pull React/RN in through it.
+// reverse, and the backend pins @civfix/contract and must not be able to pull React/RN or the design tokens in through it.
 const FRAMEWORK_FREE_IMPORTS = {
   "no-restricted-imports": [
     "error",
     {
       paths: [
-        { name: "react", message: "@civfix/shared must stay framework-free; React belongs in @civfix/ui." },
-        { name: "react-dom", message: "@civfix/shared must stay framework-free; react-dom belongs in @civfix/ui." },
-        { name: "react-native", message: "@civfix/shared must stay framework-free; react-native belongs in @civfix/ui." },
-        { name: "@civfix/ui", message: "@civfix/shared must not depend on @civfix/ui (the dependency runs the other way)." },
+        { name: "react", message: "@civfix/contract must stay framework-free; React belongs in @civfix/ui." },
+        { name: "react-dom", message: "@civfix/contract must stay framework-free; react-dom belongs in @civfix/ui." },
+        { name: "react-native", message: "@civfix/contract must stay framework-free; react-native belongs in @civfix/ui." },
+        { name: "@civfix/ui", message: "@civfix/contract must not depend on @civfix/ui (the dependency runs the other way)." },
+        { name: "@civfix/tokens", message: "@civfix/contract must not depend on @civfix/tokens: the backend reads the contract and must not pull UI packages in." },
       ],
       patterns: [
         {
           group: ["react-native-*"],
-          message: "@civfix/shared must stay framework-free; react-native-* libs belong in @civfix/ui.",
+          message: "@civfix/contract must stay framework-free; react-native-* libs belong in @civfix/ui.",
         },
         {
           group: ["@civfix/ui/*"],
-          message: "@civfix/shared must not depend on @civfix/ui subpaths (the dependency runs the other way).",
+          message: "@civfix/contract must not depend on @civfix/ui subpaths (the dependency runs the other way).",
         },
       ],
     },
@@ -78,5 +79,11 @@ export default tseslint.config(
   {
     files: ["src/**/*.ts", "src/**/*.tsx"],
     rules: FRAMEWORK_FREE_IMPORTS,
+  },
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      globals: { process: "readonly", console: "readonly", URL: "readonly" },
+    },
   },
 )

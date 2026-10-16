@@ -1,7 +1,7 @@
 {
-  "name": "@civfix/shared",
-  "version": "0.61.0",
-  "description": "civfix shared contract package: zod schemas, domain types, vendor interfaces, in-memory fakes, design tokens, and a typed API client. Single source of truth for backend, web, and mobile.",
+  "name": "@civfix/contract",
+  "version": "0.62.0",
+  "description": "civfix API contract: zod schemas and inferred types, the endpoints registry, AppError/ErrorCode, the typed API client, and the domain helpers both the backend and the apps run. Consumed from the registry by civfix-backend, civfix-admin and civfix-app.",
   "license": "AGPL-3.0-only",
   "private": false,
   "type": "module",
@@ -18,36 +18,6 @@
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
-      }
-    },
-    "./tokens": {
-      "import": {
-        "types": "./dist/tokens/design-tokens.d.ts",
-        "default": "./dist/tokens/design-tokens.js"
-      },
-      "require": {
-        "types": "./dist/tokens/design-tokens.d.cts",
-        "default": "./dist/tokens/design-tokens.cjs"
-      }
-    },
-    "./interfaces": {
-      "import": {
-        "types": "./dist/interfaces/index.d.ts",
-        "default": "./dist/interfaces/index.js"
-      },
-      "require": {
-        "types": "./dist/interfaces/index.d.cts",
-        "default": "./dist/interfaces/index.cjs"
-      }
-    },
-    "./fakes": {
-      "import": {
-        "types": "./dist/fakes/index.d.ts",
-        "default": "./dist/fakes/index.js"
-      },
-      "require": {
-        "types": "./dist/fakes/index.d.cts",
-        "default": "./dist/fakes/index.cjs"
       }
     },
     "./client": {
@@ -90,26 +60,6 @@
         "default": "./dist/geocode.cjs"
       }
     },
-    "./chat": {
-      "import": {
-        "types": "./dist/chat/index.d.ts",
-        "default": "./dist/chat/index.js"
-      },
-      "require": {
-        "types": "./dist/chat/index.d.cts",
-        "default": "./dist/chat/index.cjs"
-      }
-    },
-    "./ws": {
-      "import": {
-        "types": "./dist/ws/index.d.ts",
-        "default": "./dist/ws/index.js"
-      },
-      "require": {
-        "types": "./dist/ws/index.d.cts",
-        "default": "./dist/ws/index.cjs"
-      }
-    },
     "./host": {
       "import": {
         "types": "./dist/host/index.d.ts",
@@ -150,16 +100,6 @@
         "default": "./dist/legal/index.cjs"
       }
     },
-    "./chip-contrast": {
-      "import": {
-        "types": "./dist/tokens/chip-contrast.d.ts",
-        "default": "./dist/tokens/chip-contrast.js"
-      },
-      "require": {
-        "types": "./dist/tokens/chip-contrast.d.cts",
-        "default": "./dist/tokens/chip-contrast.cjs"
-      }
-    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -172,7 +112,8 @@
     "test": "vitest run",
     "lint": "eslint . --max-warnings=0",
     "clean": "rimraf dist *.tsbuildinfo",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "changeset": "changeset"
   },
   "dependencies": {
     "zod": "^3.23"
@@ -185,7 +126,8 @@
     "tsup": "^8.3.5",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.18.0",
-    "vitest": "^3.2.7"
+    "vitest": "^3.2.7",
+    "@changesets/cli": "^2.27.10"
   },
   "engines": {
     "node": ">=20"
@@ -193,5 +135,10 @@
   "publishConfig": {
     "registry": "https://repo.civfix.org",
     "access": "public"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/civfix/civfix-contract.git"
+  },
+  "packageManager": "pnpm@9.12.0"
 }

@@ -1,4 +1,13 @@
-# @civfix/shared
+# @civfix/contract
+
+## 0.62.0
+
+### Minor Changes
+
+- The package is now `@civfix/contract`, published from the civfix-contract repo. Until 0.61.0 it was `@civfix/shared` in `civfix-app/packages/shared`; the entries below are its history. The schemas, the endpoints registry, errors and the client are unchanged from 0.61.0.
+  - Removed, with their new homes: the design tokens and `chip-contrast` (`@civfix/tokens`, civfix-app); the seam interfaces, their fakes and `MailSendError` (`@civfix/seams`, civfix-backend); the host-dashboard demo fixture (civfix-app's web app); `chat/merge`, `ws/backoff`, `number-format`, `async`, `url`, `uuid` and `legal/source` (`@civfix/ui`).
+  - Removed subpaths: `/tokens`, `/chip-contrast`, `/interfaces`, `/fakes`, `/chat`, `/ws`.
+  - `AVATAR_PALETTE` holds its five hexes directly instead of reading them from the tokens; the values are unchanged.
 
 ## 0.61.0
 

@@ -9,7 +9,6 @@ import {
   errorCopyKey,
   isAppErrorLike,
   isErrorCode,
-  MailSendError,
   toAppError,
 } from "../src/types/errors.js"
 import { AppErrorSchema } from "../src/schemas/common.js"
@@ -97,11 +96,6 @@ describe("AppError", () => {
     expect(err).toBeInstanceOf(AppError)
     expect(err.isDeadline()).toBe(true)
 
-    const mail = new MailSendError(ErrorCode.INTERNAL, "smtp down", { responseCode: 421 })
-    expect(mail).toBeInstanceOf(MailSendError)
-    expect(mail).toBeInstanceOf(AppError)
-    expect(mail.smtp).toEqual({ responseCode: 421 })
-    expect(mail.name).toBe("MailSendError")
   })
 
   it("serializes to the wire envelope and validates against AppErrorSchema", () => {

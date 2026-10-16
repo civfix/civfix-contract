@@ -1,0 +1,67 @@
+name: publish @civfix/contract
+
+# Publishes @civfix/contract to the private registry (repo.civfix.org) when its version is ahead of the
+# registry, on push to main. The consumers (civfix-app, civfix-backend, civfix-admin) adopt a new
+# version deliberately by moving their own caret range.
+#
+# Flow: `pnpm changeset` while developing -> `pnpm changeset version` before merging -> this workflow
+# runs `changeset publish`, a no-op when nothing is ahead of the registry, so it runs on every main
+# push and a failed publish is retried by the next one. scripts/check-version.mjs refuses a version
+# the registry already holds from a commit main never released, and pushes the
+# @civfix/contract@X.Y.Z tag BEFORE the publish, so a failed tag push stops before anything reaches
+# the registry.
+#
+# Required secret: NPM_TOKEN (the Verdaccio ci-publisher token).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Configure git identity for release tags
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+      - name: Append registry auth to .npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          {
+            echo "//repo.civfix.org/:_authToken=${NPM_TOKEN}"
+            echo "git-checks=false"
+          } >> .npmrc
+      - name: Tag the release on main
+        run: node scripts/check-version.mjs --release
+      - name: Publish
+        run: pnpm changeset publish --no-git-tag
+
+      - name: Restore .npmrc
+        if: always()
+        run: git checkout -- .npmrc

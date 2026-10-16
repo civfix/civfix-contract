@@ -133,28 +133,6 @@ export class AppError extends Error {
   }
 }
 
-export interface SmtpFailureDetail {
-  responseCode?: number
-  command?: string
-  response?: string
-  code?: string
-}
-
-export class MailSendError extends AppError {
-  readonly smtp: SmtpFailureDetail
-
-  constructor(
-    code: ErrorCode,
-    message: string,
-    smtp: SmtpFailureDetail,
-    opts: AppErrorOptions = {},
-  ) {
-    super(code, message, opts)
-    this.name = "MailSendError"
-    this.smtp = smtp
-  }
-}
-
 export interface AppErrorLike {
   code: ErrorCode
   message: string

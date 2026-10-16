@@ -27,7 +27,6 @@ import {
 } from "../src/schemas/social.js"
 import { endpoints } from "../src/client/endpoints.js"
 import { createApiClient } from "../src/client/client.js"
-import { FakeSmsSender } from "../src/fakes/sms-sender.fake.js"
 
 const UUID = "00000000-0000-0000-0000-000000000001"
 const UUID2 = "00000000-0000-0000-0000-000000000002"
@@ -335,28 +334,6 @@ describe("endpoint registry rows", () => {
     expect(endpoints.getProfileEvents.csrf).toBe(false)
   })
 })
-
-describe("FakeSmsSender", () => {
-  it("captures sends with deterministic ids", async () => {
-    const sms = new FakeSmsSender()
-    const first = await sms.send(PHONE, "code 123456")
-    const second = await sms.send(PHONE, "code 654321")
-    expect(first.id).toBe("fake-sms-1")
-    expect(second.id).toBe("fake-sms-2")
-    expect(sms.sent).toHaveLength(2)
-    expect(sms.lastFor(PHONE)?.body).toBe("code 654321")
-    expect(sms.lastFor("+13105550100")).toBeUndefined()
-  })
-
-  it("resets its capture log and its id counter", async () => {
-    const sms = new FakeSmsSender()
-    await sms.send(PHONE, "one")
-    sms.reset()
-    expect(sms.sent).toHaveLength(0)
-    expect((await sms.send(PHONE, "two")).id).toBe("fake-sms-1")
-  })
-})
-
 
 describe("the OTP code space has one definition", () => {
   it("is the same schema the email sign-in verify uses", () => {

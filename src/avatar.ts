@@ -1,5 +1,3 @@
-import { tokens } from "./tokens/design-tokens.js"
-
 /**
  * Deterministic initials-avatar colors. The server computes `PersonDTO.avatar` / `UserProfileDTO.avatar`
  * with the same pure function the clients use for an optimistic or offline avatar, so both sides agree
@@ -10,16 +8,12 @@ import { tokens } from "./tokens/design-tokens.js"
  */
 
 /**
- * The brand palette the avatar colors draw from, one hex per brand scale. `sunDark` is intentionally
- * excluded; it is an accent, not an avatar color.
+ * The brand palette the avatar colors draw from: the light-scheme 500 shade of each brand scale in
+ * `@civfix/tokens`. Copied rather than imported so the contract never depends on a UI package; a test in
+ * civfix-app fails if the two drift. `sunDark` is intentionally excluded; it is an accent, not an avatar
+ * color.
  */
-export const AVATAR_PALETTE = [
-  tokens.color.brand.bloom,
-  tokens.color.brand.moss,
-  tokens.color.brand.sun,
-  tokens.color.brand.sky,
-  tokens.color.brand.lilac,
-] as const
+export const AVATAR_PALETTE = ["#F0685C", "#63A45A", "#D9A21B", "#74A9D8", "#9B7ED9"] as const
 
 export type AvatarColor = (typeof AVATAR_PALETTE)[number]
 

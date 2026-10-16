@@ -1,6 +1,6 @@
 /**
  * Field building blocks shared by several schema files. Deliberately not re-exported from the package
- * barrel: the published surface of @civfix/shared must not grow just because two files share a field.
+ * barrel: the published surface of @civfix/contract must not grow just because two files share a field.
  */
 import { z } from "zod"
 import {

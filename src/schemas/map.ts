@@ -59,7 +59,7 @@ export type ResolveAddressResponse = z.infer<typeof ResolveAddressResponseSchema
 /**
  * Forward address autocomplete (POST /map/suggest). The server proxies the active geocoder provider
  * so no provider key is ever shipped to the client. `proximity` (plus optional `proximityZoom`)
- * biases results toward the user's current map view. Mirrors @civfix/shared/geocode SuggestOptions.
+ * biases results toward the user's current map view. Mirrors @civfix/contract/geocode SuggestOptions.
  */
 export const SuggestPlacesRequestSchema = z
   .object({
@@ -77,7 +77,7 @@ export const SuggestPlacesRequestSchema = z
 export type SuggestPlacesRequest = z.infer<typeof SuggestPlacesRequestSchema>
 
 /**
- * One forward-geocode suggestion, structurally matching @civfix/shared/geocode `GeoSuggestion` (a plain
+ * One forward-geocode suggestion, structurally matching @civfix/contract/geocode `GeoSuggestion` (a plain
  * TS type, so the wire contract needs its own schema). `source` drives the Mapbox attribution in the UI.
  */
 export const GeoSuggestionSchema = z.object({

@@ -157,7 +157,7 @@ export function parseResponse<Res>(
   if (!warnedEndpoints.has(name)) {
     warnedEndpoints.add(name)
     console.warn(
-      `[@civfix/shared] response for "${name}" did not match its schema; using the raw body.`,
+      `[@civfix/contract] response for "${name}" did not match its schema; using the raw body.`,
       parsed.error.issues.slice(0, 3),
     )
   }

@@ -1,7 +1,13 @@
 # Decisions
 
-This file records the taxonomy and structural choices made while building `@civfix/shared`. They are
-intended to be stable; changing them is a breaking change for consumers.
+This file records the taxonomy and structural choices made while building the contract (published as
+`@civfix/shared` until 0.61.0, `@civfix/contract` since 0.62.0). They are intended to be stable;
+changing them is a breaking change for consumers.
+
+A few decisions now apply to packages that left this one in 0.62.0 and are kept here as the record:
+§22, §35 and §37 (design tokens, now `@civfix/tokens` in civfix-app) and §10 and the seam half of §19
+(fakes and the SMS seam, now `@civfix/seams` in civfix-backend). §13 describes helpers of which
+`chat`, `ws` and `number-format` now live in `@civfix/ui`.
 
 ## 1. Canonical report category vs. cleanups
 
