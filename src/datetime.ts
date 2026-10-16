@@ -1,4 +1,7 @@
 import { FORMAT_FALLBACK_LOCALE } from "./internal/format-locale.js"
+
+// Exported so app-side formatters (number formatting in @civfix/ui) fall back to the same locale.
+export { FORMAT_FALLBACK_LOCALE }
 import { MS_PER_DAY, MS_PER_HOUR, MS_PER_MINUTE, MS_PER_WEEK } from "./time-units.js"
 
 /**
