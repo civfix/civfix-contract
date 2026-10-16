@@ -8,6 +8,7 @@
   - Removed, with their new homes: the design tokens and `chip-contrast` (`@civfix/tokens`, civfix-app); the seam interfaces, their fakes and `MailSendError` (`@civfix/seams`, civfix-backend); the host-dashboard demo fixture (civfix-app's web app); `chat/merge`, `ws/backoff`, `number-format`, `async`, `url`, `uuid` and `legal/source` (`@civfix/ui`).
   - Removed subpaths: `/tokens`, `/chip-contrast`, `/interfaces`, `/fakes`, `/chat`, `/ws`.
   - `AVATAR_PALETTE` holds its five hexes directly instead of reading them from the tokens; the values are unchanged.
+  - `@civfix/contract/datetime` exports `FORMAT_FALLBACK_LOCALE`, the locale the formatters fall back to on a malformed tag.
 
 ## 0.61.0
 
