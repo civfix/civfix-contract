@@ -2334,7 +2334,8 @@ needs_human`; Retry moves `needs_human -> queued` (re-resolving the route and re
 keeping the ticket text); Cancel moves `queued | needs_human -> cancelled`; Record manual filing moves
 `queued | needs_human -> submitted` with method `operator`, the `caseId` it gives and an optional
 `caseUrl`. An email whose send hit its deadline (`uncertain_submission`) becomes `submitted` when the send
-later reports success, and a `running` filing whose report is no longer fileable is `cancelled`. A city asking for more information moves `submitted | linked_existing -> needs_human` with
+later reports success, and a `running` filing whose report is no longer fileable is `cancelled`. A city
+asking for more information moves `submitted | linked_existing -> needs_human` with
 `city_needs_info`; such a filing keeps its `caseId`, Retry and Cancel are `CONFLICT` on it, and Record
 manual filing returns it to `submitted`. Cancel and Record manual filing are `CONFLICT` on a `running`
 filing. Every outcome is a guarded write that applies only once. A report has at most one active filing.
@@ -2348,12 +2349,15 @@ admin timeline gains no kind.
 
 **City updates come back.** A city message is linked to a filing by the framing line's single reference
 code, else by exactly one recent request number in its subject or body, else it stays in the admin inbox
-as before; an email filing's replies are linked by their thread. A message is trusted only when it passed
-authentication and its sender's hostname is one of the route's `statusSenderDomains` (for an implicit
-email route, the domain of the address it was sent to); a reply on an email filing's thread keeps
-today's jurisdiction-sender rule. Untrusted messages are linked, flagged and change nothing. While
-automatic filing is on, a trusted message is classified by a model whose result the API validates again; at confidence
-0.7 or more, applied once: `received` fills an empty `caseId`; `in_progress` moves a portal filing's report
+as before; an email filing's replies are linked by their thread. When the filing a framing line matched
+already has a `caseId`, the message must also contain it, or it is linked, flagged and changes nothing. A
+message is trusted only when it passed authentication and its sender's hostname is one of the route's
+`statusSenderDomains` (for an implicit email route, the domain of the address it was sent to, except a
+consumer mail domain, where the sender's mailbox must equal that address exactly, as
+`isJurisdictionSender` does); a reply on an email filing's thread keeps today's jurisdiction-sender rule.
+Untrusted messages are linked, flagged and change nothing. While automatic filing is on, a trusted
+message is classified by a model whose result the API validates again; at confidence 0.7 or more,
+applied once: `received` fills an empty `caseId`; `in_progress` moves a portal filing's report
 `acknowledged -> in_progress`; `needs_info` moves the filing to `needs_human` with `city_needs_info`;
 `closed` resolves the report. The summary is shown to operators only, and every public note is fixed text.
 
