@@ -247,6 +247,15 @@ describe("FilingRouteInput formUrl", () => {
     expect(passes(FilingRouteInputSchema, { ...portal, formUrl: long })).toBe(false)
     expect(passes(FilingRouteInputSchema, { ...portal, formUrl: max })).toBe(true)
   })
+
+  it("T38: a portal formUrl on a .localhost subdomain fails; a public host containing localhost passes", () => {
+    for (const formUrl of ["https://foo.localhost/", "https://a.b.localhost/", "https://FOO.LOCALHOST/"]) {
+      expect(passes(FilingRouteInputSchema, { ...portal, formUrl }), formUrl).toBe(false)
+    }
+    for (const formUrl of ["https://notlocalhost.com/", "https://localhost.lacity.gov/"]) {
+      expect(passes(FilingRouteInputSchema, { ...portal, formUrl }), formUrl).toBe(true)
+    }
+  })
 })
 
 describe("FilingRouteInput shape", () => {
