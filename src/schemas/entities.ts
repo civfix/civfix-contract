@@ -268,6 +268,10 @@ export type EventAddressSource = z.infer<typeof EventAddressSourceSchema>
 export const ReportAddressSourceSchema = z.enum(["resolved", "user"])
 export type ReportAddressSource = z.infer<typeof ReportAddressSourceSchema>
 
+export const ReportFilingDTOSchema: z.ZodTypeAny = z.any().superRefine(() => {
+  throw new Error("not implemented")
+})
+
 export const ReportDTOSchema = z.object({
   id: IdSchema,
   referenceCode: z.string().optional(),

@@ -6,6 +6,29 @@ import {
   GetApproximateLocationRequestSchema,
   GetApproximateLocationResponseSchema,
 } from "../src/schemas/geo.js"
+import {
+  CancelFilingRequestSchema,
+  CancelFilingResponseSchema,
+  FileReportRequestSchema,
+  FileReportResponseSchema,
+  GetFilingRequestSchema,
+  GetFilingResponseSchema,
+  GetFilingSettingsRequestSchema,
+  GetFilingSettingsResponseSchema,
+  ListFilingRoutesRequestSchema,
+  ListFilingRoutesResponseSchema,
+  ListFilingsRequestSchema,
+  ListFilingsResponseSchema,
+  RecordManualFilingRequestSchema,
+  RecordManualFilingResponseSchema,
+  RetryFilingRequestSchema,
+  RetryFilingResponseSchema,
+  SaveFilingRoutesRequestSchema,
+  SaveFilingRoutesResponseSchema,
+  SetFilingSettingsRequestSchema,
+  SetFilingSettingsResponseSchema,
+} from "../src/schemas/admin/filings.js"
+import type { EndpointDef } from "../src/client/endpoints.js"
 
 const UUID = "123e4567-e89b-12d3-a456-426614174000"
 
@@ -22,7 +45,7 @@ function jsonResponse(
 describe("endpoint registry", () => {
   it("covers every registered endpoint with a unique path per method", () => {
     const names = Object.keys(endpoints)
-    expect(names.length).toBe(339)
+    expect(names.length).toBe(349)
     const seen = new Set<string>()
     for (const name of names) {
       const e = endpoints[name as keyof typeof endpoints]
@@ -33,11 +56,78 @@ describe("endpoint registry", () => {
     }
   })
 
-  it("registers exactly 109 admin endpoints under /admin", () => {
+  it("registers exactly 119 admin endpoints under /admin", () => {
     const adminNames = Object.keys(endpoints).filter((n) =>
       endpoints[n as keyof typeof endpoints].path.startsWith("/admin"),
     )
-    expect(adminNames.length).toBe(109)
+    expect(adminNames.length).toBe(119)
+  })
+
+  const filingEndpoints = [
+    ["fileReport", "POST", "/admin/reports/:id/file", FileReportRequestSchema, FileReportResponseSchema],
+    ["listFilings", "GET", "/admin/filings", ListFilingsRequestSchema, ListFilingsResponseSchema],
+    ["getFiling", "GET", "/admin/filings/:id", GetFilingRequestSchema, GetFilingResponseSchema],
+    ["retryFiling", "POST", "/admin/filings/:id/retry", RetryFilingRequestSchema, RetryFilingResponseSchema],
+    ["cancelFiling", "POST", "/admin/filings/:id/cancel", CancelFilingRequestSchema, CancelFilingResponseSchema],
+    [
+      "recordManualFiling",
+      "POST",
+      "/admin/filings/:id/manual",
+      RecordManualFilingRequestSchema,
+      RecordManualFilingResponseSchema,
+    ],
+    [
+      "getFilingSettings",
+      "GET",
+      "/admin/filing-settings",
+      GetFilingSettingsRequestSchema,
+      GetFilingSettingsResponseSchema,
+    ],
+    [
+      "setFilingSettings",
+      "PUT",
+      "/admin/filing-settings",
+      SetFilingSettingsRequestSchema,
+      SetFilingSettingsResponseSchema,
+    ],
+    [
+      "listFilingRoutes",
+      "GET",
+      "/admin/jurisdictions/:geoid/filing-routes",
+      ListFilingRoutesRequestSchema,
+      ListFilingRoutesResponseSchema,
+    ],
+    [
+      "saveFilingRoutes",
+      "PUT",
+      "/admin/jurisdictions/:geoid/filing-routes",
+      SaveFilingRoutesRequestSchema,
+      SaveFilingRoutesResponseSchema,
+    ],
+  ] as const
+
+  const registry = endpoints as unknown as Record<string, EndpointDef | undefined>
+
+  it("T25: registers the ten filing endpoints with D15's method and path, auth required and csrf on mutations", () => {
+    for (const [name, method, path] of filingEndpoints) {
+      expect(registry[name], name).toMatchObject({
+        method,
+        path,
+        auth: "required",
+        csrf: method === "POST" || method === "PUT",
+      })
+    }
+    const names = Object.keys(endpoints)
+    expect(names.length).toBe(349)
+    expect(names.filter((n) => registry[n]?.path.startsWith("/admin")).length).toBe(119)
+  })
+
+  it("T36: the ten filing endpoints are v1 and use the filings request and response schemas", () => {
+    for (const [name, , , request, response] of filingEndpoints) {
+      expect(registry[name]?.version, name).toBe("v1")
+      expect(registry[name]?.request, name).toBe(request)
+      expect(registry[name]?.response, name).toBe(response)
+    }
   })
 
   it("registers GET /geo/approximate as an optional, csrf-free v1 endpoint", () => {
