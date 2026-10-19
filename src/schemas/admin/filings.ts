@@ -77,6 +77,7 @@ function isFilingPortalUrl(value: string): boolean {
   return (
     unsafeHostReason(host) === null &&
     host !== "localhost" &&
+    !host.endsWith(".localhost") &&
     !host.endsWith(".local") &&
     !host.endsWith(".internal") &&
     !isCivfixHost(host)

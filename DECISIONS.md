@@ -2323,11 +2323,11 @@ when the jurisdiction has an email contact, else `needs_human` with `no_route`; 
 `geoid` and `no_route`, and an operator can still record a manual filing on it. `saveFilingRoutes`
 replaces a jurisdiction's routes (at most 8, one per category). The contract validates the input and the
 API checks it again: `formUrl` passes `isSafeHttpsUrl`, and its WHATWG hostname is not an IP literal (so
-`https://2130706433/` fails), `localhost`, `*.local`, `*.internal`, or `civfix.org` / `civfix.dev` or a
-subdomain, because the filer opens it from the server. `statusSenderDomains` is 0-5 distinct hostnames,
-lowercased, each with at least two labels and no trailing dot, port, path or `@`; the API also refuses a
-consumer mail domain, since anyone can send from it. The jurisdiction and contact `formUrl` fields stay
-informational.
+`https://2130706433/` fails), `localhost`, `*.localhost`, `*.local`, `*.internal`, or `civfix.org` /
+`civfix.dev` or a subdomain, because the filer opens it from the server. `statusSenderDomains` is 0-5
+distinct hostnames, lowercased, each with at least two labels and no trailing dot, port, path or `@`; the
+API also refuses a consumer mail domain, since anyone can send from it. The jurisdiction and contact
+`formUrl` fields stay informational.
 
 **The filing record.** `FilingStatus` runs `queued -> running -> submitted | linked_existing |
 needs_human`; Retry moves `needs_human -> queued` (re-resolving the route and resetting the attempts,
