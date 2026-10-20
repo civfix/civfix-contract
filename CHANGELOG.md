@@ -1,10 +1,14 @@
 # @civfix/contract
 
-## 0.62.1
+## 0.63.0
 
-### Patch Changes
+### Minor Changes
 
-- Terms of service and privacy policy 2026-10-20, effective 2026-10-20T00:00:00.000Z: filing a report needs an account (Terms section 5, Privacy section 6). Consent to the 2026-09-21 versions is no longer current. Cookies and subprocessors are unchanged.
+- "This is fixed" votes on reports (DECISIONS §61). All additive: the registry goes from 339 to 341 entries, none of them admin.
+
+  - `ReportDTO` gains `fixedCount` (non-negative integer, default 0) and `fixedByMe` (default false). `ReportPinDTO` gains `fixedCount` (default 0). `ReportConfirmResponse` gains `fixedCount` and `fixedByMe`, defaulted, so a 0.62.0 server's `{ confirmCount, confirmedByMe }` still parses.
+  - New endpoints: `markReportFixed` (`POST /reports/:id/fixed`) and `unmarkReportFixed` (`DELETE /reports/:id/fixed`), both auth required with csrf, taking `ReportConfirmRequest` and returning `ReportConfirmResponse`.
+  - An account holds at most one vote per report, "I see this too" (a confirmation) or "This is fixed" (a fixed vote): `confirmReport` and `markReportFixed` add the vote or move it from the other kind. `pressingReports` keeps its shapes; its order now discounts reports whose recent votes say fixed.
 
 ## 0.62.0
 
