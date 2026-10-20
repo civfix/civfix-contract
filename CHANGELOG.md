@@ -1,5 +1,11 @@
 # @civfix/contract
 
+## 0.63.1
+
+### Patch Changes
+
+- Terms of service and privacy policy 2026-10-20, effective 2026-10-20T00:00:00.000Z: filing a report needs an account (Terms section 5, Privacy section 6). Consent to the 2026-09-21 versions is no longer current. Cookies and subprocessors are unchanged.
+
 ## 0.63.0
 
 ### Minor Changes
