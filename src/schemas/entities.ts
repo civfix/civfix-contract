@@ -318,12 +318,15 @@ export const ReportDTOSchema = z.object({
   chatMemberCount: z.number().int().nonnegative().optional(),
   chatMessageCount: z.number().int().nonnegative().optional(),
   chatUnread: z.number().int().nonnegative().optional(),
-  // Me too in the UI, confirmations in the contract (DECISIONS §60). Both are defaulted so an older
-  // server's response still parses.
+  // "I see this too" in the UI, confirmations in the contract; "This is fixed" is a fixed vote
+  // (DECISIONS §60, §61). All four are defaulted so an older server's response still parses.
   confirmCount: z.number().int().nonnegative().default(0),
-  // Only getReport computes it, for the signed-in caller; every other response sends false.
+  // Only getReport computes the two ByMe flags, for the signed-in caller; every other response sends
+  // false. At most one of them is true: an account holds one vote per report.
   confirmedByMe: z.boolean().default(false),
-  // Null until the report is filed with the city (DECISIONS §61); optional so an older server still parses.
+  fixedCount: z.number().int().nonnegative().default(0),
+  fixedByMe: z.boolean().default(false),
+  // Null until the report is filed with the city (DECISIONS §62); optional so an older server still parses.
   filing: ReportFilingDTOSchema.nullable().optional(),
 })
 export type ReportDTO = z.infer<typeof ReportDTOSchema>
@@ -340,6 +343,7 @@ export const ReportPinDTOSchema = z.object({
   addr: z.string().nullable().optional(),
   referenceCode: z.string().optional(),
   confirmCount: z.number().int().nonnegative().default(0),
+  fixedCount: z.number().int().nonnegative().default(0),
 })
 export type ReportPinDTO = z.infer<typeof ReportPinDTOSchema>
 

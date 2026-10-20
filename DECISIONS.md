@@ -1173,7 +1173,7 @@ verification, which is evidence-backed and does scale. So `VerificationStatus`, 
 verification is untouched (`OrgVerificationStatus`/`Kind`, `OrganizationRefDTO.verified`, the admin
 verification queue), and so is `reportVerified`, which is a
 different claim about a different thing (this reporter's reports may be auto-forwarded to the city;
-**amended in 0.63.0 (§61):** auto-forward is retired, so no report reaches a city before an operator
+**amended in 0.64.0 (§62):** auto-forward is retired, so no report reaches a city before an operator
 approves it).
 
 These removals are NOT additive, and that is a deliberate exception to §11 rather than an oversight.
@@ -1748,7 +1748,7 @@ stored default (`setForwardTemplateDefault`) -> the built-in `DEFAULT_FORWARD_SU
 `DEFAULT_FORWARD_BODY_TEMPLATE`. The built-in default is a template string, not code, so an editor can
 prefill it and "reset to default" means exactly that. The backend appends the photo list and the operator
 note as structured blocks when the body does not use `{photoLinks}` / `{operatorNote}`, so a templated
-packet can never arrive with attachments it does not mention. **Amended in 0.63.0 (§61):** the photo
+packet can never arrive with attachments it does not mention. **Amended in 0.64.0 (§62):** the photo
 block lists only the ready media that were not attached to the email (photos past the send budget, and
 videos), and nothing is appended when every item was attached; `routeReport` attaches nothing, so its
 block is unchanged. The built-in `DEFAULT_FORWARD_BODY_TEMPLATE` no longer carries the "Photo/Video
@@ -2280,7 +2280,39 @@ The change is additive. The new DTO fields are defaulted (0 / false), so an olde
 and none of the carrying schemas is strict. The registry moves from 336 to 339 entries, none of them
 under `/admin`.
 
-## 61. City filing: an approved report is filed with its city through a saved route, and residents see it (0.63.0)
+## 61. "This is fixed" is a fixed vote, an account holds one vote per report, and the pressing list ranks by recent votes (0.63.0)
+
+**Naming.** A report now has two buttons: **I see this too**, which is §60's confirmation, and **This
+is fixed**, a *fixed vote*: `ReportDTO.fixedCount` / `fixedByMe`, `ReportPinDTO.fixedCount`, and
+`markReportFixed` / `unmarkReportFixed` (`POST` / `DELETE /reports/:id/fixed`), which take
+`ReportConfirmRequest` and answer `ReportConfirmResponse`. Residents and operators no longer see the
+words "Me too"; the code names §60 chose stay as they are. Admin's `confirmations` and the forward
+template's `{confirmations}` remain the "I see this too" count: a fixed vote is not shown in admin,
+does not change a report's status and notifies nobody.
+
+**One vote per account per report.** A vote is either a confirmation or a fixed vote, never both, so
+at most one of `confirmedByMe` and `fixedByMe` is true. `confirmReport` and `markReportFixed` add the
+vote or move it from the other kind in one step; `unconfirmReport` and `unmarkReportFixed` remove only
+their own kind. All four answer the caller's state after the call (`{ confirmCount, confirmedByMe,
+fixedCount, fixedByMe }`), share §60's error order (NOT_FOUND, FORBIDDEN, then CONFLICT on a
+`resolved` report for the two that add), and vote only on open reports (`OPEN_REPORT_STATUSES`).
+
+**The pressing list ranks by recent votes.** `pressingReports` keeps its request, response and
+caching. A report's *last five votes* are its up to five most recent votes of either kind (a moved
+vote counts at the time it moved). The candidates are the first 200 open public reports in the bbox
+with at least one confirmation, most confirmed first, then newest. A candidate is dropped when 3 or
+more of its last five votes are fixed votes; the rest score `confirmCount` × (confirmations among the
+last five) ÷ (votes among the last five) and are listed by score, then `confirmCount`, then newest, at
+most 20. So 10 confirmations whose last five are 4 confirmations and 1 fixed vote score 8 and rank
+above 6 confirmations whose last five are all confirmations, while 12 confirmations whose last five
+include 3 fixed votes are not listed. In a very dense area a report outside the 200 candidates is not
+ranked, which is acceptable at today's volumes.
+
+The change is additive. The new fields are defaulted (0 / false), so a 0.62.0 server's response still
+parses, and none of the carrying schemas is strict. The registry moves from 339 to 341 entries, none
+of them under `/admin`.
+
+## 62. City filing: an approved report is filed with its city through a saved route, and residents see it (0.64.0)
 
 **Approve files the report; nothing skips approval.** An operator's Approve verdict (`setReportVerdict`
 with `approved`) creates a filing for the report in the same request; its response stays `{ ok: true }`.
@@ -2376,7 +2408,7 @@ string the server validated; a client opens it only when it is https.
 defaulting to 0), and `setReportVerdict`, `routeReport`, `ReportStatus`, `ReportCategory` and the admin
 status machine keep their shapes. Requests carry their path parameters as fields and are `.strict()`;
 the new DTOs and responses are `.strict()` like the other admin DTOs. Because `AdminReportDTO` and
-`HomeSummaryResponse` are strict, an admin build older than 0.63.0 logs a response parse warning and
+`HomeSummaryResponse` are strict, an admin build older than 0.64.0 logs a response parse warning and
 falls back to the raw body once the backend sends the new fields. That is expected and harmless.
 `FilingEvidenceDTO.url` is a signed GET that expires after 15 minutes, so clients refetch the filing
 instead of caching it. The limits are exported (`FILING_NOTE_MAX`, `FILING_REQUEST_TYPE_HINT_MAX`,
@@ -2385,4 +2417,4 @@ which the backend also applies to every request number a script or a city messag
 live in the backend routes: the registry has no field for them. The ten endpoints (`fileReport`,
 `listFilings`, `getFiling`, `retryFiling`, `cancelFiling`, `recordManualFiling`, `getFilingSettings`,
 `setFilingSettings`, `listFilingRoutes`, `saveFilingRoutes`) are in `src/client/endpoints/admin/filings.ts`;
-the registry moves from 339 to 349 entries, 119 of them under `/admin`.
+the registry moves from 341 to 351 entries, 119 of them under `/admin`.

@@ -45,7 +45,7 @@ function jsonResponse(
 describe("endpoint registry", () => {
   it("covers every registered endpoint with a unique path per method", () => {
     const names = Object.keys(endpoints)
-    expect(names.length).toBe(349)
+    expect(names.length).toBe(351)
     const seen = new Set<string>()
     for (const name of names) {
       const e = endpoints[name as keyof typeof endpoints]
@@ -118,7 +118,7 @@ describe("endpoint registry", () => {
       })
     }
     const names = Object.keys(endpoints)
-    expect(names.length).toBe(349)
+    expect(names.length).toBe(351)
     expect(names.filter((n) => registry[n]?.path.startsWith("/admin")).length).toBe(119)
   })
 
@@ -362,8 +362,18 @@ describe("createApiClient", () => {
       getCsrfToken: () => "csrf-1",
     })
 
-    expect(await client.confirmReport({ id: UUID })).toEqual({ confirmCount: 1, confirmedByMe: true })
-    expect(await client.unconfirmReport({ id: UUID })).toEqual({ confirmCount: 1, confirmedByMe: false })
+    expect(await client.confirmReport({ id: UUID })).toEqual({
+      confirmCount: 1,
+      confirmedByMe: true,
+      fixedCount: 0,
+      fixedByMe: false,
+    })
+    expect(await client.unconfirmReport({ id: UUID })).toEqual({
+      confirmCount: 1,
+      confirmedByMe: false,
+      fixedCount: 0,
+      fixedByMe: false,
+    })
     expect(
       await client.pressingReports({ bbox: { west: -118.5, south: 34, east: -118.2, north: 34.2 } }),
     ).toEqual({ items: [] })

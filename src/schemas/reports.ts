@@ -125,14 +125,23 @@ export const UnlistReportRequestSchema = z
 export type UnlistReportRequest = z.infer<typeof UnlistReportRequestSchema>
 
 /**
- * POST /reports/:id/confirm (confirmReport) and DELETE /reports/:id/confirm (unconfirmReport): a
- * signed-in resident's Me too on someone else's report (DECISIONS §60). `id` consumes the `:id` path
- * param. Both are idempotent: confirming twice, or removing a confirmation that does not exist, returns
- * the same body. Errors, in this order:
+ * A signed-in resident's vote on someone else's report (DECISIONS §60, §61): "I see this too" is a
+ * confirmation, "This is fixed" a fixed vote, and an account holds at most one of the two per report.
+ * `id` consumes the `:id` path param. Each call answers the caller's state after it:
+ * - POST /reports/:id/confirm (confirmReport) makes the vote a confirmation, adding it or moving it
+ *   from a fixed vote;
+ * - POST /reports/:id/fixed (markReportFixed) makes the vote a fixed vote, adding it or moving it from
+ *   a confirmation;
+ * - DELETE /reports/:id/confirm (unconfirmReport) removes a confirmation, and changes nothing when the
+ *   vote is a fixed vote or there is none;
+ * - DELETE /reports/:id/fixed (unmarkReportFixed) removes a fixed vote, and changes nothing when the
+ *   vote is a confirmation or there is none.
+ * Repeating a call changes nothing. Errors, in this order:
  * 1. NOT_FOUND unless a non-owner can see the report (unknown, hidden, held, deleted, submitted or
  *    rejected), with the body an unknown id gets, for everyone including its reporter;
  * 2. FORBIDDEN when the caller filed it;
- * 3. confirm only: CONFLICT when it is `resolved` (a removal works on any visible report).
+ * 3. confirmReport and markReportFixed only: CONFLICT when it is `resolved` (a removal works on any
+ *    visible report).
  * No session is UNAUTHORIZED, which the auth guard answers before any of these.
  */
 export const ReportConfirmRequestSchema = z
@@ -142,9 +151,12 @@ export const ReportConfirmRequestSchema = z
   .strict()
 export type ReportConfirmRequest = z.infer<typeof ReportConfirmRequestSchema>
 
+// The fixed-vote fields are defaulted so a 0.62.0 server's `{ confirmCount, confirmedByMe }` still parses.
 export const ReportConfirmResponseSchema = z.object({
   confirmCount: z.number().int().nonnegative(),
   confirmedByMe: z.boolean(),
+  fixedCount: z.number().int().nonnegative().default(0),
+  fixedByMe: z.boolean().default(false),
 })
 export type ReportConfirmResponse = z.infer<typeof ReportConfirmResponseSchema>
 
@@ -156,7 +168,7 @@ export const PressingReportsRequestSchema = z
   .strict()
 export type PressingReportsRequest = z.infer<typeof PressingReportsRequestSchema>
 
-/** Open public reports in the bbox with at least one confirmation, most confirmed first, then newest. */
+/** Open public reports in the bbox with at least one confirmation, ranked as DECISIONS §61 describes. */
 export const PressingReportsResponseSchema = z.object({
   items: z.array(ReportPinDTOSchema).max(20),
 })

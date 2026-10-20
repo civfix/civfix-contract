@@ -1,15 +1,25 @@
 # @civfix/contract
 
+## 0.64.0
+
+### Minor Changes
+
+- City filing (DECISIONS §62). All additive: the registry goes from 341 to 351 entries, all ten of them admin.
+
+  - New `src/schemas/admin/filings.ts`: the enums `FilingChannel`, `FilingStatus`, `FilingMethod`, `FilingGroup`, `FilingEvidenceKind` and `FilingReason`; `AdminFilingDTO`, `FilingEvidenceDTO` (its `url` expires after 15 minutes), `FilingRouteInput` (validated: a portal route's `formUrl` is a public https URL outside civfix, `statusSenderDomains` is 0-5 distinct lowercased hostnames), `FilingRouteDTO`, `FilingSettingsDTO`, and the limits `FILING_NOTE_MAX`, `FILING_REQUEST_TYPE_HINT_MAX`, `FILING_SENDER_DOMAINS_MAX`, `FILING_ROUTES_MAX`, `FILING_LIST_PAGE_MAX` and `FILING_CASE_ID_PATTERN`.
+  - New operator endpoints, each with its `…Request` / `…Response` schemas: `fileReport` (`POST /admin/reports/:id/file`), `listFilings` (`GET /admin/filings`), `getFiling` (`GET /admin/filings/:id`), `retryFiling`, `cancelFiling` and `recordManualFiling` (`POST /admin/filings/:id/retry|cancel|manual`), `getFilingSettings` and `setFilingSettings` (`GET` / `PUT /admin/filing-settings`), `listFilingRoutes` and `saveFilingRoutes` (`GET` / `PUT /admin/jurisdictions/:geoid/filing-routes`).
+  - `ReportDTO` gains `filing` (`ReportFilingDTO`, nullable and optional). `AdminReportDTO` gains `filing` and `filingRoute` (nullable and optional), and `HomeSummaryResponse` gains `filingsNeedsHuman` (default 0). Both are strict, so an admin build older than 0.64.0 logs a parse warning and uses the raw body once the backend sends them.
+  - `DEFAULT_FORWARD_BODY_TEMPLATE` drops its "Photo/Video Links" paragraph; the backend appends the links for media not attached. `{photoLinks}` and `{photoCount}` stay valid in templates.
+
 ## 0.63.0
 
 ### Minor Changes
 
-- City filing (DECISIONS §61). All additive: the registry goes from 339 to 349 entries, all ten of them admin.
+- "This is fixed" votes on reports (DECISIONS §61). All additive: the registry goes from 339 to 341 entries, none of them admin.
 
-  - New `src/schemas/admin/filings.ts`: the enums `FilingChannel`, `FilingStatus`, `FilingMethod`, `FilingGroup`, `FilingEvidenceKind` and `FilingReason`; `AdminFilingDTO`, `FilingEvidenceDTO` (its `url` expires after 15 minutes), `FilingRouteInput` (validated: a portal route's `formUrl` is a public https URL outside civfix, `statusSenderDomains` is 0-5 distinct lowercased hostnames), `FilingRouteDTO`, `FilingSettingsDTO`, and the limits `FILING_NOTE_MAX`, `FILING_REQUEST_TYPE_HINT_MAX`, `FILING_SENDER_DOMAINS_MAX`, `FILING_ROUTES_MAX`, `FILING_LIST_PAGE_MAX` and `FILING_CASE_ID_PATTERN`.
-  - New operator endpoints, each with its `…Request` / `…Response` schemas: `fileReport` (`POST /admin/reports/:id/file`), `listFilings` (`GET /admin/filings`), `getFiling` (`GET /admin/filings/:id`), `retryFiling`, `cancelFiling` and `recordManualFiling` (`POST /admin/filings/:id/retry|cancel|manual`), `getFilingSettings` and `setFilingSettings` (`GET` / `PUT /admin/filing-settings`), `listFilingRoutes` and `saveFilingRoutes` (`GET` / `PUT /admin/jurisdictions/:geoid/filing-routes`).
-  - `ReportDTO` gains `filing` (`ReportFilingDTO`, nullable and optional). `AdminReportDTO` gains `filing` and `filingRoute` (nullable and optional), and `HomeSummaryResponse` gains `filingsNeedsHuman` (default 0). Both are strict, so an admin build older than 0.63.0 logs a parse warning and uses the raw body once the backend sends them.
-  - `DEFAULT_FORWARD_BODY_TEMPLATE` drops its "Photo/Video Links" paragraph; the backend appends the links for media not attached. `{photoLinks}` and `{photoCount}` stay valid in templates.
+  - `ReportDTO` gains `fixedCount` (non-negative integer, default 0) and `fixedByMe` (default false). `ReportPinDTO` gains `fixedCount` (default 0). `ReportConfirmResponse` gains `fixedCount` and `fixedByMe`, defaulted, so a 0.62.0 server's `{ confirmCount, confirmedByMe }` still parses.
+  - New endpoints: `markReportFixed` (`POST /reports/:id/fixed`) and `unmarkReportFixed` (`DELETE /reports/:id/fixed`), both auth required with csrf, taking `ReportConfirmRequest` and returning `ReportConfirmResponse`.
+  - An account holds at most one vote per report, "I see this too" (a confirmation) or "This is fixed" (a fixed vote): `confirmReport` and `markReportFixed` add the vote or move it from the other kind. `pressingReports` keeps its shapes; its order now discounts reports whose recent votes say fixed.
 
 ## 0.62.0
 
