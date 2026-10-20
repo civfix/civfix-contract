@@ -8,8 +8,8 @@ export interface LegalDocumentVersion {
   url: string
 }
 
-const TERMS_PRIVACY_VERSION = "2026-09-21"
-const TERMS_PRIVACY_EFFECTIVE_AT = "2026-09-21T00:00:00.000Z"
+const TERMS_PRIVACY_VERSION = "2026-10-20"
+const TERMS_PRIVACY_EFFECTIVE_AT = "2026-10-20T00:00:00.000Z"
 const COOKIES_SUBPROCESSORS_VERSION = "2026-09-16"
 const COOKIES_SUBPROCESSORS_EFFECTIVE_AT = "2026-09-16T00:00:00.000Z"
 const LEGAL_BASE_URL = "https://civfix.org/legal"
@@ -18,14 +18,14 @@ const DOCUMENTS: Readonly<Record<LegalDocumentType, LegalDocumentVersion>> = {
   terms: {
     type: "terms",
     version: TERMS_PRIVACY_VERSION,
-    sha256: "52fe3908a8d7aa4427239a7555a2d7b2346d7a2b9730dfb539ecd157f6195772",
+    sha256: "942aabae31cda45d9cdace018ee0953d28506b27d2f0c45b2d3cd554cfa66ed3",
     effectiveAt: TERMS_PRIVACY_EFFECTIVE_AT,
     url: `${LEGAL_BASE_URL}/terms`,
   },
   privacy: {
     type: "privacy",
     version: TERMS_PRIVACY_VERSION,
-    sha256: "e7bb3df8d1bae0ebf3dac45021beb1f260c3035f2bf3cabd0201e2586eb2f127",
+    sha256: "05dedba2376323c94697e2bfb43915f6b983761b806b74ba336d46c2f991ff8a",
     effectiveAt: TERMS_PRIVACY_EFFECTIVE_AT,
     url: `${LEGAL_BASE_URL}/privacy`,
   },
