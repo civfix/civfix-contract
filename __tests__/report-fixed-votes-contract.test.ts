@@ -147,7 +147,12 @@ describe("markReportFixed / unmarkReportFixed on the typed client", () => {
     const calls: Array<{ url: string; method: string | undefined }> = []
     const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
       calls.push({ url: String(url), method: init?.method })
-      return jsonResponse({ confirmCount: 2, confirmedByMe: false, fixedCount: 1, fixedByMe: init?.method === "POST" })
+      return jsonResponse({
+        confirmCount: 2,
+        confirmedByMe: false,
+        fixedCount: 1,
+        fixedByMe: init?.method === "POST",
+      })
     }) as unknown as typeof fetch
     const client = createApiClient({
       baseURL: "https://api.civfix.test",

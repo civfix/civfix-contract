@@ -111,8 +111,8 @@ export const PUBLIC_REPORT_STATUSES: readonly ReportStatus[] = [
 ]
 
 /**
- * The public statuses in which a report still takes Me too confirmations; a `resolved` report keeps
- * its count but takes no new ones.
+ * The public statuses in which a report still takes a new vote, "I see this too" or "This is fixed"; a
+ * `resolved` report keeps its counts but takes no new votes.
  */
 export const OPEN_REPORT_STATUSES: readonly ReportStatus[] = ["published", "acknowledged", "in_progress"]
 
