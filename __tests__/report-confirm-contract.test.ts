@@ -86,6 +86,8 @@ describe("confirmReport / unconfirmReport schemas", () => {
     expect(ReportConfirmResponseSchema.parse({ confirmCount: 4, confirmedByMe: true })).toEqual({
       confirmCount: 4,
       confirmedByMe: true,
+      fixedCount: 0,
+      fixedByMe: false,
     })
     expect(ReportConfirmResponseSchema.safeParse({ confirmCount: -1, confirmedByMe: false }).success).toBe(
       false,
