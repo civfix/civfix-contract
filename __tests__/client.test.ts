@@ -22,7 +22,7 @@ function jsonResponse(
 describe("endpoint registry", () => {
   it("covers every registered endpoint with a unique path per method", () => {
     const names = Object.keys(endpoints)
-    expect(names.length).toBe(341)
+    expect(names.length).toBe(349)
     const seen = new Set<string>()
     for (const name of names) {
       const e = endpoints[name as keyof typeof endpoints]

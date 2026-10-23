@@ -96,3 +96,23 @@ export const UnregisterPushTokenRequestSchema = z
   })
   .strict()
 export type UnregisterPushTokenRequest = z.infer<typeof UnregisterPushTokenRequestSchema>
+
+const notImplemented = (): never => {
+  throw new Error("not implemented")
+}
+export const NotificationCategorySchema = z.enum(["notImplemented"])
+export type NotificationCategory = z.infer<typeof NotificationCategorySchema>
+export const NotificationCategorySettingSchema = z.never()
+export const NOTIFICATION_SECTIONS: readonly { id: string; categories: readonly string[] }[] = []
+export const NOTIFICATION_CATEGORY_DEFAULTS = {}
+export const NotificationSettingsDTOSchema = z.never()
+export const UpdateNotificationSettingsRequestSchema = z.never()
+export const NotificationUnreadResponseSchema = z.never()
+export const PushWebConfigResponseSchema = z.never()
+export const UnsubscribeNotificationEmailRequestSchema = z.never()
+export const UnsubscribeNotificationEmailResponseSchema = z.never()
+export const OpenUnsubscribeNotificationEmailRequestSchema = z.never()
+export const PushMessageDataSchema = z.never()
+export type PushMessageData = unknown
+export const encodePushMessageData = (_data: PushMessageData): Record<string, string> => notImplemented()
+export const decodePushMessageData = (_map: unknown): PushMessageData | null => notImplemented()
