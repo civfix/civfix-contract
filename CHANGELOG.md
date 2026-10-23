@@ -1,5 +1,17 @@
 # @civfix/contract
 
+## 0.64.0
+
+### Minor Changes
+
+- Notification settings, the notification center and direct push data (DECISIONS §62). All additive: the registry goes from 341 to 349 entries, none of them admin.
+
+  - Eleven notification categories: `NotificationCategorySchema`, `NotificationCategorySettingSchema` (`{ enabled, push, email }`, strict), `NOTIFICATION_SECTIONS` (five sections whose ids are the Android channel ids) and `NOTIFICATION_CATEGORY_DEFAULTS`.
+  - New endpoints: `getNotificationSettings` (`GET /notifications/settings`) and `updateNotificationSettings` (`PATCH /notifications/settings`, a strict patch) answering `NotificationSettingsDTO`; `getNotificationUnread` (`GET /notifications/unread`); `markAllNotificationsRead` (`POST /notifications/read-all`); `dismissNotification` (`DELETE /notifications/:id`); `getPushWebConfig` (`GET /push/web-config`); and the public one-click pair `unsubscribeNotificationEmail` (`POST /notifications/email-unsubscribe`) and `openUnsubscribeNotificationEmail` (`GET`, a 302).
+  - `PushMessageDataSchema`, the data every push carries (`kind: "notification"` or `"clear"`), with `encodePushMessageData` / `decodePushMessageData` for FCM's flat string map; decoding returns `null` on a malformed map and never throws.
+  - `NotificationTypeSchema` appends `chat_mention`.
+  - The prefs endpoints and `NotificationPrefsDTO` are unchanged.
+
 ## 0.63.1
 
 ### Patch Changes
