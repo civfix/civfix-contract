@@ -83,10 +83,10 @@ const RegisterForEventResponseObjectSchema = z.object({
   ticketTokens: z.array(z.string()).default([]),
   waitlistPosition: z.number().int().positive().nullable().optional(),
   going: z.number().int().nonnegative().optional(),
-  fields: z.record(z.string()).optional(),
+  fields: z.record(z.string(), z.string()).optional(),
 })
 export type RegisterForEventResponse = z.infer<typeof RegisterForEventResponseObjectSchema>
-export const RegisterForEventResponseSchema: z.ZodType<RegisterForEventResponse, z.ZodTypeDef, unknown> =
+export const RegisterForEventResponseSchema: z.ZodType<RegisterForEventResponse, unknown> =
   RegisterForEventResponseObjectSchema
 
 export const RegistrationRosterFilterSchema = z.enum([
@@ -126,7 +126,7 @@ const ListEventRegistrationsResponseObjectSchema = z.object({
   total: z.number().int().nonnegative().optional(),
 })
 export type ListEventRegistrationsResponse = z.infer<typeof ListEventRegistrationsResponseObjectSchema>
-export const ListEventRegistrationsResponseSchema: z.ZodType<ListEventRegistrationsResponse, z.ZodTypeDef, unknown> =
+export const ListEventRegistrationsResponseSchema: z.ZodType<ListEventRegistrationsResponse, unknown> =
   ListEventRegistrationsResponseObjectSchema
 
 export const GetEventRegistrationRequestSchema = z
@@ -151,7 +151,7 @@ const CancelEventRegistrationResponseObjectSchema = z.object({
   registration: EventRegistrationDTOSchema.nullable(),
 })
 export type CancelEventRegistrationResponse = z.infer<typeof CancelEventRegistrationResponseObjectSchema>
-export const CancelEventRegistrationResponseSchema: z.ZodType<CancelEventRegistrationResponse, z.ZodTypeDef, unknown> =
+export const CancelEventRegistrationResponseSchema: z.ZodType<CancelEventRegistrationResponse, unknown> =
   CancelEventRegistrationResponseObjectSchema
 
 export const RemoveEventRegistrationRequestSchema = z
@@ -165,7 +165,7 @@ export const RemoveEventRegistrationRequestSchema = z
 export type RemoveEventRegistrationRequest = z.infer<typeof RemoveEventRegistrationRequestSchema>
 
 export type RemoveEventRegistrationResponse = z.infer<typeof OkResponseSchema>
-export const RemoveEventRegistrationResponseSchema: z.ZodType<RemoveEventRegistrationResponse, z.ZodTypeDef, unknown> =
+export const RemoveEventRegistrationResponseSchema: z.ZodType<RemoveEventRegistrationResponse, unknown> =
   OkResponseSchema
 
 export const TransferEventRegistrationRequestSchema = z

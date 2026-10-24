@@ -133,9 +133,9 @@ describe("the honeypot is accepted at the boundary and flagged server-side", () 
   })
 
   it("matches the AnonReportRequest honeypot idiom rather than 422ing the bot", () => {
-    const shape = GuestRsvpRequestRequestSchema.innerType().shape
+    const shape = GuestRsvpRequestRequestSchema.shape
     expect(shape.website.isOptional()).toBe(true)
-    expect(shape.website._def.typeName).toBe("ZodOptional")
+    expect(shape.website.def.type).toBe("optional")
   })
 })
 
@@ -338,7 +338,7 @@ describe("endpoint registry rows", () => {
 describe("the OTP code space has one definition", () => {
   it("is the same schema the email sign-in verify uses", () => {
     expect(EmailOtpVerifyRequestSchema.shape.code).toBe(OtpCodeSchema)
-    expect(GuestRsvpVerifyRequestSchema.innerType().shape.code).toBe(OtpCodeSchema)
+    expect(GuestRsvpVerifyRequestSchema.shape.code).toBe(OtpCodeSchema)
   })
 })
 

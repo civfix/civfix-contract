@@ -11,7 +11,7 @@ import { RoutingContactFields } from "./internal-fields.js"
  */
 
 /** A per-category waiting-report count map (category -> count of waiting reports for the GEOID). */
-export const PerCategoryCountsSchema = z.record(
+export const PerCategoryCountsSchema = z.partialRecord(
   ReportCategorySchema,
   z.number().int().nonnegative(),
 )
