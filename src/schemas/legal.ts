@@ -13,5 +13,5 @@ const GetLegalVersionsResponseObjectSchema = z.object({
   generatedAt: ISODateSchema,
 })
 export type GetLegalVersionsResponse = z.infer<typeof GetLegalVersionsResponseObjectSchema>
-export const GetLegalVersionsResponseSchema: z.ZodType<GetLegalVersionsResponse, z.ZodTypeDef, unknown> =
+export const GetLegalVersionsResponseSchema: z.ZodType<GetLegalVersionsResponse, unknown> =
   GetLegalVersionsResponseObjectSchema

@@ -1,5 +1,11 @@
 # @civfix/contract
 
+## 0.64.0
+
+### Minor Changes
+
+- Move to zod 4 (`^4.6.6`) for GHSA-mrhx-c7xc-m3w5 (DECISIONS §62). The wire format is unchanged: `IdSchema` is `z.guid()`, which accepts exactly what zod 3's `.uuid()` did, the category-keyed maps are `z.partialRecord`, so a missing category still parses, and a notification-prefs update never gains a `hostBroadcasts` the client did not send. The exported schemas are zod 4 schemas, so a consumer that extends or composes them needs zod 4 as well.
+
 ## 0.63.2
 
 ### Patch Changes
