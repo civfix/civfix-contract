@@ -326,7 +326,7 @@ export const ReportDTOSchema = z.object({
   confirmedByMe: z.boolean().default(false),
   fixedCount: z.number().int().nonnegative().default(0),
   fixedByMe: z.boolean().default(false),
-  // Null until the report is filed with the city (DECISIONS §62); optional so an older server still parses.
+  // Null until the report is filed with the city (DECISIONS §64); optional so an older server still parses.
   filing: ReportFilingDTOSchema.nullable().optional(),
 })
 export type ReportDTO = z.infer<typeof ReportDTOSchema>

@@ -4,7 +4,7 @@ import { isSafeHttpsUrl, unsafeHostReason } from "../../markdown/safe-url.js"
 
 /**
  * City filing: an approved report is filed with its jurisdiction by email, by a portal script or by an
- * operator, through the route saved for its (geoid, category). See DECISIONS §62.
+ * operator, through the route saved for its (geoid, category). See DECISIONS §64.
  */
 
 export const FILING_NOTE_MAX = 500
