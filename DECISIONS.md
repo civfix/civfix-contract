@@ -421,7 +421,7 @@ is optional so existing implementers keep compiling. Nothing here is a shape cha
   `1..64` (producers emit ≤36-char ids: `packages/ui/src/data/hooks/chatOutbox.ts` `randomId()`); RESPONSE /
   server-ack `clientId` fields are deliberately NOT touched (tightening a payload a new client must parse
   from an old server would break it). `RegisterPushTokenRequest.token` (and the new unregister twin) is
-  bounded `1..2048` (Expo device tokens ~40 chars; Expo is gone since §62). `EventHoursEntry.hours` gains a `MIN_EVENT_HOURS`
+  bounded `1..2048` (Expo device tokens ~40 chars; Expo is gone since §63). `EventHoursEntry.hours` gains a `MIN_EVENT_HOURS`
   (0.01) floor exported beside `MAX_EVENT_HOURS`; no `.multipleOf(0.01)` (float-equality hazard); 2-dp
   rounding stays a backend concern. Anon `AnonReportRequest.mediaUploadIds` is capped at `.max(5)`,
   aligning with the authed `CreateReportRequest` twin.
@@ -752,7 +752,7 @@ recipient.
   per-event mutes and the `hostBroadcasts` preference - they are service messages about something
   the recipient signed up for. They do NOT bypass bans or the bounce/complaint suppression list.
   Everything else is bulk and fully opt-out-able. **Superseded for account holders in 0.64.0
-  (§62):** their category settings decide every channel; guests keep this bypass.
+  (§63):** their category settings decide every channel; guests keep this bypass.
 - **`hostBroadcasts` is its own preference bucket**, defaulted `true` so an older server's prefs
   payload still parses and the shallow `.partial()` update request keeps working. A recipient must be
   able to mute hosts without muting event chat or service messages. It is a CHANNEL-WIDE opt-out -
@@ -2306,7 +2306,41 @@ The change is additive. The new fields are defaulted (0 / false), so a 0.62.0 se
 parses, and none of the carrying schemas is strict. The registry moves from 339 to 341 entries, none
 of them under `/admin`.
 
-## 62. Notifications are eleven categories, Off means nothing, and push is sent directly (0.64.0)
+## 62. The contract runs on zod 4 (0.64.0)
+
+**Why now.** GHSA-mrhx-c7xc-m3w5 (zod collecting one issue per failing array element with no cap, so an
+oversized array can exhaust memory) is fixed only in zod 4.6.6, and every zod 3 release is in its
+range. The backend's dependency audit fails on it, so `zod` moves from `^3.23` to `^4.6.6`.
+
+**The wire format does not change.** Every request and response that parsed under 0.63.x parses the
+same way under 0.64.0:
+
+- `IdSchema` is `z.guid()`. zod 4's `.uuid()` checks the RFC version and variant nibbles, which zod 3's
+  did not; `z.guid()` is the zod 3 rule (any 8-4-4-4-12 hex string), so no stored or fixture id stops
+  parsing.
+- The per-category maps keyed by `ReportCategorySchema` (`ReportClusterResponse.counts`,
+  `contacts` on `SaveContactsRequest` and `PatchJurisdictionRequest`, `PerCategoryCounts`) are
+  `z.partialRecord`. zod 4's
+  `z.record` with an enum key requires every key, while zod 3's let any of them be missing.
+- Single-argument `z.record(value)` is `z.record(z.string(), value)`.
+- `UpdateNotificationPrefsRequest` is built from a default-free `hostBroadcasts`. zod 4's `.partial()`
+  still applies an inner `.default()` to a missing key, so deriving it from `NotificationPrefsDTO`
+  (where `hostBroadcasts` defaults to `true`) would add `hostBroadcasts: true` to every patch that left
+  it out and turn a muted user's host broadcasts back on. `NotificationPrefsDTO` keeps its default.
+- `placeGeojson` on the discovery DTO is `.optional()` as well as nullable, because zod 4 requires a
+  `z.unknown()` key to be present and zod 3 did not.
+
+**What does change.** The schemas are zod 4 objects, so a consumer that composes them with its own zod
+(`.extend`, `.pick`, `z.object({ ...Schema.shape })`) must be on zod 4 too; the backend is the only
+consumer that does. zod's default issue messages and some issue codes changed wording (an enum
+mismatch reads `Invalid option: expected one of ...`); nothing in the contract depends on either, and
+tests assert accepted values rather than zod's text. The explicit annotations are
+`z.ZodType<Output, Input>`, zod 4's two-parameter form.
+
+Every consumer adopts it in one delivery set: civfix-backend (`services/api`, `services/media-worker`,
+`packages/seams`, with its own `zod` moved to `^4.6.6`), civfix-app and civfix-admin.
+
+## 63. Notifications are eleven categories, Off means nothing, and push is sent directly (0.65.0)
 
 **Eleven categories in five sections.** Every notification belongs to exactly one
 `NotificationCategory`, or is always on: registration confirmations, the broadcast kinds `confirmation`

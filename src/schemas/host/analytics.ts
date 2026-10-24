@@ -80,10 +80,7 @@ const EventAnalyticsOverviewObjectSchema = z.object({
 export type EventAnalyticsOverviewResponse = z.infer<typeof EventAnalyticsOverviewObjectSchema>
 
 export const EventAnalyticsOverviewResponseSchema: z.ZodType<
-  EventAnalyticsOverviewResponse,
-  z.ZodTypeDef,
-  unknown
-> = EventAnalyticsOverviewObjectSchema
+  EventAnalyticsOverviewResponse, unknown> = EventAnalyticsOverviewObjectSchema
 
 const EventAnalyticsRegistrationsObjectSchema = z.object({
   ...AnalyticsEnvelopeFields,
@@ -99,10 +96,7 @@ export type EventAnalyticsRegistrationsResponse = z.infer<
 >
 
 export const EventAnalyticsRegistrationsResponseSchema: z.ZodType<
-  EventAnalyticsRegistrationsResponse,
-  z.ZodTypeDef,
-  unknown
-> = EventAnalyticsRegistrationsObjectSchema
+  EventAnalyticsRegistrationsResponse, unknown> = EventAnalyticsRegistrationsObjectSchema
 
 const EventAnalyticsCheckinsObjectSchema = z.object({
   ...AnalyticsEnvelopeFields,
@@ -115,10 +109,7 @@ const EventAnalyticsCheckinsObjectSchema = z.object({
 export type EventAnalyticsCheckinsResponse = z.infer<typeof EventAnalyticsCheckinsObjectSchema>
 
 export const EventAnalyticsCheckinsResponseSchema: z.ZodType<
-  EventAnalyticsCheckinsResponse,
-  z.ZodTypeDef,
-  unknown
-> = EventAnalyticsCheckinsObjectSchema
+  EventAnalyticsCheckinsResponse, unknown> = EventAnalyticsCheckinsObjectSchema
 
 export const BroadcastChannelStatsSchema = z.object({
   channel: BroadcastChannelSchema,
@@ -141,10 +132,7 @@ export type EventAnalyticsBroadcastsResponse = z.infer<
 >
 
 export const EventAnalyticsBroadcastsResponseSchema: z.ZodType<
-  EventAnalyticsBroadcastsResponse,
-  z.ZodTypeDef,
-  unknown
-> = EventAnalyticsBroadcastsObjectSchema
+  EventAnalyticsBroadcastsResponse, unknown> = EventAnalyticsBroadcastsObjectSchema
 
 const EventAnalyticsSourcesObjectSchema = z.object({
   ...AnalyticsEnvelopeFields,
@@ -155,10 +143,7 @@ const EventAnalyticsSourcesObjectSchema = z.object({
 export type EventAnalyticsSourcesResponse = z.infer<typeof EventAnalyticsSourcesObjectSchema>
 
 export const EventAnalyticsSourcesResponseSchema: z.ZodType<
-  EventAnalyticsSourcesResponse,
-  z.ZodTypeDef,
-  unknown
-> = EventAnalyticsSourcesObjectSchema
+  EventAnalyticsSourcesResponse, unknown> = EventAnalyticsSourcesObjectSchema
 
 export const MAX_EVENT_ANALYTICS_SERIES_POINTS = 400
 export const MAX_EVENT_ANALYTICS_ARRIVAL_BUCKETS = 96
@@ -283,10 +268,7 @@ const GetEventAnalyticsObjectSchema = z.object({
 export type GetEventAnalyticsResponse = z.infer<typeof GetEventAnalyticsObjectSchema>
 
 export const GetEventAnalyticsResponseSchema: z.ZodType<
-  GetEventAnalyticsResponse,
-  z.ZodTypeDef,
-  unknown
-> = GetEventAnalyticsObjectSchema
+  GetEventAnalyticsResponse, unknown> = GetEventAnalyticsObjectSchema
 
 export const HostedEventsAnalyticsRequestSchema = z
   .object({
@@ -326,10 +308,7 @@ const HostedEventsAnalyticsObjectSchema = z.object({
 export type HostedEventsAnalyticsResponse = z.infer<typeof HostedEventsAnalyticsObjectSchema>
 
 export const HostedEventsAnalyticsResponseSchema: z.ZodType<
-  HostedEventsAnalyticsResponse,
-  z.ZodTypeDef,
-  unknown
-> = HostedEventsAnalyticsObjectSchema
+  HostedEventsAnalyticsResponse, unknown> = HostedEventsAnalyticsObjectSchema
 
 export const HostAnalyticsSummaryRequestSchema = z
   .object({
@@ -390,7 +369,4 @@ const HostAnalyticsSummaryObjectSchema = z.object({
 export type HostAnalyticsSummaryResponse = z.infer<typeof HostAnalyticsSummaryObjectSchema>
 
 export const HostAnalyticsSummaryResponseSchema: z.ZodType<
-  HostAnalyticsSummaryResponse,
-  z.ZodTypeDef,
-  unknown
-> = HostAnalyticsSummaryObjectSchema
+  HostAnalyticsSummaryResponse, unknown> = HostAnalyticsSummaryObjectSchema

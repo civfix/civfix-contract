@@ -1,16 +1,22 @@
 # @civfix/contract
 
-## 0.64.0
+## 0.65.0
 
 ### Minor Changes
 
-- Notification settings, the notification center and direct push data (DECISIONS §62). All additive: the registry goes from 341 to 349 entries, none of them admin.
+- Notification settings, the notification center and direct push data (DECISIONS §63). All additive: the registry goes from 341 to 349 entries, none of them admin.
 
   - Eleven notification categories: `NotificationCategorySchema`, `NotificationCategorySettingSchema` (`{ enabled, push, email }`, strict), `NOTIFICATION_SECTIONS` (five sections whose ids are the Android channel ids) and `NOTIFICATION_CATEGORY_DEFAULTS`.
   - New endpoints: `getNotificationSettings` (`GET /notifications/settings`) and `updateNotificationSettings` (`PATCH /notifications/settings`, a strict patch) answering `NotificationSettingsDTO`; `getNotificationUnread` (`GET /notifications/unread`); `markAllNotificationsRead` (`POST /notifications/read-all`); `dismissNotification` (`DELETE /notifications/:id`); `getPushWebConfig` (`GET /push/web-config`); and the public one-click pair `unsubscribeNotificationEmail` (`POST /notifications/email-unsubscribe`) and `openUnsubscribeNotificationEmail` (`GET`, a 302).
   - `PushMessageDataSchema`, the data every push carries (`kind: "notification"` or `"clear"`), with `encodePushMessageData` / `decodePushMessageData` for FCM's flat string map; decoding returns `null` on a malformed map and never throws.
   - `NotificationTypeSchema` appends `chat_mention`.
   - The prefs endpoints and `NotificationPrefsDTO` are unchanged.
+
+## 0.64.0
+
+### Minor Changes
+
+- Move to zod 4 (`^4.6.6`) for GHSA-mrhx-c7xc-m3w5 (DECISIONS §62). The wire format is unchanged: `IdSchema` is `z.guid()`, which accepts exactly what zod 3's `.uuid()` did, the category-keyed maps are `z.partialRecord`, so a missing category still parses, and a notification-prefs update never gains a `hostBroadcasts` the client did not send. The exported schemas are zod 4 schemas, so a consumer that extends or composes them needs zod 4 as well.
 
 ## 0.63.2
 

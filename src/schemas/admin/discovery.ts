@@ -11,7 +11,7 @@ import { RoutingContactFields } from "./internal-fields.js"
  */
 
 /** A per-category waiting-report count map (category -> count of waiting reports for the GEOID). */
-export const PerCategoryCountsSchema = z.record(
+export const PerCategoryCountsSchema = z.partialRecord(
   ReportCategorySchema,
   z.number().int().nonnegative(),
 )
@@ -108,7 +108,7 @@ export const DiscoveryTaskDetailDTOSchema = DiscoveryTaskDTOSchema.extend({
   contacts: z.array(DiscoveryContactSchema),
   // The jurisdiction place geometry as GeoJSON; kept loose (validated server-side) so the contract
   // does not pin a GeoJSON shape. Nullable when no geometry is on file (a text label is shown).
-  placeGeojson: z.unknown().nullable(),
+  placeGeojson: z.unknown().nullable().optional(),
   samplePins: z.array(DiscoverySamplePinSchema),
   // The mini-map center ([lat, lng]) and zoom.
   center: z.tuple([z.number(), z.number()]).nullable(),

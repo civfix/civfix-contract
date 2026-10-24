@@ -2,7 +2,9 @@ import { z } from "zod"
 
 
 
-export const IdSchema = z.string().uuid()
+// zod 4 made .uuid() RFC-strict (version and variant nibbles); z.guid() keeps the 8-4-4-4-12 hex shape every
+// client and stored id was validated against under zod 3, so no existing id stops parsing.
+export const IdSchema = z.guid()
 export type Id = z.infer<typeof IdSchema>
 
 export const ReportRefOrIdSchema = z.string().min(1).max(64)
@@ -72,7 +74,7 @@ export const AppErrorSchema = z.object({
   code: z.string(),
   message: z.string(),
   requestId: z.string().optional(),
-  fields: z.record(z.string()).optional(),
+  fields: z.record(z.string(), z.string()).optional(),
 })
 export type AppErrorShape = z.infer<typeof AppErrorSchema>
 
@@ -412,7 +414,7 @@ const BroadcastSegmentUnionSchema = z.discriminatedUnion("kind", [
 ])
 export type BroadcastSegment = z.infer<typeof BroadcastSegmentUnionSchema>
 
-export const BroadcastSegmentSchema: z.ZodType<BroadcastSegment, z.ZodTypeDef, unknown> =
+export const BroadcastSegmentSchema: z.ZodType<BroadcastSegment, unknown> =
   BroadcastSegmentUnionSchema
 
 export const PageViewSourceSchema = z.enum([
