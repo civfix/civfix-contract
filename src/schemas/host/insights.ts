@@ -109,6 +109,6 @@ export type EventInsights = z.infer<typeof EventInsightsObjectSchema>
 export const GetEventInsightsRequestSchema = z.object({ id: IdSchema }).strict()
 export type GetEventInsightsRequest = z.infer<typeof GetEventInsightsRequestSchema>
 
-export const GetEventInsightsResponseSchema: z.ZodType<EventInsights, z.ZodTypeDef, unknown> =
+export const GetEventInsightsResponseSchema: z.ZodType<EventInsights, unknown> =
   EventInsightsObjectSchema
 export type GetEventInsightsResponse = EventInsights

@@ -40,7 +40,7 @@ const MyEventTicketDTOObjectSchema = z.object({
   icsUrl: z.string().nullable().optional(),
 })
 export type MyEventTicketDTO = z.infer<typeof MyEventTicketDTOObjectSchema>
-export const MyEventTicketDTOSchema: z.ZodType<MyEventTicketDTO, z.ZodTypeDef, unknown> =
+export const MyEventTicketDTOSchema: z.ZodType<MyEventTicketDTO, unknown> =
   MyEventTicketDTOObjectSchema
 
 export const GetMyEventTicketRequestSchema = z.object({ id: IdSchema }).strict()
@@ -81,7 +81,7 @@ const CheckinResultDTOObjectSchema = z.object({
   checkedInAt: ISODateSchema.nullable().optional(),
 })
 export type CheckinResultDTO = z.infer<typeof CheckinResultDTOObjectSchema>
-export const CheckinResultDTOSchema: z.ZodType<CheckinResultDTO, z.ZodTypeDef, unknown> =
+export const CheckinResultDTOSchema: z.ZodType<CheckinResultDTO, unknown> =
   CheckinResultDTOObjectSchema
 
 export const ScanEventTicketRequestSchema = z
@@ -116,7 +116,7 @@ const UndoEventCheckInResponseObjectSchema = z.object({
   seat: EventSeatDTOSchema.nullable(),
 })
 export type UndoEventCheckInResponse = z.infer<typeof UndoEventCheckInResponseObjectSchema>
-export const UndoEventCheckInResponseSchema: z.ZodType<UndoEventCheckInResponse, z.ZodTypeDef, unknown> =
+export const UndoEventCheckInResponseSchema: z.ZodType<UndoEventCheckInResponse, unknown> =
   UndoEventCheckInResponseObjectSchema
 
 export const MarkEventNoShowsRequestSchema = z
@@ -133,7 +133,7 @@ const MarkEventNoShowsResponseObjectSchema = z.object({
   marked: z.number().int().nonnegative(),
 })
 export type MarkEventNoShowsResponse = z.infer<typeof MarkEventNoShowsResponseObjectSchema>
-export const MarkEventNoShowsResponseSchema: z.ZodType<MarkEventNoShowsResponse, z.ZodTypeDef, unknown> =
+export const MarkEventNoShowsResponseSchema: z.ZodType<MarkEventNoShowsResponse, unknown> =
   MarkEventNoShowsResponseObjectSchema
 
 export const CheckinTicketTypeCounterSchema = z.object({
@@ -163,7 +163,7 @@ const EventCheckinCountersDTOObjectSchema = z.object({
   asOf: ISODateSchema,
 })
 export type EventCheckinCountersDTO = z.infer<typeof EventCheckinCountersDTOObjectSchema>
-export const EventCheckinCountersDTOSchema: z.ZodType<EventCheckinCountersDTO, z.ZodTypeDef, unknown> =
+export const EventCheckinCountersDTOSchema: z.ZodType<EventCheckinCountersDTO, unknown> =
   EventCheckinCountersDTOObjectSchema
 
 export const GetEventCheckinCountersRequestSchema = z.object({ id: IdSchema }).strict()

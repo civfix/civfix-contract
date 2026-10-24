@@ -71,7 +71,7 @@ const ListMyOrganizationsResponseObjectSchema = z.object({
   items: z.array(OrganizationDTOSchema),
 })
 export type ListMyOrganizationsResponse = z.infer<typeof ListMyOrganizationsResponseObjectSchema>
-export const ListMyOrganizationsResponseSchema: z.ZodType<ListMyOrganizationsResponse, z.ZodTypeDef, unknown> =
+export const ListMyOrganizationsResponseSchema: z.ZodType<ListMyOrganizationsResponse, unknown> =
   ListMyOrganizationsResponseObjectSchema
 
 export const GetOrganizationRequestSchema = z.object({ slug: OrgSlugSchema }).strict()
@@ -93,7 +93,7 @@ export type ListOrganizationEventsRequest = z.infer<typeof ListOrganizationEvent
 
 const ListOrganizationEventsResponseObjectSchema = pageResponse(CleanupDTOSchema)
 export type ListOrganizationEventsResponse = z.infer<typeof ListOrganizationEventsResponseObjectSchema>
-export const ListOrganizationEventsResponseSchema: z.ZodType<ListOrganizationEventsResponse, z.ZodTypeDef, unknown> =
+export const ListOrganizationEventsResponseSchema: z.ZodType<ListOrganizationEventsResponse, unknown> =
   ListOrganizationEventsResponseObjectSchema
 
 export const UpdateOrganizationRequestSchema = z
@@ -119,7 +119,7 @@ export type ListOrganizationMembersRequest = z.infer<typeof ListOrganizationMemb
 
 const ListOrganizationMembersResponseObjectSchema = pageResponse(OrganizationMemberDTOSchema)
 export type ListOrganizationMembersResponse = z.infer<typeof ListOrganizationMembersResponseObjectSchema>
-export const ListOrganizationMembersResponseSchema: z.ZodType<ListOrganizationMembersResponse, z.ZodTypeDef, unknown> =
+export const ListOrganizationMembersResponseSchema: z.ZodType<ListOrganizationMembersResponse, unknown> =
   ListOrganizationMembersResponseObjectSchema
 
 export const OrganizationInviteRoleSchema = z.enum(["admin", "member"])
@@ -163,7 +163,7 @@ const OrganizationInviteDTOObjectSchema = z.object({
   expiresAt: ISODateSchema,
 })
 export type OrganizationInviteDTO = z.infer<typeof OrganizationInviteDTOObjectSchema>
-export const OrganizationInviteDTOSchema: z.ZodType<OrganizationInviteDTO, z.ZodTypeDef, unknown> =
+export const OrganizationInviteDTOSchema: z.ZodType<OrganizationInviteDTO, unknown> =
   OrganizationInviteDTOObjectSchema
 
 const InviteOrganizationMemberResponseObjectSchema = z.object({
@@ -174,7 +174,7 @@ const InviteOrganizationMemberResponseObjectSchema = z.object({
   invite: OrganizationInviteDTOSchema.nullable().optional(),
 })
 export type InviteOrganizationMemberResponse = z.infer<typeof InviteOrganizationMemberResponseObjectSchema>
-export const InviteOrganizationMemberResponseSchema: z.ZodType<InviteOrganizationMemberResponse, z.ZodTypeDef, unknown> =
+export const InviteOrganizationMemberResponseSchema: z.ZodType<InviteOrganizationMemberResponse, unknown> =
   InviteOrganizationMemberResponseObjectSchema
 
 export const ListOrganizationInvitesRequestSchema = z.object({ id: IdSchema }).strict()
@@ -184,7 +184,7 @@ const ListOrganizationInvitesResponseObjectSchema = z.object({
   items: z.array(OrganizationInviteDTOSchema),
 })
 export type ListOrganizationInvitesResponse = z.infer<typeof ListOrganizationInvitesResponseObjectSchema>
-export const ListOrganizationInvitesResponseSchema: z.ZodType<ListOrganizationInvitesResponse, z.ZodTypeDef, unknown> =
+export const ListOrganizationInvitesResponseSchema: z.ZodType<ListOrganizationInvitesResponse, unknown> =
   ListOrganizationInvitesResponseObjectSchema
 
 export const RevokeOrganizationInviteRequestSchema = z
@@ -193,7 +193,7 @@ export const RevokeOrganizationInviteRequestSchema = z
 export type RevokeOrganizationInviteRequest = z.infer<typeof RevokeOrganizationInviteRequestSchema>
 
 export type RevokeOrganizationInviteResponse = z.infer<typeof OkResponseSchema>
-export const RevokeOrganizationInviteResponseSchema: z.ZodType<RevokeOrganizationInviteResponse, z.ZodTypeDef, unknown> =
+export const RevokeOrganizationInviteResponseSchema: z.ZodType<RevokeOrganizationInviteResponse, unknown> =
   OkResponseSchema
 
 export const ACCEPT_ORG_INVITE_TOKEN_MIN = 20
@@ -217,7 +217,7 @@ const AcceptOrganizationInviteResponseObjectSchema = z.object({
   role: OrganizationMemberRoleSchema,
 })
 export type AcceptOrganizationInviteResponse = z.infer<typeof AcceptOrganizationInviteResponseObjectSchema>
-export const AcceptOrganizationInviteResponseSchema: z.ZodType<AcceptOrganizationInviteResponse, z.ZodTypeDef, unknown> =
+export const AcceptOrganizationInviteResponseSchema: z.ZodType<AcceptOrganizationInviteResponse, unknown> =
   AcceptOrganizationInviteResponseObjectSchema
 
 /**
@@ -235,14 +235,14 @@ const PendingOrganizationInviteDTOObjectSchema = z.object({
   expiresAt: ISODateSchema,
 })
 export type PendingOrganizationInviteDTO = z.infer<typeof PendingOrganizationInviteDTOObjectSchema>
-export const PendingOrganizationInviteDTOSchema: z.ZodType<PendingOrganizationInviteDTO, z.ZodTypeDef, unknown> =
+export const PendingOrganizationInviteDTOSchema: z.ZodType<PendingOrganizationInviteDTO, unknown> =
   PendingOrganizationInviteDTOObjectSchema
 
 const ListMyOrgInvitesResponseObjectSchema = z.object({
   items: z.array(PendingOrganizationInviteDTOSchema),
 })
 export type ListMyOrgInvitesResponse = z.infer<typeof ListMyOrgInvitesResponseObjectSchema>
-export const ListMyOrgInvitesResponseSchema: z.ZodType<ListMyOrgInvitesResponse, z.ZodTypeDef, unknown> =
+export const ListMyOrgInvitesResponseSchema: z.ZodType<ListMyOrgInvitesResponse, unknown> =
   ListMyOrgInvitesResponseObjectSchema
 
 /**
@@ -261,7 +261,7 @@ export const DeclineMyOrgInviteRequestSchema = z.object({ inviteId: IdSchema }).
 export type DeclineMyOrgInviteRequest = z.infer<typeof DeclineMyOrgInviteRequestSchema>
 
 export type DeclineMyOrgInviteResponse = z.infer<typeof OkResponseSchema>
-export const DeclineMyOrgInviteResponseSchema: z.ZodType<DeclineMyOrgInviteResponse, z.ZodTypeDef, unknown> =
+export const DeclineMyOrgInviteResponseSchema: z.ZodType<DeclineMyOrgInviteResponse, unknown> =
   OkResponseSchema
 
 export const SetOrganizationMemberRoleRequestSchema = z
@@ -319,7 +319,7 @@ const OrganizationVerificationDTOObjectSchema = z.object({
   rejectionReason: z.string().nullable().optional(),
 })
 export type OrganizationVerificationDTO = z.infer<typeof OrganizationVerificationDTOObjectSchema>
-export const OrganizationVerificationDTOSchema: z.ZodType<OrganizationVerificationDTO, z.ZodTypeDef, unknown> =
+export const OrganizationVerificationDTOSchema: z.ZodType<OrganizationVerificationDTO, unknown> =
   OrganizationVerificationDTOObjectSchema
 
 export const ApplyOrganizationVerificationResponseSchema = OrganizationVerificationDTOSchema

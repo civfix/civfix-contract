@@ -2312,6 +2312,40 @@ The change is additive. The new fields are defaulted (0 / false), so a 0.62.0 se
 parses, and none of the carrying schemas is strict. The registry moves from 339 to 341 entries, none
 of them under `/admin`.
 
+## 62. The contract runs on zod 4 (0.64.0)
+
+**Why now.** GHSA-mrhx-c7xc-m3w5 (zod collecting one issue per failing array element with no cap, so an
+oversized array can exhaust memory) is fixed only in zod 4.6.6, and every zod 3 release is in its
+range. The backend's dependency audit fails on it, so `zod` moves from `^3.23` to `^4.6.6`.
+
+**The wire format does not change.** Every request and response that parsed under 0.63.x parses the
+same way under 0.64.0:
+
+- `IdSchema` is `z.guid()`. zod 4's `.uuid()` checks the RFC version and variant nibbles, which zod 3's
+  did not; `z.guid()` is the zod 3 rule (any 8-4-4-4-12 hex string), so no stored or fixture id stops
+  parsing.
+- The per-category maps keyed by `ReportCategorySchema` (`ReportClusterResponse.counts`,
+  `contacts` on `SaveContactsRequest` and `PatchJurisdictionRequest`, `PerCategoryCounts`) are
+  `z.partialRecord`. zod 4's
+  `z.record` with an enum key requires every key, while zod 3's let any of them be missing.
+- Single-argument `z.record(value)` is `z.record(z.string(), value)`.
+- `UpdateNotificationPrefsRequest` is built from a default-free `hostBroadcasts`. zod 4's `.partial()`
+  still applies an inner `.default()` to a missing key, so deriving it from `NotificationPrefsDTO`
+  (where `hostBroadcasts` defaults to `true`) would add `hostBroadcasts: true` to every patch that left
+  it out and turn a muted user's host broadcasts back on. `NotificationPrefsDTO` keeps its default.
+- `placeGeojson` on the discovery DTO is `.optional()` as well as nullable, because zod 4 requires a
+  `z.unknown()` key to be present and zod 3 did not.
+
+**What does change.** The schemas are zod 4 objects, so a consumer that composes them with its own zod
+(`.extend`, `.pick`, `z.object({ ...Schema.shape })`) must be on zod 4 too; the backend is the only
+consumer that does. zod's default issue messages and some issue codes changed wording (an enum
+mismatch reads `Invalid option: expected one of ...`); nothing in the contract depends on either, and
+tests assert accepted values rather than zod's text. The explicit annotations are
+`z.ZodType<Output, Input>`, zod 4's two-parameter form.
+
+Every consumer adopts it in one delivery set: civfix-backend (`services/api`, `services/media-worker`,
+`packages/seams`, with its own `zod` moved to `^4.6.6`), civfix-app and civfix-admin.
+
 ## 62. City filing: an approved report is filed with its city through a saved route, and residents see it (0.64.0)
 
 **Approve files the report; nothing skips approval.** An operator's Approve verdict (`setReportVerdict`

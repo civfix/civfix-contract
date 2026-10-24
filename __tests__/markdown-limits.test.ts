@@ -8,46 +8,42 @@ import {
 } from "../src/index.js"
 
 type Def = {
-  typeName?: string
-  checks?: { kind: string; value: number }[]
+  type?: string
+  shape?: Record<string, unknown>
+  element?: unknown
   innerType?: unknown
-  schema?: unknown
-  type?: unknown
-  options?: unknown
+  in?: unknown
+  out?: unknown
+  options?: unknown[]
 }
 
 function stringMaxima(schema: unknown, path: string, out: Record<string, number>): void {
-  const def = (schema as { _def?: Def } | null)?._def
+  const def = (schema as { _zod?: { def?: Def } } | null)?._zod?.def
   if (!def) return
-  switch (def.typeName) {
-    case "ZodString": {
-      const max = (def.checks ?? []).find((check) => check.kind === "max")
-      if (max) out[path] = max.value
+  switch (def.type) {
+    case "string": {
+      const max = (schema as { maxLength: number | null }).maxLength
+      if (max !== null) out[path] = max
       return
     }
-    case "ZodObject": {
-      const shape = (schema as { shape: Record<string, unknown> }).shape
-      for (const [key, value] of Object.entries(shape)) stringMaxima(value, `${path}.${key}`, out)
+    case "object":
+      for (const [key, value] of Object.entries(def.shape ?? {})) stringMaxima(value, `${path}.${key}`, out)
       return
-    }
-    case "ZodArray":
-      stringMaxima(def.type, `${path}[]`, out)
+    case "array":
+      stringMaxima(def.element, `${path}[]`, out)
       return
-    case "ZodOptional":
-    case "ZodNullable":
-    case "ZodDefault":
+    case "optional":
+    case "nullable":
+    case "default":
       stringMaxima(def.innerType, path, out)
       return
-    case "ZodEffects":
-      stringMaxima(def.schema, path, out)
+    case "pipe":
+      stringMaxima(def.in, path, out)
+      stringMaxima(def.out, path, out)
       return
-    case "ZodUnion":
-    case "ZodDiscriminatedUnion": {
-      const options = def.options
-      const list = options instanceof Map ? [...options.values()] : ((options ?? []) as unknown[])
-      list.forEach((option, index) => stringMaxima(option, `${path}<${index}>`, out))
+    case "union":
+      ;(def.options ?? []).forEach((option, index) => stringMaxima(option, `${path}<${index}>`, out))
       return
-    }
     default:
       return
   }

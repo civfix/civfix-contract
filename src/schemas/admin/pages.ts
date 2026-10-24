@@ -32,12 +32,12 @@ const AdminEventPageListItemDTOObjectSchema = z.object({
   flaggedBy: AdminActorRefSchema.nullable().optional(),
 })
 export type AdminEventPageListItemDTO = z.infer<typeof AdminEventPageListItemDTOObjectSchema>
-export const AdminEventPageListItemDTOSchema: z.ZodType<AdminEventPageListItemDTO, z.ZodTypeDef, unknown> =
+export const AdminEventPageListItemDTOSchema: z.ZodType<AdminEventPageListItemDTO, unknown> =
   AdminEventPageListItemDTOObjectSchema
 
 const AdminEventPageListResponseObjectSchema = pageResponse(AdminEventPageListItemDTOSchema)
 export type AdminEventPageListResponse = z.infer<typeof AdminEventPageListResponseObjectSchema>
-export const AdminEventPageListResponseSchema: z.ZodType<AdminEventPageListResponse, z.ZodTypeDef, unknown> =
+export const AdminEventPageListResponseSchema: z.ZodType<AdminEventPageListResponse, unknown> =
   AdminEventPageListResponseObjectSchema
 
 export const FlagEventPageRequestSchema = z

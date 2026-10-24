@@ -31,7 +31,7 @@ function ids(count: number): string[] {
   return Array.from({ length: count }, () => ID)
 }
 
-function issuePaths(result: { success: boolean; error?: { issues: { path: (string | number)[] }[] } }) {
+function issuePaths(result: { success: boolean; error?: { issues: { path: PropertyKey[] }[] } }) {
   return result.error?.issues.map((issue) => issue.path.join(".")) ?? []
 }
 
@@ -138,18 +138,16 @@ describe("role pickers", () => {
     ] as const) {
       expect(schema.safeParse({ ...base, role: "admin" }).success).toBe(true)
       expect(schema.safeParse({ ...base, role: "member" }).success).toBe(true)
-      expect(schema.safeParse({ ...base, role: "owner" }).error?.issues[0]?.message).toBe(
-        "Invalid enum value. Expected 'admin' | 'member', received 'owner'",
-      )
+      expect(schema.safeParse({ ...base, role: "owner" }).success).toBe(false)
+      expect(schema.shape.role.options).toEqual(["admin", "member"])
     }
   })
 
   it("offer the team roles plus member, never organizer, on an event", () => {
     const base = { id: ID, userId: OTHER_ID }
     expect(SetMemberRoleRequestSchema.safeParse({ ...base, role: "member" }).success).toBe(true)
-    expect(SetMemberRoleRequestSchema.safeParse({ ...base, role: "organizer" }).error?.issues[0]?.message).toBe(
-      "Invalid enum value. Expected 'cohost' | 'staff' | 'coordinator' | 'member', received 'organizer'",
-    )
+    expect(SetMemberRoleRequestSchema.safeParse({ ...base, role: "organizer" }).success).toBe(false)
+    expect(SetMemberRoleRequestSchema.shape.role.options).toEqual(["cohost", "staff", "coordinator", "member"])
   })
 
   it("offer admin and member, never owner, in a chat group", () => {
