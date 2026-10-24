@@ -751,7 +751,7 @@ recipient.
 - **Critical messages are asymmetric.** `event_cancelled` and `event_updated` bypass unsubscribes,
   per-event mutes and the `hostBroadcasts` preference - they are service messages about something
   the recipient signed up for. They do NOT bypass bans or the bounce/complaint suppression list.
-  Everything else is bulk and fully opt-out-able. **Superseded for account holders in 0.64.0
+  Everything else is bulk and fully opt-out-able. **Superseded for account holders in 0.65.0
   (§63):** their category settings decide every channel; guests keep this bypass.
 - **`hostBroadcasts` is its own preference bucket**, defaulted `true` so an older server's prefs
   payload still parses and the shallow `.partial()` update request keeps working. A recipient must be
