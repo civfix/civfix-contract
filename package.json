@@ -1,6 +1,6 @@
 {
   "name": "@civfix/contract",
-  "version": "0.64.0",
+  "version": "0.65.0",
   "description": "civfix API contract: zod schemas and inferred types, the endpoints registry, AppError/ErrorCode, the typed API client, and the domain helpers both the backend and the apps run. Consumed from the registry by civfix-backend, civfix-admin and civfix-app.",
   "license": "AGPL-3.0-only",
   "private": false,
