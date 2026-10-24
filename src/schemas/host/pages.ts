@@ -89,7 +89,7 @@ const CheckEventPageSlugResponseObjectSchema = z.object({
   suggestion: z.string().nullable().optional(),
 })
 export type CheckEventPageSlugResponse = z.infer<typeof CheckEventPageSlugResponseObjectSchema>
-export const CheckEventPageSlugResponseSchema: z.ZodType<CheckEventPageSlugResponse, z.ZodTypeDef, unknown> =
+export const CheckEventPageSlugResponseSchema: z.ZodType<CheckEventPageSlugResponse, unknown> =
   CheckEventPageSlugResponseObjectSchema
 
 export const PublicPageTicketTypeSchema = z.object({
@@ -149,7 +149,7 @@ const PublicEventPageObjectSchema = z.object({
 })
 export type PublicEventPageDTO = z.infer<typeof PublicEventPageObjectSchema>
 
-export const PublicEventPageDTOSchema: z.ZodType<PublicEventPageDTO, z.ZodTypeDef, unknown> =
+export const PublicEventPageDTOSchema: z.ZodType<PublicEventPageDTO, unknown> =
   PublicEventPageObjectSchema
 
 export const GetPublicEventPageRequestSchema = z.object({ slug: PageSlugSchema }).strict()
@@ -168,5 +168,5 @@ export const RecordEventPageViewRequestSchema = z
 export type RecordEventPageViewRequest = z.infer<typeof RecordEventPageViewRequestSchema>
 
 export type RecordEventPageViewResponse = z.infer<typeof OkResponseSchema>
-export const RecordEventPageViewResponseSchema: z.ZodType<RecordEventPageViewResponse, z.ZodTypeDef, unknown> =
+export const RecordEventPageViewResponseSchema: z.ZodType<RecordEventPageViewResponse, unknown> =
   OkResponseSchema

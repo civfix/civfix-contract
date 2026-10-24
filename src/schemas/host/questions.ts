@@ -71,7 +71,7 @@ const EventQuestionDefUnionSchema = z.discriminatedUnion("kind", [
 ])
 export type EventQuestionDef = z.infer<typeof EventQuestionDefUnionSchema>
 
-export const EventQuestionDefSchema: z.ZodType<EventQuestionDef, z.ZodTypeDef, unknown> =
+export const EventQuestionDefSchema: z.ZodType<EventQuestionDef, unknown> =
   EventQuestionDefUnionSchema
 
 const EventQuestionDTOObjectSchema = z.object({
@@ -90,7 +90,7 @@ const EventQuestionDTOObjectSchema = z.object({
   archivedAt: ISODateSchema.nullable().optional(),
 })
 export type EventQuestionDTO = z.infer<typeof EventQuestionDTOObjectSchema>
-export const EventQuestionDTOSchema: z.ZodType<EventQuestionDTO, z.ZodTypeDef, unknown> =
+export const EventQuestionDTOSchema: z.ZodType<EventQuestionDTO, unknown> =
   EventQuestionDTOObjectSchema
 
 export const ListEventQuestionsRequestSchema = z
@@ -102,7 +102,7 @@ const ListEventQuestionsResponseObjectSchema = z.object({
   items: z.array(EventQuestionDTOSchema),
 })
 export type ListEventQuestionsResponse = z.infer<typeof ListEventQuestionsResponseObjectSchema>
-export const ListEventQuestionsResponseSchema: z.ZodType<ListEventQuestionsResponse, z.ZodTypeDef, unknown> =
+export const ListEventQuestionsResponseSchema: z.ZodType<ListEventQuestionsResponse, unknown> =
   ListEventQuestionsResponseObjectSchema
 
 export const SaveEventQuestionsRequestSchema = z
@@ -117,7 +117,7 @@ const SaveEventQuestionsResponseObjectSchema = z.object({
   items: z.array(EventQuestionDTOSchema),
 })
 export type SaveEventQuestionsResponse = z.infer<typeof SaveEventQuestionsResponseObjectSchema>
-export const SaveEventQuestionsResponseSchema: z.ZodType<SaveEventQuestionsResponse, z.ZodTypeDef, unknown> =
+export const SaveEventQuestionsResponseSchema: z.ZodType<SaveEventQuestionsResponse, unknown> =
   SaveEventQuestionsResponseObjectSchema
 
 export const EventAnswerValueSchema = z.union([

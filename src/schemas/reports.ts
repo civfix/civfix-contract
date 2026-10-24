@@ -84,7 +84,7 @@ export const ReportClusterResponseSchema = z.object({
   clusters: z.array(ReportClusterDTOSchema),
   pins: z.array(ReportPinDTOSchema),
   // Per-category pin counts for the reports filter popover; a category may be absent.
-  counts: z.record(ReportCategorySchema, z.number()).optional(),
+  counts: z.partialRecord(ReportCategorySchema, z.number()).optional(),
 })
 export type ReportClusterResponse = z.infer<typeof ReportClusterResponseSchema>
 

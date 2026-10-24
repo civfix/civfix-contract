@@ -1172,7 +1172,9 @@ verification, which is evidence-backed and does scale. So `VerificationStatus`, 
 `AdminUserDTO.verificationStatus` and the `verification` media purpose are all REMOVED. Org
 verification is untouched (`OrgVerificationStatus`/`Kind`, `OrganizationRefDTO.verified`, the admin
 verification queue), and so is `reportVerified`, which is a
-different claim about a different thing (this reporter's reports may be auto-forwarded to the city).
+different claim about a different thing (this reporter's reports may be auto-forwarded to the city;
+**amended in 0.66.0 (§64):** auto-forward is retired, so no report reaches a city before an operator
+approves it).
 
 These removals are NOT additive, and that is a deliberate exception to §11 rather than an oversight.
 Every consumer of the removed surface is in this delivery set: the field was read by
@@ -1746,7 +1748,12 @@ stored default (`setForwardTemplateDefault`) -> the built-in `DEFAULT_FORWARD_SU
 `DEFAULT_FORWARD_BODY_TEMPLATE`. The built-in default is a template string, not code, so an editor can
 prefill it and "reset to default" means exactly that. The backend appends the photo list and the operator
 note as structured blocks when the body does not use `{photoLinks}` / `{operatorNote}`, so a templated
-packet can never arrive with attachments it does not mention.
+packet can never arrive with attachments it does not mention. **Amended in 0.66.0 (§64):** the photo
+block lists only the ready media that were not attached to the email (photos past the send budget, and
+videos), and nothing is appended when every item was attached; `routeReport` attaches nothing, so its
+block is unchanged. The built-in `DEFAULT_FORWARD_BODY_TEMPLATE` no longer carries the "Photo/Video
+Links" paragraph, so the append rule supplies the block; `{photoLinks}` and `{photoCount}` stay valid in
+custom templates.
 
 **Preview.** `previewForwardTemplate` renders through the SAME backend code that sends, against
 `FORWARD_TEMPLATE_SAMPLE_VALUES` - fixed, explicit sample data - and returns the subject, text and html
@@ -2304,3 +2311,144 @@ ranked, which is acceptable at today's volumes.
 The change is additive. The new fields are defaulted (0 / false), so a 0.62.0 server's response still
 parses, and none of the carrying schemas is strict. The registry moves from 339 to 341 entries, none
 of them under `/admin`.
+
+## 62. The contract runs on zod 4 (0.64.0)
+
+**Why now.** GHSA-mrhx-c7xc-m3w5 (zod collecting one issue per failing array element with no cap, so an
+oversized array can exhaust memory) is fixed only in zod 4.6.6, and every zod 3 release is in its
+range. The backend's dependency audit fails on it, so `zod` moves from `^3.23` to `^4.6.6`.
+
+**The wire format does not change.** Every request and response that parsed under 0.63.x parses the
+same way under 0.64.0:
+
+- `IdSchema` is `z.guid()`. zod 4's `.uuid()` checks the RFC version and variant nibbles, which zod 3's
+  did not; `z.guid()` is the zod 3 rule (any 8-4-4-4-12 hex string), so no stored or fixture id stops
+  parsing.
+- The per-category maps keyed by `ReportCategorySchema` (`ReportClusterResponse.counts`,
+  `contacts` on `SaveContactsRequest` and `PatchJurisdictionRequest`, `PerCategoryCounts`) are
+  `z.partialRecord`. zod 4's
+  `z.record` with an enum key requires every key, while zod 3's let any of them be missing.
+- Single-argument `z.record(value)` is `z.record(z.string(), value)`.
+- `UpdateNotificationPrefsRequest` is built from a default-free `hostBroadcasts`. zod 4's `.partial()`
+  still applies an inner `.default()` to a missing key, so deriving it from `NotificationPrefsDTO`
+  (where `hostBroadcasts` defaults to `true`) would add `hostBroadcasts: true` to every patch that left
+  it out and turn a muted user's host broadcasts back on. `NotificationPrefsDTO` keeps its default.
+- `placeGeojson` on the discovery DTO is `.optional()` as well as nullable, because zod 4 requires a
+  `z.unknown()` key to be present and zod 3 did not.
+
+**What does change.** The schemas are zod 4 objects, so a consumer that composes them with its own zod
+(`.extend`, `.pick`, `z.object({ ...Schema.shape })`) must be on zod 4 too; the backend is the only
+consumer that does. zod's default issue messages and some issue codes changed wording (an enum
+mismatch reads `Invalid option: expected one of ...`); nothing in the contract depends on either, and
+tests assert accepted values rather than zod's text. The explicit annotations are
+`z.ZodType<Output, Input>`, zod 4's two-parameter form.
+
+Every consumer adopts it in one delivery set: civfix-backend (`services/api`, `services/media-worker`,
+`packages/seams`, with its own `zod` moved to `^4.6.6`), civfix-app and civfix-admin.
+
+## 64. City filing: an approved report is filed with its city through a saved route, and residents see it (0.66.0)
+
+**Approve files the report; nothing skips approval.** An operator's Approve verdict (`setReportVerdict`
+with `approved`) creates a filing for the report in the same request; its response stays `{ ok: true }`.
+`fileReport` (`POST /admin/reports/:id/file`, `{ id, note? }`) creates one the same way and is admin's
+File and File again. Neither creates a filing when the report already has an active one (queued,
+running, needs_human), or a submitted or linked one whose city request is not closed; `fileReport`
+answers `CONFLICT` there, and when the report is not fileable. `routeReport` keeps its request,
+response and synchronous email send, so older admin builds keep working: a successful send also records
+a `submitted` email filing, its timeline note becomes the fixed "Filed with <jurisdiction>", and it
+refuses with `CONFLICT` under the same two conditions. A Reject verdict, Remove and a moderation
+takedown cancel a `queued` or `needs_human` filing; a `running` one finishes and records its outcome, but
+a report that is no longer fileable gets no status change, public note or push. A moderation hold
+cancels nothing. Auto-forward is retired (§34 amended): no report reaches a city before an operator has
+checked it.
+
+**CivFix files as itself.** Every filing uses one organization contact block (name, email, optional
+phone) from the filer's configuration. The resident's name, email and phone never reach a city (§51).
+The filer never creates a portal account; a portal that requires a sign-in ends `needs_human` with
+reason `login_required`.
+
+**What the city receives.** The API renders the ticket text when the filing is created: the title and
+description; a blank line, then the framing line "Reported by a resident via CivFix · ref
+<referenceCode>" (without the ref part when the report has none), always present because it is what
+city replies are matched by; the public report URL when the route's `includeLink` is on and the report
+is public; and "Note from CivFix: <note>" when the operator gave one. A portal gets the ticket text as
+is. An email gets the jurisdiction's or the global template, as `routeReport` renders it, followed by
+the ticket text's lines 2-4. Photos, never videos: ready images in report order, at most 5. A portal
+uploads each one of 10 MB or less; an email attaches them in order while the whole encoded message stays
+within the backend's outbound payload budget, skipping any that would pass it, and the photo-link block
+lists only what was not attached (§51 amended). The location is the stored address, else latitude and
+longitude. When a portal shows an existing open request of the same type at the location, the filer
+records that number instead of submitting: the outcome is `linked_existing`.
+
+**Filing routes.** A route is keyed by `(geoid, category)`, a null category being the jurisdiction's
+default, and holds `channel` (`email` | `portal` | `manual`), `formUrl` (the portal start URL, set exactly
+for a portal), `requestTypeHint`, `includeLink`, `statusSenderDomains` and `enabled`. A report in
+jurisdiction G with category C resolves to the route (G, C), else (G, null), else an implicit email route
+when the jurisdiction has an email contact, else `needs_human` with `no_route`; a disabled match gives
+`route_disabled` and a manual one `manual_route`. A report with no jurisdiction gets a filing with a null
+`geoid` and `no_route`, and an operator can still record a manual filing on it. `saveFilingRoutes`
+replaces a jurisdiction's routes (at most 8, one per category). The contract validates the input and the
+API checks it again: `formUrl` passes `isSafeHttpsUrl`, and its WHATWG hostname is not an IP literal (so
+`https://2130706433/` fails), `localhost`, `*.localhost`, `*.local`, `*.internal`, or `civfix.org` /
+`civfix.dev` or a subdomain, because the filer opens it from the server. `statusSenderDomains` is 0-5
+distinct hostnames, lowercased, each with at least two labels and no trailing dot, port, path or `@`; the
+API also refuses a consumer mail domain, since anyone can send from it. The jurisdiction and contact
+`formUrl` fields stay informational.
+
+**The filing record.** `FilingStatus` runs `queued -> running -> submitted | linked_existing |
+needs_human`; Retry moves `needs_human -> queued` (re-resolving the route and resetting the attempts,
+keeping the ticket text); Cancel moves `queued | needs_human -> cancelled`; Record manual filing moves
+`queued | needs_human -> submitted` with method `operator`, the `caseId` it gives and an optional
+`caseUrl`. An email whose send hit its deadline (`uncertain_submission`) becomes `submitted` when the send
+later reports success, and a `running` filing whose report is no longer fileable is `cancelled`. A city
+asking for more information moves `submitted | linked_existing -> needs_human` with
+`city_needs_info`; such a filing keeps its `caseId`, Retry and Cancel are `CONFLICT` on it, and Record
+manual filing returns it to `submitted`. Cancel and Record manual filing are `CONFLICT` on a `running`
+filing. Every outcome is a guarded write that applies only once. A report has at most one active filing.
+On success the report moves from `submitted` / `held` / `published` to `acknowledged`, as routing it does
+(§51's status machine), with a public `route` timeline entry whose note is fixed: "Filed with
+<jurisdiction>", "... · Request <caseId>", or "Linked to <jurisdiction> request <caseId>", with "the city"
+when there is no jurisdiction. No text from a city, a script or a model ever reaches a public note.
+Filing rows are never deleted. The admin list groups them as `needs_human`, `in_progress` (queued,
+running), `filed` (submitted, linked_existing) and `cancelled`. No existing enum gains a value and the
+admin timeline gains no kind.
+
+**City updates come back.** A city message is linked to a filing by the framing line's single reference
+code, else by exactly one recent request number in its subject or body, else it stays in the admin inbox
+as before; an email filing's replies are linked by their thread. When the filing a framing line matched
+already has a `caseId`, the message must also contain it, or it is linked, flagged and changes nothing. A
+message is trusted only when it passed authentication and its sender's hostname is one of the route's
+`statusSenderDomains` (for an implicit email route, the domain of the address it was sent to, except a
+consumer mail domain, where the sender's mailbox must equal that address exactly, as
+`isJurisdictionSender` does); a reply on an email filing's thread keeps today's jurisdiction-sender rule.
+Untrusted messages are linked, flagged and change nothing. While automatic filing is on, a trusted
+message is classified by a model whose result the API validates again; at confidence 0.7 or more,
+applied once: `received` fills an empty `caseId`; `in_progress` moves a portal filing's report
+`acknowledged -> in_progress`; `needs_info` moves the filing to `needs_human` with `city_needs_info`;
+`closed` resolves the report. The summary is shown to operators only, and every public note is fixed text.
+
+**City closed means resolved.** A trusted `closed` moves the report to `resolved` only from `acknowledged`
+or `in_progress`, never from a status that would publish an unmoderated report, sets `cityClosedAt`, and
+writes the fixed note "<jurisdiction> closed request <caseId>". When the report later leaves `resolved`, a
+new filing is created in `needs_human` with `reopened_after_city_closed`, unless one is already active.
+
+**What residents see.** `ReportDTO.filing` (`ReportFilingDTO`: `jurisdictionName`, `caseId`, `caseUrl`,
+`filedAt`, `linkedExisting`) is the report's latest submitted or linked filing, else null, and `gov` is
+true exactly when it is set. A submitted filing may have no request number yet. Its `caseUrl` is a plain
+string the server validated; a client opens it only when it is https.
+
+**Contract shape.** Everything is additive: new response fields are optional or defaulted
+(`ReportDTO.filing`, `AdminReportDTO.filing` and `filingRoute`, `HomeSummaryResponse.filingsNeedsHuman`
+defaulting to 0), and `setReportVerdict`, `routeReport`, `ReportStatus`, `ReportCategory` and the admin
+status machine keep their shapes. Requests carry their path parameters as fields and are `.strict()`;
+the new DTOs and responses are `.strict()` like the other admin DTOs. Because `AdminReportDTO` and
+`HomeSummaryResponse` are strict, an admin build older than 0.66.0 logs a response parse warning and
+falls back to the raw body once the backend sends the new fields. That is expected and harmless.
+`FilingEvidenceDTO.url` is a signed GET that expires after 15 minutes, so clients refetch the filing
+instead of caching it. The limits are exported (`FILING_NOTE_MAX`, `FILING_REQUEST_TYPE_HINT_MAX`,
+`FILING_SENDER_DOMAINS_MAX`, `FILING_ROUTES_MAX`, `FILING_LIST_PAGE_MAX`) with `FILING_CASE_ID_PATTERN`,
+which the backend also applies to every request number a script or a city message yields. Rate limits
+live in the backend routes: the registry has no field for them. The ten endpoints (`fileReport`,
+`listFilings`, `getFiling`, `retryFiling`, `cancelFiling`, `recordManualFiling`, `getFilingSettings`,
+`setFilingSettings`, `listFilingRoutes`, `saveFilingRoutes`) are in `src/client/endpoints/admin/filings.ts`;
+the registry moves from 341 to 351 entries, 119 of them under `/admin`.

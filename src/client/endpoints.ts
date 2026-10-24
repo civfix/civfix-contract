@@ -17,6 +17,7 @@ import { adminAuthEndpoints } from "./endpoints/admin/auth.js"
 import { adminOverviewEndpoints } from "./endpoints/admin/overview.js"
 import { adminJurisdictionEndpoints } from "./endpoints/admin/jurisdictions.js"
 import { adminReportEndpoints, adminReportChatEndpoints } from "./endpoints/admin/reports.js"
+import { adminFilingEndpoints } from "./endpoints/admin/filings.js"
 import { adminEventEndpoints } from "./endpoints/admin/events.js"
 import { adminUserEndpoints, adminUserHoursEndpoints } from "./endpoints/admin/users.js"
 import { adminModerationEndpoints } from "./endpoints/admin/moderation.js"
@@ -53,6 +54,7 @@ export const coreEndpoints: typeof systemEndpoints &
   typeof adminOverviewEndpoints &
   typeof adminJurisdictionEndpoints &
   typeof adminReportEndpoints &
+  typeof adminFilingEndpoints &
   typeof adminEventEndpoints &
   typeof adminUserEndpoints &
   typeof adminModerationEndpoints &
@@ -76,6 +78,7 @@ export const coreEndpoints: typeof systemEndpoints &
   ...adminOverviewEndpoints,
   ...adminJurisdictionEndpoints,
   ...adminReportEndpoints,
+  ...adminFilingEndpoints,
   ...adminEventEndpoints,
   ...adminUserEndpoints,
   ...adminModerationEndpoints,
