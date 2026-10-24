@@ -57,6 +57,7 @@ import { CreateMediaUploadRequestSchema } from "../src/schemas/media.js"
 import { AnonReportRequestSchema } from "../src/schemas/anon.js"
 import {
   NotificationPrefsDTOSchema,
+  UpdateNotificationPrefsRequestSchema,
   RegisterPushTokenRequestSchema,
 } from "../src/schemas/notifications.js"
 
@@ -471,6 +472,20 @@ describe("media + anon + prefs", () => {
         quietHours: { start: "22:00", end: "07:00" },
       }).success,
     ).toBe(true)
+  })
+  it("defaults hostBroadcasts on the DTO but never adds it to a prefs update that left it out", () => {
+    const prefs = {
+      push: true,
+      cleanupChat: true,
+      reportUpdates: true,
+      follows: true,
+      mentions: true,
+      postInteractions: true,
+    }
+    expect(NotificationPrefsDTOSchema.parse(prefs).hostBroadcasts).toBe(true)
+    expect(UpdateNotificationPrefsRequestSchema.parse({ push: false })).toEqual({ push: false })
+    expect(UpdateNotificationPrefsRequestSchema.parse({ quietHours: null })).toEqual({ quietHours: null })
+    expect(UpdateNotificationPrefsRequestSchema.parse({ hostBroadcasts: false })).toEqual({ hostBroadcasts: false })
   })
 })
 

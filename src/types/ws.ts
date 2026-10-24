@@ -27,7 +27,7 @@ export type WsErrorCode = (typeof WsErrorCode)[keyof typeof WsErrorCode]
 // Still any string on the wire: the server forwards unlisted AppError subcodes, and an older client must
 // keep parsing a code added later. `string & {}` keeps the known codes visible to editors.
 export type WsErrorFrameCode = `${ErrorCode}` | WsErrorCode | (string & {})
-const WsErrorFrameCodeSchema: z.ZodType<WsErrorFrameCode, z.ZodStringDef, string> = z.string()
+const WsErrorFrameCodeSchema: z.ZodType<WsErrorFrameCode, string> = z.string()
 
 export const SignalTopicSchema = z.enum([
   "notifications",

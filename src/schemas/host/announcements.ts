@@ -35,7 +35,7 @@ const AnnouncementAudienceUnionSchema = z.discriminatedUnion("kind", [
 ])
 export type AnnouncementAudience = z.infer<typeof AnnouncementAudienceUnionSchema>
 
-export const AnnouncementAudienceSchema: z.ZodType<AnnouncementAudience, z.ZodTypeDef, unknown> =
+export const AnnouncementAudienceSchema: z.ZodType<AnnouncementAudience, unknown> =
   AnnouncementAudienceUnionSchema
 
 export const ANNOUNCEMENT_AUDIENCE_KINDS = [
@@ -67,7 +67,7 @@ const AnnouncementDTOObjectSchema = z.object({
   createdAt: ISODateSchema,
 })
 export type AnnouncementDTO = z.infer<typeof AnnouncementDTOObjectSchema>
-export const AnnouncementDTOSchema: z.ZodType<AnnouncementDTO, z.ZodTypeDef, unknown> =
+export const AnnouncementDTOSchema: z.ZodType<AnnouncementDTO, unknown> =
   AnnouncementDTOObjectSchema
 
 export const CreateEventAnnouncementRequestSchema = z
@@ -93,10 +93,7 @@ export type ListEventAnnouncementsResponse = z.infer<
   typeof ListEventAnnouncementsResponseObjectSchema
 >
 export const ListEventAnnouncementsResponseSchema: z.ZodType<
-  ListEventAnnouncementsResponse,
-  z.ZodTypeDef,
-  unknown
-> = ListEventAnnouncementsResponseObjectSchema
+  ListEventAnnouncementsResponse, unknown> = ListEventAnnouncementsResponseObjectSchema
 
 export const GetEventAnnouncementRequestSchema = z
   .object({ id: IdSchema, announcementId: IdSchema })
