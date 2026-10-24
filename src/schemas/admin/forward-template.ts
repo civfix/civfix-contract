@@ -118,7 +118,6 @@ export const DEFAULT_FORWARD_BODY_TEMPLATE = [
   "A resident reported a {category} issue in {place} through civfix on {submittedDate}. Replies to this email go to civfix operators and to the reporter.",
   "Location: {address}\nCoordinates: {coordinates}\nView the exact location on a map: {mapLink}",
   "What was reported:\n{description}",
-  "Photo/Video Links (count: {photoCount}):\n{photoLinks}",
   "replies to this email are made public at https://civfix.org/pin/{reportId}",
 ].join("\n\n")
 

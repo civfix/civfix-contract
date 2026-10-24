@@ -67,6 +67,8 @@ export const HomeSummaryResponseSchema = z
     livePins24h: z.number().int().nonnegative(),
     moderationQueue: z.number().int().nonnegative().optional(),
     inboxUnread: z.number().int().nonnegative().optional(),
+    // Filings waiting for an operator. Defaulted so an older server's response still parses.
+    filingsNeedsHuman: z.number().int().nonnegative().default(0),
     // The top-level keys whose query failed and were filled with zeros, so a tile can render as
     // unavailable instead of showing a real-looking 0.
     degraded: z.array(z.string()).optional(),
