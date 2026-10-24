@@ -8,8 +8,17 @@ import {
   RegisterPushTokenRequestSchema,
   RegisterPushTokenResponseSchema,
   UnregisterPushTokenRequestSchema,
+  NotificationSettingsDTOSchema,
+  UpdateNotificationSettingsRequestSchema,
+  NotificationUnreadResponseSchema,
+  PushWebConfigResponseSchema,
+  UnsubscribeNotificationEmailRequestSchema,
+  UnsubscribeNotificationEmailResponseSchema,
+  OpenUnsubscribeNotificationEmailRequestSchema,
+  OpenUnsubscribeNotificationEmailResponseSchema,
 } from "../../schemas/notifications.js"
 import { PaginationQuerySchema } from "../../schemas/common.js"
+import { OkResponseSchema } from "../../schemas/internal-fields.js"
 
 export const notificationEndpoints = {
   listNotifications: def({
@@ -48,6 +57,69 @@ export const notificationEndpoints = {
     csrf: true,
     version: "v1",
   }),
+  getNotificationSettings: def({
+    method: "GET",
+    path: "/notifications/settings",
+    request: null,
+    response: NotificationSettingsDTOSchema,
+    auth: "required",
+    csrf: false,
+    version: "v1",
+  }),
+  updateNotificationSettings: def({
+    method: "PATCH",
+    path: "/notifications/settings",
+    request: UpdateNotificationSettingsRequestSchema,
+    response: NotificationSettingsDTOSchema,
+    auth: "required",
+    csrf: true,
+    version: "v1",
+  }),
+  getNotificationUnread: def({
+    method: "GET",
+    path: "/notifications/unread",
+    request: null,
+    response: NotificationUnreadResponseSchema,
+    auth: "required",
+    csrf: false,
+    version: "v1",
+  }),
+  markAllNotificationsRead: def({
+    method: "POST",
+    path: "/notifications/read-all",
+    request: null,
+    response: OkResponseSchema,
+    auth: "required",
+    csrf: true,
+    version: "v1",
+  }),
+  dismissNotification: def({
+    method: "DELETE",
+    path: "/notifications/:id",
+    request: null,
+    response: OkResponseSchema,
+    auth: "required",
+    csrf: true,
+    version: "v1",
+  }),
+  unsubscribeNotificationEmail: def({
+    method: "POST",
+    path: "/notifications/email-unsubscribe",
+    request: UnsubscribeNotificationEmailRequestSchema,
+    response: UnsubscribeNotificationEmailResponseSchema,
+    auth: "public",
+    csrf: false,
+    version: "v1",
+  }),
+  openUnsubscribeNotificationEmail: def({
+    method: "GET",
+    path: "/notifications/email-unsubscribe",
+    request: OpenUnsubscribeNotificationEmailRequestSchema,
+    response: OpenUnsubscribeNotificationEmailResponseSchema,
+    auth: "public",
+    csrf: false,
+    version: "v1",
+  }),
 
   registerPush: def({
     method: "POST",
@@ -66,6 +138,16 @@ export const notificationEndpoints = {
     response: RegisterPushTokenResponseSchema,
     auth: "required",
     csrf: true,
+    version: "v1",
+  }),
+
+  getPushWebConfig: def({
+    method: "GET",
+    path: "/push/web-config",
+    request: null,
+    response: PushWebConfigResponseSchema,
+    auth: "required",
+    csrf: false,
     version: "v1",
   }),
 } as const

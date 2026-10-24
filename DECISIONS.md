@@ -421,7 +421,7 @@ is optional so existing implementers keep compiling. Nothing here is a shape cha
   `1..64` (producers emit ≤36-char ids: `packages/ui/src/data/hooks/chatOutbox.ts` `randomId()`); RESPONSE /
   server-ack `clientId` fields are deliberately NOT touched (tightening a payload a new client must parse
   from an old server would break it). `RegisterPushTokenRequest.token` (and the new unregister twin) is
-  bounded `1..2048` (Expo device tokens ~40 chars). `EventHoursEntry.hours` gains a `MIN_EVENT_HOURS`
+  bounded `1..2048` (Expo device tokens ~40 chars; Expo is gone since §63). `EventHoursEntry.hours` gains a `MIN_EVENT_HOURS`
   (0.01) floor exported beside `MAX_EVENT_HOURS`; no `.multipleOf(0.01)` (float-equality hazard); 2-dp
   rounding stays a backend concern. Anon `AnonReportRequest.mediaUploadIds` is capped at `.max(5)`,
   aligning with the authed `CreateReportRequest` twin.
@@ -751,7 +751,8 @@ recipient.
 - **Critical messages are asymmetric.** `event_cancelled` and `event_updated` bypass unsubscribes,
   per-event mutes and the `hostBroadcasts` preference - they are service messages about something
   the recipient signed up for. They do NOT bypass bans or the bounce/complaint suppression list.
-  Everything else is bulk and fully opt-out-able.
+  Everything else is bulk and fully opt-out-able. **Superseded for account holders in 0.65.0
+  (§63):** their category settings decide every channel; guests keep this bypass.
 - **`hostBroadcasts` is its own preference bucket**, defaulted `true` so an older server's prefs
   payload still parses and the shallow `.partial()` update request keeps working. A recipient must be
   able to mute hosts without muting event chat or service messages. It is a CHANNEL-WIDE opt-out -
@@ -2338,3 +2339,64 @@ tests assert accepted values rather than zod's text. The explicit annotations ar
 
 Every consumer adopts it in one delivery set: civfix-backend (`services/api`, `services/media-worker`,
 `packages/seams`, with its own `zod` moved to `^4.6.6`), civfix-app and civfix-admin.
+
+## 63. Notifications are eleven categories, Off means nothing, and push is sent directly (0.65.0)
+
+**Eleven categories in five sections.** Every notification belongs to exactly one
+`NotificationCategory`, or is always on: registration confirmations, the broadcast kinds `confirmation`
+and `waitlist_promoted`, sign-in codes and other account email are transactional. `NOTIFICATION_SECTIONS`
+orders the categories into five sections whose ids are also the Android notification channel ids, and
+`NOTIFICATION_CATEGORY_DEFAULTS` holds each category's default. The backend, the settings screen and
+the Android channels read these lists instead of keeping their own copies.
+
+**A setting is `{ enabled, push, email }`.** Off (`enabled: false`) means nothing at all: no row on the
+notifications page, no push, no email. Push and Email keep their saved values while a category is Off,
+so turning it back on restores them. On with neither checked is in-app only; each checked channel adds
+itself. Direct messages, Group chats and Report discussions are in-app in Messages, never on the
+notifications page, so their setting controls push and email, and Off also stops their notification
+rows while the messages stay in the conversation. A host broadcast reaches an account holder through
+the intersection of the host's channels and the broadcast's category; a channel skipped this way is
+recorded on the delivery row as `prefs_off`, and an Off recipient is never a failed delivery. Quiet
+hours still suppress push only. `NotificationSettingsDTO` names every category plus `emailAvailable`
+(the account has a verified email); `UpdateNotificationSettingsRequest` is a strict patch that names
+at least one category, each with at least one field, and answers the whole DTO.
+
+**Off is absolute, which supersedes §24's critical bypass for account holders.** `event_cancelled` and
+`event_updated` no longer bypass anything for a resident with an account: with Events you're going to
+Off they get nothing, and an unchecked channel is skipped; nor do the two kinds bypass their per-event
+mutes or one-click unsubscribes any more. Guests have no settings and keep §24's bypass. Bans and the bounce and
+complaint suppression list still apply to everyone.
+
+**`chat_mention` is appended to `NotificationType`** (the §33/§34 precedent). It covers @mentions and
+replies in any chat room, which used to borrow the room's type and so never reached the notifications
+page. Older rows keep their types. The old prefs endpoints and `NotificationPrefsDTO` are unchanged.
+
+**Push is sent directly, and Expo is gone; this amends §16's token note.** The backend sends to APNs,
+FCM and web push itself. `registerPush` takes a raw APNs device token (hex), an FCM token or a web
+`PushSubscription` as JSON, and an Expo-format token is a validation error; a stored Expo token is
+revoked the first time a send finds it. The `1..2048` bound on `RegisterPushTokenRequest.token` is
+unchanged, but §16's "Expo device tokens ~40 chars" no longer describes what it carries: an APNs token
+is 64 hex characters today, and FCM tokens and subscription JSON run to a few hundred.
+
+**Every push carries `PushMessageData`**, discriminated on `kind`. A `notification` names the
+recipient's own notification row (`notificationId`, `type`, `category`, `link`, the last two nullable).
+A `clear` asks the device to remove notifications it shows: exactly one of `ids` (1 to 100) or `all`.
+FCM data carries only strings, and APNs gets the same map, so `encodePushMessageData` writes a flat
+string map (`ids` as JSON, `all` as `"true"`, a null `category` or `link` left out) and
+`decodePushMessageData` reads it back. Decoding returns `null` for any malformed map and never throws,
+so the app ignores a push it cannot read instead of failing in its handler. The backend and the app
+share this one codec.
+
+**Notification emails carry no one else's words.** An email for Mentions and replies, Direct messages,
+Group chats or Report discussions carries the title and the conversation's name, never the message or
+post text; other categories carry the notification's title and body. Every one has a Stop these emails
+link, served by `unsubscribeNotificationEmail` and `openUnsubscribeNotificationEmail`, which mirror
+§24's pair: the GET never changes anything and answers `302` to the web page (an empty strict response
+schema), and the public, csrf-free POST unchecks Email for the one category its token names. Its
+token is a notification token, distinct from a broadcast token, and neither works on the other's
+route; both share `UnsubscribeTokenSchema`'s bounds. Unlike §24's byte-identical `{ ok: true }`, the
+response names the category when the token was valid and applied (`null` otherwise) so the page can say
+what stopped: it reveals only what the signed token already says, to whoever holds it. There is still
+no open or click tracking.
+
+The change is additive. The registry moves from 341 to 349 entries, none of them under `/admin`.

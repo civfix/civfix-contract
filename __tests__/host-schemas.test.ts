@@ -133,10 +133,11 @@ describe("host platform enum tuples (mirrored byte-identical by the backend)", (
     ])
   })
 
-  it("keeps event_broadcast, event_team_invite then org_invite at the tail of NotificationType and the feed topics LAST in SignalTopic", () => {
-    expect(NotificationTypeSchema.options.at(-3)).toBe("event_broadcast")
-    expect(NotificationTypeSchema.options.at(-2)).toBe("event_team_invite")
-    expect(NotificationTypeSchema.options.at(-1)).toBe("org_invite")
+  it("keeps event_broadcast, event_team_invite then org_invite before chat_mention at the tail of NotificationType and the feed topics LAST in SignalTopic", () => {
+    expect(NotificationTypeSchema.options.at(-4)).toBe("event_broadcast")
+    expect(NotificationTypeSchema.options.at(-3)).toBe("event_team_invite")
+    expect(NotificationTypeSchema.options.at(-2)).toBe("org_invite")
+    expect(NotificationTypeSchema.options.at(-1)).toBe("chat_mention")
     expect([...SignalTopicSchema.options]).toEqual([
       "notifications",
       "threads",
