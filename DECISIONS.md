@@ -2322,6 +2322,12 @@ same way under 0.64.0:
   `z.partialRecord`. zod 4's
   `z.record` with an enum key requires every key, while zod 3's let any of them be missing.
 - Single-argument `z.record(value)` is `z.record(z.string(), value)`.
+- `UpdateNotificationPrefsRequest` is built from a default-free `hostBroadcasts`. zod 4's `.partial()`
+  still applies an inner `.default()` to a missing key, so deriving it from `NotificationPrefsDTO`
+  (where `hostBroadcasts` defaults to `true`) would add `hostBroadcasts: true` to every patch that left
+  it out and turn a muted user's host broadcasts back on. `NotificationPrefsDTO` keeps its default.
+- `placeGeojson` on the discovery DTO is `.optional()` as well as nullable, because zod 4 requires a
+  `z.unknown()` key to be present and zod 3 did not.
 
 **What does change.** The schemas are zod 4 objects, so a consumer that composes them with its own zod
 (`.extend`, `.pick`, `z.object({ ...Schema.shape })`) must be on zod 4 too; the backend is the only

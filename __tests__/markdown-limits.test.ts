@@ -13,6 +13,7 @@ type Def = {
   element?: unknown
   innerType?: unknown
   in?: unknown
+  out?: unknown
   options?: unknown[]
 }
 
@@ -38,6 +39,7 @@ function stringMaxima(schema: unknown, path: string, out: Record<string, number>
       return
     case "pipe":
       stringMaxima(def.in, path, out)
+      stringMaxima(def.out, path, out)
       return
     case "union":
       ;(def.options ?? []).forEach((option, index) => stringMaxima(option, `${path}<${index}>`, out))
