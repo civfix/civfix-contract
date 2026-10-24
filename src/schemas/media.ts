@@ -24,8 +24,9 @@ export const CreateMediaUploadRequestSchema = z
     const max = val.kind === "video" ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES
     if (val.byteSize > max) {
       ctx.addIssue({
-        code: z.ZodIssueCode.too_big,
-        type: "number",
+        code: "too_big",
+        origin: "number",
+        input: val.byteSize,
         maximum: max,
         inclusive: true,
         path: ["byteSize"],
@@ -38,7 +39,7 @@ export type CreateMediaUploadRequest = z.infer<typeof CreateMediaUploadRequestSc
 export const CreateMediaUploadResponseSchema = z.object({
   uploadId: IdSchema,
   putUrl: z.string(),
-  headers: z.record(z.string()),
+  headers: z.record(z.string(), z.string()),
 })
 export type CreateMediaUploadResponse = z.infer<typeof CreateMediaUploadResponseSchema>
 

@@ -74,7 +74,11 @@ export type NotificationPrefsDTO = z.infer<typeof NotificationPrefsDTOSchema>
 export const GetNotificationPrefsResponseSchema = NotificationPrefsDTOSchema
 export type GetNotificationPrefsResponse = z.infer<typeof GetNotificationPrefsResponseSchema>
 
-export const UpdateNotificationPrefsRequestSchema = NotificationPrefsDTOSchema.partial().strict()
+// zod 4's .partial() still applies an inner .default() to a missing key, so the update is built from a
+// default-free hostBroadcasts: a patch that omits it must leave the user's stored opt-out alone.
+export const UpdateNotificationPrefsRequestSchema = NotificationPrefsDTOSchema.extend({ hostBroadcasts: z.boolean() })
+  .partial()
+  .strict()
 export type UpdateNotificationPrefsRequest = z.infer<typeof UpdateNotificationPrefsRequestSchema>
 
 export const RegisterPushTokenRequestSchema = z

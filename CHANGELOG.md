@@ -1,5 +1,23 @@
 # @civfix/contract
 
+## 0.64.0
+
+### Minor Changes
+
+- Move to zod 4 (`^4.6.6`) for GHSA-mrhx-c7xc-m3w5 (DECISIONS §62). The wire format is unchanged: `IdSchema` is `z.guid()`, which accepts exactly what zod 3's `.uuid()` did, the category-keyed maps are `z.partialRecord`, so a missing category still parses, and a notification-prefs update never gains a `hostBroadcasts` the client did not send. The exported schemas are zod 4 schemas, so a consumer that extends or composes them needs zod 4 as well.
+
+## 0.63.2
+
+### Patch Changes
+
+- Withdraw the 2026-10-20 terms of service and privacy policy published in 0.63.1: filing a report does not need an account. The 2026-09-21 versions are current again. No consumer adopted 0.63.1, so no one consented to the withdrawn versions.
+
+## 0.63.1
+
+### Patch Changes
+
+- Terms of service and privacy policy 2026-10-20, effective 2026-10-20T00:00:00.000Z: filing a report needs an account (Terms section 5, Privacy section 6). Consent to the 2026-09-21 versions is no longer current. Cookies and subprocessors are unchanged.
+
 ## 0.63.0
 
 ### Minor Changes

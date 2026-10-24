@@ -17,7 +17,7 @@ export const AuditLogEntryDTOSchema = z
     actorName: z.string().nullable().optional(),
     action: z.string(),
     target: z.string(),
-    meta: z.record(z.unknown()),
+    meta: z.record(z.string(), z.unknown()),
     createdAt: ISODateSchema,
   })
   .strict()
