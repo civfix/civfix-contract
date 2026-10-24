@@ -29,5 +29,5 @@ const ListMyHostedEventsResponseObjectSchema = z.object({
   kpis: HostPortfolioKpisSchema.optional(),
 })
 export type ListMyHostedEventsResponse = z.infer<typeof ListMyHostedEventsResponseObjectSchema>
-export const ListMyHostedEventsResponseSchema: z.ZodType<ListMyHostedEventsResponse, z.ZodTypeDef, unknown> =
+export const ListMyHostedEventsResponseSchema: z.ZodType<ListMyHostedEventsResponse, unknown> =
   ListMyHostedEventsResponseObjectSchema
