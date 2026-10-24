@@ -213,8 +213,8 @@ describe("FilingRouteInput formUrl", () => {
     }
   })
 
-  it("T4: a portal formUrl on localhost, .local or .internal fails", () => {
-    for (const formUrl of ["https://localhost/", "https://x.local/", "https://x.internal/"]) {
+  it("T4: a portal formUrl on localhost, a .localhost subdomain, .local or .internal fails", () => {
+    for (const formUrl of ["https://localhost/", "https://foo.localhost/", "https://x.local/", "https://x.internal/"]) {
       expect(passes(FilingRouteInputSchema, { ...portal, formUrl }), formUrl).toBe(false)
     }
   })
