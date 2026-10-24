@@ -12,6 +12,12 @@
   - `NotificationTypeSchema` appends `chat_mention`.
   - The prefs endpoints and `NotificationPrefsDTO` are unchanged.
 
+## 0.63.2
+
+### Patch Changes
+
+- Withdraw the 2026-10-20 terms of service and privacy policy published in 0.63.1: filing a report does not need an account. The 2026-09-21 versions are current again. No consumer adopted 0.63.1, so no one consented to the withdrawn versions.
+
 ## 0.63.1
 
 ### Patch Changes
