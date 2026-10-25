@@ -1,6 +1,6 @@
 {
   "name": "@civfix/contract",
-  "version": "0.64.0",
+  "version": "0.68.0",
   "description": "civfix API contract: zod schemas and inferred types, the endpoints registry, AppError/ErrorCode, the typed API client, and the domain helpers both the backend and the apps run. Consumed from the registry by civfix-backend, civfix-admin and civfix-app.",
   "license": "AGPL-3.0-only",
   "private": false,
@@ -100,6 +100,16 @@
         "default": "./dist/legal/index.cjs"
       }
     },
+    "./legal-texts": {
+      "import": {
+        "types": "./dist/legal-texts/index.d.ts",
+        "default": "./dist/legal-texts/index.js"
+      },
+      "require": {
+        "types": "./dist/legal-texts/index.d.cts",
+        "default": "./dist/legal-texts/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -111,6 +121,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "lint": "eslint . --max-warnings=0",
+    "legal:hash": "node scripts/legal-hash.mjs",
     "clean": "rimraf dist *.tsbuildinfo",
     "dev": "tsup --watch",
     "changeset": "changeset"

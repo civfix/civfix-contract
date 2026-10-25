@@ -1,5 +1,18 @@
 # @civfix/contract
 
+## 0.68.0
+
+### Minor Changes
+
+- Legal documents served by the API (DECISIONS §66). All additive: the registry goes from 341 to 345 entries, none of them admin.
+
+  - `LEGAL_DOCUMENTS` holds every version ever published, newest last per type (the ten seeded since 2026-09-06), and a version entry gains optional `title`, `summary` and `material`, set on every version written from now on. `currentLegalVersion(type, now)` returns the newest version in effect at `now`; `legalDocument`, `currentVersion` and `isCurrent` answer for the version in effect now and are for the backend only: clients get versions from the API.
+  - `LegalBlockSchema` (on the root and `/legal`): a document's body is headings, paragraphs, lists and tables whose inline text is the contract's inline markdown, refusing HTML, images, line breaks and links that are not safe https URLs.
+  - New subpath `@civfix/contract/legal-texts`: `LEGAL_TEXTS` (each version's blocks by `type@version`, empty until the documents move in) and `legalRecordSha256`, the hash of a version's whole record. Only the backend imports it. `pnpm legal:hash` writes the hashes into the metadata.
+  - New schemas: `LegalDocumentDTO`, `GetLegalDocumentsResponse`, `GetLegalDocumentRequest`, `GetLegalDocumentResponse`, `MyLegalStatusResponse`, `AcceptLegalRequest`, `AcceptLegalResponse`, and `LEGAL_VERSION_OUTDATED` with `LegalVersionOutdatedDetails`. `LegalDocumentVersionDTO` gains optional `title`, `summary`, `material`, `acceptedCount` and `activeAccounts`.
+  - New endpoints: `getLegalDocuments` (`GET /legal/documents`) and `getLegalDocument` (`GET /legal/documents/:type/:version`), public; `getMyLegalStatus` (`GET /me/legal`) and `acceptLegal` (`POST /me/legal/accept`, csrf), auth required.
+  - An error reply can carry an optional `details` object: `AppError`, `toJSON`, `AppErrorSchema`, `parseError` and `toAppError` carry it, and a malformed `details` is dropped without losing the rest of the error.
+
 ## 0.64.0
 
 ### Minor Changes

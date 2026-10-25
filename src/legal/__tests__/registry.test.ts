@@ -62,8 +62,11 @@ function withEpicEntry(
   }
 }
 
-function onlyEpicEntry(version: string): LegalRegistry {
-  return withEpicEntry({ documents: [], texts: {}, published: {} }, "terms", version)
+/** A registry of one terms version: the seeded entry for a pre-epic version string, a new one otherwise. */
+function onlyTermsEntry(version: string): LegalRegistry {
+  const seeded = PRE_EPIC.find((entry) => entry.type === "terms" && entry.version === version)
+  if (seeded === undefined) return withEpicEntry({ documents: [], texts: {}, published: {} }, "terms", version)
+  return { documents: [seeded], texts: {}, published: { [keyOf(seeded)]: seeded.sha256 } }
 }
 
 function expectNamed(registry: LegalRegistry, key: string): void {
@@ -99,10 +102,10 @@ describe("legal registry invariants", () => {
 
   it("T12: takes YYYY-MM-DD and YYYY-MM-DD-<n> from 2, refuses every other version string", () => {
     for (const version of ["2026-09-06", "2026-09-06-2", "2026-09-06-12"]) {
-      expect(legalRegistryProblems(onlyEpicEntry(version)), version).toEqual([])
+      expect(legalRegistryProblems(onlyTermsEntry(version)), version).toEqual([])
     }
     for (const version of ["2026-9-6", "2026-09-06-1", "2026-09-06-a", "v1", "2026-09-06T00:00"]) {
-      expectNamed(onlyEpicEntry(version), `terms@${version}`)
+      expectNamed(onlyTermsEntry(version), `terms@${version}`)
     }
   })
 

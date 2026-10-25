@@ -35,9 +35,13 @@ export const ERROR_HTTP_STATUS: Record<ErrorCode, number> = {
   [ErrorCode.INTERNAL]: 500,
 }
 
+/** Structured context a client acts on, named by the error (e.g. `LegalVersionOutdatedDetails`). */
+export type AppErrorDetails = Record<string, unknown>
+
 export interface AppErrorOptions {
   httpStatus?: number
   fields?: Record<string, string>
+  details?: AppErrorDetails
   requestId?: string
   cause?: unknown
 }
@@ -46,6 +50,8 @@ export class AppError extends Error {
   readonly code: ErrorCode
   readonly httpStatus: number
   readonly fields?: Record<string, string>
+  // `declare` emits no field, so an error without details has no `details` key at all and serializes as before.
+  declare readonly details?: AppErrorDetails
   requestId?: string
 
   constructor(code: ErrorCode, message: string, opts: AppErrorOptions = {}) {
@@ -54,6 +60,7 @@ export class AppError extends Error {
     this.code = code
     this.httpStatus = opts.httpStatus ?? ERROR_HTTP_STATUS[code]
     if (opts.fields !== undefined) this.fields = opts.fields
+    if (opts.details !== undefined) this.details = opts.details
     if (opts.requestId !== undefined) this.requestId = opts.requestId
     Object.setPrototypeOf(this, new.target.prototype)
   }
@@ -63,12 +70,14 @@ export class AppError extends Error {
     message: string
     requestId?: string
     fields?: Record<string, string>
+    details?: AppErrorDetails
   } {
     return {
       code: this.code,
       message: this.message,
       ...(this.requestId !== undefined ? { requestId: this.requestId } : {}),
       ...(this.fields !== undefined ? { fields: this.fields } : {}),
+      ...(this.details !== undefined ? { details: this.details } : {}),
     }
   }
 
@@ -138,6 +147,7 @@ export interface AppErrorLike {
   message: string
   httpStatus?: unknown
   fields?: unknown
+  details?: unknown
   requestId?: unknown
 }
 
@@ -161,6 +171,11 @@ function stringFields(fields: unknown): Record<string, string> | undefined {
   return named.length > 0 ? Object.fromEntries(named) : undefined
 }
 
+function objectDetails(details: unknown): AppErrorDetails | undefined {
+  if (typeof details !== "object" || details === null || Array.isArray(details)) return undefined
+  return details as AppErrorDetails
+}
+
 export interface ToAppErrorOptions {
   /** Message for a value that carries none of its own (an empty message, or a non-Error throw). */
   fallbackMessage?: string
@@ -175,9 +190,11 @@ export function toAppError(value: unknown, opts: ToAppErrorOptions = {}): AppErr
   if (isAppErrorLike(value)) {
     const { httpStatus, requestId } = value
     const fields = stringFields(value.fields)
+    const details = objectDetails(value.details)
     return new AppError(value.code, value.message || fallbackMessage, {
       ...(typeof httpStatus === "number" ? { httpStatus } : {}),
       ...(fields !== undefined ? { fields } : {}),
+      ...(details !== undefined ? { details } : {}),
       ...(typeof requestId === "string" ? { requestId } : {}),
       cause: value,
     })

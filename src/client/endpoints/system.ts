@@ -1,6 +1,11 @@
 import { z } from "zod"
 import { def } from "./def.js"
-import { GetLegalVersionsResponseSchema } from "../../schemas/legal.js"
+import {
+  GetLegalDocumentRequestSchema,
+  GetLegalDocumentResponseSchema,
+  GetLegalDocumentsResponseSchema,
+  GetLegalVersionsResponseSchema,
+} from "../../schemas/legal.js"
 
 const HealthzResponseSchema = z.object({ ok: z.literal(true) }).passthrough()
 
@@ -19,6 +24,24 @@ export const systemEndpoints = {
     path: "/legal/versions",
     request: null,
     response: GetLegalVersionsResponseSchema,
+    auth: "public",
+    csrf: false,
+    version: "v1",
+  }),
+  getLegalDocuments: def({
+    method: "GET",
+    path: "/legal/documents",
+    request: null,
+    response: GetLegalDocumentsResponseSchema,
+    auth: "public",
+    csrf: false,
+    version: "v1",
+  }),
+  getLegalDocument: def({
+    method: "GET",
+    path: "/legal/documents/:type/:version",
+    request: GetLegalDocumentRequestSchema,
+    response: GetLegalDocumentResponseSchema,
     auth: "public",
     csrf: false,
     version: "v1",
