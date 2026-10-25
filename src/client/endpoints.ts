@@ -22,6 +22,7 @@ import { adminUserEndpoints, adminUserHoursEndpoints } from "./endpoints/admin/u
 import { adminModerationEndpoints } from "./endpoints/admin/moderation.js"
 import { adminMailEndpoints, adminInboxEndpoints } from "./endpoints/admin/mail.js"
 import { adminAnalyticsEndpoints } from "./endpoints/admin/analytics.js"
+import { adminDevEndpoints } from "./endpoints/admin/dev.js"
 import { hostAdminEndpoints } from "./endpoints/admin/host-oversight.js"
 import { hostOrganizationEndpoints } from "./endpoints/host/organizations.js"
 import { hostTeamEndpoints } from "./endpoints/host/team.js"
@@ -57,7 +58,8 @@ export const coreEndpoints: typeof systemEndpoints &
   typeof adminUserEndpoints &
   typeof adminModerationEndpoints &
   typeof adminMailEndpoints &
-  typeof adminAnalyticsEndpoints = {
+  typeof adminAnalyticsEndpoints &
+  typeof adminDevEndpoints = {
   ...systemEndpoints,
   ...authEndpoints,
   ...reportEndpoints,
@@ -81,6 +83,7 @@ export const coreEndpoints: typeof systemEndpoints &
   ...adminModerationEndpoints,
   ...adminMailEndpoints,
   ...adminAnalyticsEndpoints,
+  ...adminDevEndpoints,
 }
 
 export const hostEndpoints: typeof hostOrganizationEndpoints &
