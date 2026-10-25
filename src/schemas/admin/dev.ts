@@ -1,0 +1,16 @@
+import { z } from "zod"
+
+export const RuntimeFlagStateDTOSchema = z.never()
+export const AdminListRuntimeFlagsResponseSchema = z.never()
+export const AdminSetRuntimeFlagRequestSchema = z.never()
+export const AdminDevOverviewResponseSchema = z.never()
+export const AdminDevJobsResponseSchema = z.never()
+export const AdminDevRunJobResponseSchema = z.never()
+export const AdminDevSetForceUpdateRequestSchema = z.never()
+export const AdminDevForceUpdateListResponseSchema = z.never()
+export const AdminDevTestPushRequestSchema = z.never()
+export const AdminDevTestPushResponseSchema = z.never()
+export const AdminDevTestEmailRequestSchema = z.never()
+export const AdminDevTestEmailResponseSchema = z.never()
+export const AdminDevResetFirstRunRequestSchema = z.never()
+export const AdminDevResetFirstRunResponseSchema = z.never()
