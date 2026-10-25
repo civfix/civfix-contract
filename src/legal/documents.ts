@@ -6,6 +6,9 @@ export interface LegalDocumentVersion {
   sha256: string
   effectiveAt: string
   url: string
+  title?: string
+  summary?: string
+  material?: boolean
 }
 
 const TERMS_PRIVACY_VERSION = "2026-09-21"
@@ -61,4 +64,8 @@ export function currentVersion(type: LegalDocumentType): string {
 
 export function isCurrent(type: LegalDocumentType, version: string): boolean {
   return legalDocument(type).version === version
+}
+
+export function currentLegalVersion(_type: LegalDocumentType, _now: Date): LegalDocumentVersion {
+  throw new Error("not implemented")
 }

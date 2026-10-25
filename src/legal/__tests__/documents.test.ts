@@ -1,13 +1,12 @@
-import { describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { LegalDocumentTypeSchema, type LegalDocumentType } from "../../schemas/common.js"
-import { LEGAL_DOCUMENTS, currentVersion, isCurrent, legalDocument } from "../documents.js"
+import { LEGAL_DOCUMENTS, currentLegalVersion, currentVersion, isCurrent, legalDocument } from "../documents.js"
 
 const ALL: readonly LegalDocumentType[] = LegalDocumentTypeSchema.options
 
 describe("LEGAL_DOCUMENTS", () => {
-  it("carries exactly one entry per legal document type", () => {
-    expect(LEGAL_DOCUMENTS.map((doc) => doc.type).sort()).toEqual([...ALL].sort())
-    expect(new Set(LEGAL_DOCUMENTS.map((doc) => doc.type)).size).toBe(LEGAL_DOCUMENTS.length)
+  it("carries at least one version of every legal document type and nothing else", () => {
+    expect([...new Set(LEGAL_DOCUMENTS.map((doc) => doc.type))].sort()).toEqual([...ALL].sort())
   })
 
   it("is frozen so no consumer can mutate the legal record", () => {
@@ -15,31 +14,54 @@ describe("LEGAL_DOCUMENTS", () => {
     for (const doc of LEGAL_DOCUMENTS) expect(Object.isFrozen(doc)).toBe(true)
   })
 
-  it("uses a date-shaped version, an ISO effectiveAt and a 64-hex sha256", () => {
+  it("uses an ISO effectiveAt and a 64-hex sha256", () => {
     for (const doc of LEGAL_DOCUMENTS) {
-      expect(doc.version).toMatch(/^\d{4}-\d{2}-\d{2}$/)
       expect(doc.effectiveAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
       expect(Number.isFinite(Date.parse(doc.effectiveAt))).toBe(true)
       expect(doc.sha256).toMatch(/^[0-9a-f]{64}$/)
     }
   })
 
-  it("gives every document a distinct https civfix.org URL", () => {
-    const urls = LEGAL_DOCUMENTS.map((doc) => doc.url)
-    expect(new Set(urls).size).toBe(urls.length)
-    for (const url of urls) expect(url.startsWith("https://civfix.org/legal/")).toBe(true)
+  it("points every version at its type's https civfix.org page", () => {
+    for (const doc of LEGAL_DOCUMENTS) expect(doc.url).toBe(`https://civfix.org/legal/${doc.type}`)
   })
 
-  it("gives every document a distinct sha256", () => {
+  it("gives every version a distinct sha256", () => {
     const hashes = LEGAL_DOCUMENTS.map((doc) => doc.sha256)
     expect(new Set(hashes).size).toBe(hashes.length)
   })
 })
 
-describe("currentVersion / isCurrent", () => {
-  it("returns the version recorded for the type", () => {
+describe("currentLegalVersion", () => {
+  it("T20: returns the newest version in effect at the given time", () => {
+    expect(currentLegalVersion("terms", new Date("2026-09-21T00:00:00.000Z")).version).toBe("2026-09-21")
+    expect(currentLegalVersion("terms", new Date("2026-09-20T23:59:59.999Z")).version).toBe("2026-09-16")
+    expect(currentLegalVersion("privacy", new Date("2026-09-06T00:00:00.000Z")).version).toBe("2026-09-06")
+    expect(currentLegalVersion("cookies", new Date("2026-12-01T00:00:00.000Z")).version).toBe("2026-09-16")
+    expect(() => currentLegalVersion("terms", new Date("2026-09-05T23:59:59.999Z"))).toThrow(RangeError)
+    expect(() => currentLegalVersion("donations" as LegalDocumentType, new Date())).toThrow(RangeError)
+  })
+})
+
+describe("legalDocument / currentVersion / isCurrent", () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it("T21: answer for the version in effect now", () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date("2026-10-25T12:00:00.000Z"))
+    expect(currentVersion("terms")).toBe("2026-09-21")
+    expect(legalDocument("cookies").version).toBe("2026-09-16")
+    expect(isCurrent("terms", "2026-09-21")).toBe(true)
+    expect(isCurrent("terms", "2026-09-16")).toBe(false)
+
+    vi.setSystemTime(new Date("2026-09-18T00:00:00.000Z"))
+    expect(currentVersion("terms")).toBe("2026-09-16")
+  })
+
+  it("rejects versions that are not current", () => {
     for (const type of ALL) {
-      expect(currentVersion(type)).toBe(legalDocument(type).version)
       expect(isCurrent(type, currentVersion(type))).toBe(true)
       expect(isCurrent(type, "1999-01-01")).toBe(false)
       expect(isCurrent(type, "")).toBe(false)
