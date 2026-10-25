@@ -40,8 +40,8 @@ describe("pnpm legal:hash", () => {
     const privacy = { ...terms, type: "privacy" as const, url: "https://civfix.org/legal/privacy", title: "Privacy Policy" }
     const termsBlocks = [{ kind: "paragraph" as const, text: "Terms text" }]
     const privacyBlocks = [{ kind: "heading" as const, level: 2 as const, text: "Privacy" }]
-    const termsHash = legalRecordSha256({ ...terms, sha256: ZEROS }, termsBlocks)
-    const privacyHash = legalRecordSha256({ ...privacy, sha256: ZEROS }, privacyBlocks)
+    const termsHash = legalRecordSha256(terms, termsBlocks)
+    const privacyHash = legalRecordSha256(privacy, privacyBlocks)
 
     const documents = `export const LEGAL_DOCUMENTS = [
   {
