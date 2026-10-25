@@ -20,7 +20,10 @@ function canonicalJson(value: unknown): string {
  * The sha256 of a version's whole record (DECISIONS §66): every metadata field but `sha256`, and its
  * blocks. Versions from before §66 have no record and keep the hash they were stored with.
  */
-export function legalRecordSha256(entry: Omit<LegalDocumentVersion, "sha256">, blocks: readonly LegalBlock[]): string {
+export function legalRecordSha256(
+  entry: Omit<LegalDocumentVersion, "sha256"> & { sha256?: string },
+  blocks: readonly LegalBlock[],
+): string {
   const { type, version, effectiveAt, url, title, summary, material } = entry
   if (title === undefined || summary === undefined || material === undefined) {
     throw new Error(`${type}@${version} has no title, summary and material, so it has no record to hash`)

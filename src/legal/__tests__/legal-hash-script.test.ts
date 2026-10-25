@@ -20,9 +20,8 @@ const gitStatus = (): string => execFileSync("git", ["status", "--porcelain"], {
 
 describe("pnpm legal:hash", () => {
   it("T19: leaves this branch untouched", { timeout: 120_000 }, () => {
-    const before = gitStatus()
     run([])
-    expect(gitStatus()).toBe(before)
+    expect(gitStatus()).toBe("")
   })
 
   it("T19: rewrites exactly the one stale hash in a fixture, every other byte identical", { timeout: 120_000 }, () => {
@@ -40,8 +39,8 @@ describe("pnpm legal:hash", () => {
     const privacy = { ...terms, type: "privacy" as const, url: "https://civfix.org/legal/privacy", title: "Privacy Policy" }
     const termsBlocks = [{ kind: "paragraph" as const, text: "Terms text" }]
     const privacyBlocks = [{ kind: "heading" as const, level: 2 as const, text: "Privacy" }]
-    const termsHash = legalRecordSha256(terms, termsBlocks)
-    const privacyHash = legalRecordSha256(privacy, privacyBlocks)
+    const termsHash = legalRecordSha256({ ...terms, sha256: ZEROS }, termsBlocks)
+    const privacyHash = legalRecordSha256({ ...privacy, sha256: ZEROS }, privacyBlocks)
 
     const documents = `export const LEGAL_DOCUMENTS = [
   {
