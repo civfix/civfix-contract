@@ -268,6 +268,21 @@ export type EventAddressSource = z.infer<typeof EventAddressSourceSchema>
 export const ReportAddressSourceSchema = z.enum(["resolved", "user"])
 export type ReportAddressSource = z.infer<typeof ReportAddressSourceSchema>
 
+/**
+ * The report's latest submitted or linked city filing, as residents see it. `caseUrl` was validated by
+ * the server; a client still opens it only when it is https.
+ */
+export const ReportFilingDTOSchema = z
+  .object({
+    jurisdictionName: z.string().nullable(),
+    caseId: z.string().nullable(),
+    caseUrl: z.string().nullable(),
+    filedAt: z.string(),
+    linkedExisting: z.boolean(),
+  })
+  .strict()
+export type ReportFilingDTO = z.infer<typeof ReportFilingDTOSchema>
+
 export const ReportDTOSchema = z.object({
   id: IdSchema,
   referenceCode: z.string().optional(),
@@ -311,6 +326,8 @@ export const ReportDTOSchema = z.object({
   confirmedByMe: z.boolean().default(false),
   fixedCount: z.number().int().nonnegative().default(0),
   fixedByMe: z.boolean().default(false),
+  // Null until the report is filed with the city (DECISIONS §64); optional so an older server still parses.
+  filing: ReportFilingDTOSchema.nullable().optional(),
 })
 export type ReportDTO = z.infer<typeof ReportDTOSchema>
 

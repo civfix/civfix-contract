@@ -12,6 +12,7 @@ import {
   RelAbsTimeSchema,
 } from "./common.js"
 import { AdminMediaRefSchema } from "./internal-fields.js"
+import { AdminFilingDTOSchema, AdminReportFilingRouteSchema } from "./filings.js"
 
 /**
  * Admin reports surface. "flagged" is an abuse marker, not a status, and removing a report sets it to
@@ -182,6 +183,10 @@ export const AdminReportDTOSchema = AdminReportListItemDTOSchema.extend({
   verifiedAt: z.string().nullish(),
   // Whether the REPORTER has earned the report-verified state. Optional so older servers still parse.
   reporterReportVerified: z.boolean().optional(),
+  // The report's latest filing in any status, sent on the detail only. Optional so older servers still parse.
+  filing: AdminFilingDTOSchema.omit({ evidence: true }).nullable().optional(),
+  // Where the report would be filed now; null when no route resolves. Optional so older servers still parse.
+  filingRoute: AdminReportFilingRouteSchema.nullable().optional(),
 }).strict()
 export type AdminReportDTO = z.infer<typeof AdminReportDTOSchema>
 
