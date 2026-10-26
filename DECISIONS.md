@@ -2338,3 +2338,90 @@ tests assert accepted values rather than zod's text. The explicit annotations ar
 
 Every consumer adopts it in one delivery set: civfix-backend (`services/api`, `services/media-worker`,
 `packages/seams`, with its own `zod` moved to `^4.6.6`), civfix-app and civfix-admin.
+
+## 66. Legal documents served by the API (0.68.0)
+
+**The contract writes the documents, the backend serves them.** Every legal document version lives in
+the contract as data: its metadata in `LEGAL_DOCUMENTS` (on the root and `/legal`) and its text in
+`LEGAL_TEXTS` on `@civfix/contract/legal-texts`, keyed by `type@version`. The backend loads every
+version into `legal_documents` on deploy and is the only thing that serves documents, versions and
+acceptance state. Web, mobile and admin never call `currentVersion()`, `legalDocument()` or
+`isCurrent()` and never read `LEGAL_DOCUMENTS` at runtime; they fetch from the API, so a new version
+reaches every app the moment the backend deploys and an old build cannot drift from what the server
+enforces. Those helpers stay exported for the backend, and their doc comments say clients must not call
+them. Only the backend imports `legal-texts`, so no app bundle carries the texts, and nothing on the root
+or `/legal` imports it (a test walks the import graph).
+
+**A document is structured blocks.** A version's body is a list of `LegalBlockSchema` blocks: `heading`
+(level 2 or 3), `paragraph`, `list` (`ordered`, at least one item) and `table` (at least one column and
+row, every row as wide as the columns). Text, list items and cells are one line of the contract's inline
+markdown (bold, italic, links). The parser renders leniently, so the schema refuses what it would
+quietly change: links that are not `isSafeHttpsUrl`, images, HTML, line breaks, control characters,
+blank text and text that reads as a list. Blocks render the same on web and React Native and hash
+deterministically, which neither markdown (no headings or tables) nor JSX does.
+
+**Versions, the material flag and the hash.** A version is `type`, `version` (`YYYY-MM-DD`, then `-2`,
+`-3` for a further version the same day), `effectiveAt`, `url`, `title`, `summary` (one or two plain
+sentences on what changed, "No change in wording" when that is the truth), `material` and its blocks.
+`sha256` covers the whole record: the canonical JSON (keys sorted at every level, no whitespace) of
+`{ type, version, effectiveAt, url, title, summary, material, blocks }`, computed by `legalRecordSha256`
+and written into the metadata by `pnpm legal:hash`. Hashing happens only in that script, the tests and
+the backend loader, never in an app. Tests fail when a stored hash differs from the recomputed one, when
+a hash in `src/legal/__tests__/published-hashes.json` changes or its version disappears, when two
+versions of a type share a version string, on a malformed version string, and when a Cookies or
+Subprocessors version is material. The ten versions seeded before this decision (2026-09-06, 2026-09-16
+and 2026-09-21) keep only `type`, `version`, `effectiveAt`, `url` and the `sha256` they were stored
+with, which hashed the old web pages and cannot be recomputed; they have no text to show. Versions are
+immutable: the contract keeps every version ever published, newest last per type, and a change is a new
+version. **Current** is the newest version of a type whose `effectiveAt` has passed
+(`currentLegalVersion(type, now)`), so a material change written with an `effectiveAt` on or after the
+release that ships it takes effect then, not at deploy. Only a Terms or Privacy change a founder marks as
+material has `material: true`; Cookies and Subprocessors are never material. The four current documents
+move over word for word as new versions, `material: false`, summary "No change in wording".
+
+**What a person owes.** `GET /me/legal` (`getMyLegalStatus`) returns `required` (every current Terms or
+Privacy version the person has never accepted, or one marked material that is newer than the version they
+last accepted; acknowledgements never count here), `notices` (every other current version newer than what
+they last accepted or acknowledged) and `accepted` (their latest accepted or acknowledged version per
+type). Nobody's acceptance was recorded before this, so every existing account owes the current Terms and
+Privacy once. Signing up accepts the current Terms and Privacy and acknowledges the current Cookies and
+Subprocessors, so a new account owes nothing.
+
+**The prompt and the notice.** A required version shows signed-in people a full-screen prompt with the
+summary, a link to read each document, **Accept and continue** and **Sign out**; a notice is a
+dismissible banner whose **Got it** acknowledges it. Guests see neither. The server records acceptance but
+never refuses a request because one is missing, so older phone builds keep working.
+
+**Recording acceptance.** `POST /me/legal/accept` (`acceptLegal`, csrf, rate-limited to 20 a minute per
+user by the backend) takes `{ items: [{ type, version, sha256, action }], surface? }`: one to four items,
+one per type, `action` `accepted` or `acknowledged`, `surface` `signup`, `prompt` or `notice` (its own
+enum: `ConsentSurfaceSchema` is unchanged because event registration uses it). It accepts only current
+versions whose `sha256` matches what the person was shown, refuses `acknowledged` for a required
+document and `signup` once the account has consent records, and is idempotent; it answers with the new
+status. Records go in `consent_records` with the server's time and no IP address or device data; the data
+export includes them and account deletion keeps them, tied to the anonymized account.
+
+**Event sign-up consent and the CONFLICT details.** Event registration and guest RSVP send the Terms and
+Privacy versions the app fetched from `GET /legal/documents`. The server accepts the current version, or
+the one just before it when the current one is not material, so a minor change never breaks an older
+build. Anything else, here and in `acceptLegal`, is `CONFLICT` with `details`
+`{ reason: LEGAL_VERSION_OUTDATED, current: [{ type, version, sha256 }] }`
+(`LegalVersionOutdatedDetailsSchema`; no new `ErrorCode`), and new builds use `current` directly. Error
+replies gained the optional `details` object for this: `AppError`, `toJSON`, `AppErrorSchema`,
+`parseError` and `toAppError` carry it, a reply without it is unchanged, older clients strip the unknown
+key, and a malformed `details` is dropped rather than losing the rest of the error.
+
+**API contract.** One additive minor, 0.68.0 (the notification center holds 0.65.0, city filing 0.66.0
+and the developer console 0.67.0). New schemas: `LegalBlockSchema`, `LegalDocumentDTO` (the version's
+fields, `sha256` and `blocks`, with `title`, `summary`, `material` and `blocks` null on the pre-§66
+versions), `GetLegalDocumentsResponse`, `GetLegalDocumentRequest`, `GetLegalDocumentResponse`,
+`MyLegalStatusResponse` (its `required` and `notices` are the DTO without `blocks`; `accepted` is a
+`z.partialRecord` by type), `AcceptLegalRequest` and `AcceptLegalResponse` (the status response).
+`LegalDocumentVersionDTO` gains optional `title`, `summary`, `material`, `acceptedCount` and
+`activeAccounts`. New endpoints: `getLegalDocuments` (`GET /legal/documents`) and `getLegalDocument`
+(`GET /legal/documents/:type/:version`), public; `getMyLegalStatus` and `acceptLegal`, auth required.
+
+**Open question for counsel.** Builds released before this cannot be prompted: they rely on the Terms'
+continued-use clause until people update, and their event sign-up fails at the first change of any kind
+after the migration. Whether continued use is enough for a material Privacy change, particularly for
+people in the EEA, is a question for counsel that the founders answer before the first material change.

@@ -103,6 +103,7 @@ export async function parseError(res: Response, requestId?: string): Promise<App
     return new AppError(code, envelope.message, {
       httpStatus: res.status,
       ...(envelope.fields !== undefined ? { fields: envelope.fields } : {}),
+      ...(envelope.details !== undefined ? { details: envelope.details } : {}),
       requestId: envelope.requestId ?? requestId,
     })
   }

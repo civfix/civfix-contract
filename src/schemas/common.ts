@@ -75,6 +75,8 @@ export const AppErrorSchema = z.object({
   message: z.string(),
   requestId: z.string().optional(),
   fields: z.record(z.string(), z.string()).optional(),
+  // Added after the envelope shipped: a malformed value is dropped rather than failing the whole envelope.
+  details: z.record(z.string(), z.unknown()).optional().catch(undefined),
 })
 export type AppErrorShape = z.infer<typeof AppErrorSchema>
 
