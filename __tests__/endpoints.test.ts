@@ -52,7 +52,7 @@ describe("service-hours endpoint registry", () => {
       const key = `${e.method} ${e.path}`
       expect(
         seen.get(key),
-        `${key} is claimed by both ${seen.get(key)} and ${name}`,
+        `${key} is claimed by both ${seen.get(key) ?? "nothing"} and ${name}`,
       ).toBeUndefined()
       seen.set(key, name)
     }

@@ -49,5 +49,6 @@ describe("currentVersion / isCurrent", () => {
   it("throws on an unknown type rather than silently accepting stale consent", () => {
     expect(() => currentVersion("nope" as LegalDocumentType)).toThrow(RangeError)
     expect(() => legalDocument("nope" as LegalDocumentType)).toThrow(RangeError)
+    expect(() => legalDocument("toString" as LegalDocumentType)).toThrow(RangeError)
   })
 })

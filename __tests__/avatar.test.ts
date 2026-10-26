@@ -90,6 +90,6 @@ describe("monogram", () => {
   // charAt(0) would return half a surrogate pair, which renders as the replacement box.
   it("takes a whole code point for astral-plane names", () => {
     expect(monogram("\u{1F335} Cactus Crew")).toBe("\u{1F335}")
-    expect([...monogram("\u{20BB7}bc")]).toHaveLength(1)
+    expect(monogram("\u{20BB7}bc")).toBe("\u{20BB7}")
   })
 })

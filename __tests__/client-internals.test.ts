@@ -72,6 +72,10 @@ describe("buildQuery", () => {
     expect(JSON.parse(params.get("bbox")!)).toEqual({ west: -1, south: -2, east: 3, north: 4 })
   })
 
+  it("refuses a value with no query form instead of sending its source text", () => {
+    expect(() => buildQuery({ cb: () => 1 })).toThrowError(/Query param "cb" is a function/)
+  })
+
   it("stringifies scalar values", () => {
     expect(buildQuery({ limit: 10, q: "hi" })).toBe("?limit=10&q=hi")
   })
@@ -174,8 +178,8 @@ describe("parseError", () => {
 describe("createApiClient GET path-param de-duplication", () => {
   it("does NOT duplicate the path-param key into the query for GET /cleanups/:id/messages", async () => {
     let url = ""
-    const fetchImpl = vi.fn(async (u: string | URL | Request) => {
-      url = String(u)
+    const fetchImpl = vi.fn(async (u: string) => {
+      url = u
       return jsonResponse({ items: [], nextCursor: null })
     }) as unknown as typeof fetch
 
@@ -192,8 +196,8 @@ describe("createApiClient GET path-param de-duplication", () => {
 
   it("excludes the *Id-tolerated key (reportId) from the GET query while keeping other fields", async () => {
     let url = ""
-    const fetchImpl = vi.fn(async (u: string | URL | Request) => {
-      url = String(u)
+    const fetchImpl = vi.fn(async (u: string) => {
+      url = u
       return jsonResponse({ status: "submitted" })
     }) as unknown as typeof fetch
 
@@ -209,8 +213,8 @@ describe("createApiClient GET path-param de-duplication", () => {
 
   it("still serializes object (JSON) and array (repeat) query fields on a GET with no path param", async () => {
     let url = ""
-    const fetchImpl = vi.fn(async (u: string | URL | Request) => {
-      url = String(u)
+    const fetchImpl = vi.fn(async (u: string) => {
+      url = u
       return jsonResponse({ clusters: [], pins: [] })
     }) as unknown as typeof fetch
 
