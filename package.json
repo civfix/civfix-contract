@@ -111,6 +111,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "lint": "eslint . --max-warnings=0",
+    "check:package": "publint --strict && attw --pack . --profile node16",
     "clean": "rimraf dist *.tsbuildinfo",
     "dev": "tsup --watch",
     "changeset": "changeset"
@@ -119,15 +120,17 @@
     "zod": "^4.6.6"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
+    "@changesets/cli": "^2.27.10",
     "@eslint/js": "^9.16.0",
     "@types/node": "^22.10.2",
     "eslint": "^9.16.0",
+    "publint": "0.3.25",
     "rimraf": "^6.0.1",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.18.0",
-    "vitest": "^3.2.7",
-    "@changesets/cli": "^2.27.10"
+    "vitest": "^4.1.12"
   },
   "engines": {
     "node": ">=20"
@@ -138,7 +141,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/civfix/civfix-contract.git"
+    "url": "git+https://github.com/civfix/civfix-contract.git"
   },
   "packageManager": "pnpm@9.12.0"
 }
