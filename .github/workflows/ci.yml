@@ -33,6 +33,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
+      - run: pnpm check:package
       - run: node --test scripts/check-version.test.mjs
       # Fails a PR whose version the registry already holds from a commit main never released.
       - run: node scripts/check-version.mjs
