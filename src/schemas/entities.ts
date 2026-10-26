@@ -337,6 +337,12 @@ const LegalDocumentVersionDTOObjectSchema = z.object({
   sha256: z.string().min(1).max(128),
   effectiveAt: ISODateSchema,
   url: z.string(),
+  // Optional so an older server still parses (DECISIONS §66).
+  title: z.string().optional(),
+  summary: z.string().optional(),
+  material: z.boolean().optional(),
+  acceptedCount: z.number().int().nonnegative().nullable().optional(),
+  activeAccounts: z.number().int().nonnegative().nullable().optional(),
 })
 export type LegalDocumentVersionDTO = z.infer<typeof LegalDocumentVersionDTOObjectSchema>
 export const LegalDocumentVersionDTOSchema: z.ZodType<LegalDocumentVersionDTO, unknown> =
