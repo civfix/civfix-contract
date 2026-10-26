@@ -31,7 +31,6 @@ export function stableHash(seed: string): number {
   return h >>> 0
 }
 
-/** The palette color at `index`, wrapped onto the palette. */
 function paletteColor(index: number): AvatarColor {
   const color = AVATAR_PALETTE[index % AVATAR_PALETTE.length]
   if (color === undefined) throw new RangeError(`avatar palette index ${index} is not a non-negative integer`)

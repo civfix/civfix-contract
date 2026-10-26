@@ -157,18 +157,19 @@ describe("photonSuggest", () => {
     await expect(photonSuggest("anywhere")).rejects.toThrow()
   })
 
-  it("skips malformed features and keeps the well-formed ones", async () => {
+  it("skips features without usable coordinates and ignores malformed descriptive fields", async () => {
     const features = [
       null,
       { geometry: { coordinates: [-118.2] }, properties: { name: "One coordinate" } },
       { geometry: { coordinates: ["-118.2", "34.0"] }, properties: { name: "String coordinates" } },
-      { geometry: { coordinates: [-118.2, 34.0] }, properties: { name: 42 } },
       { properties: { name: "No geometry" } },
-      { geometry: { coordinates: [-118.2, 34.0, 120] }, properties: null },
+      { geometry: { coordinates: [-118.2, 34.0] }, properties: { name: 42, city: "Los Angeles", osm_id: {} } },
+      { geometry: { coordinates: [-118.3, 34.1, 120] }, properties: null },
     ]
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ features })))
     expect(await photonSuggest("anywhere")).toEqual([
-      { id: "photon:34,-118.2", label: "Unknown place", secondary: undefined, lat: 34, lng: -118.2, source: "photon" },
+      { id: "photon:34,-118.2", label: "Los Angeles", secondary: undefined, lat: 34, lng: -118.2, source: "photon" },
+      { id: "photon:34.1,-118.3", label: "Unknown place", secondary: undefined, lat: 34.1, lng: -118.3, source: "photon" },
     ])
   })
 
@@ -230,19 +231,22 @@ describe("mapboxSuggest", () => {
     await expect(mapboxSuggest("x", { mapboxToken: "pk.test" })).rejects.toThrow()
   })
 
-  it("skips malformed features and resolves none for a body that is not a feature collection", async () => {
+  it("skips features without usable coordinates and resolves none for a body that is not a feature collection", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () =>
         mapboxResponse([
           { geometry: { coordinates: [-118.2] }, properties: { name: "One coordinate" } },
-          { geometry: { coordinates: [-118.2, 34.0] }, properties: { context: { place: "Los Angeles" } } },
+          { geometry: { coordinates: [-118.2, 34.0] }, properties: { name: null, context: { place: "Los Angeles" } } },
           { geometry: { coordinates: [-118.25, 34.05] }, properties: { name: "Main St", context: null } },
         ]),
       ),
     )
     const out = await mapboxSuggest("main st", { mapboxToken: "pk.test" })
-    expect(out.map((s) => s.label)).toEqual(["Main St"])
+    expect(out.map((s) => [s.label, s.secondary])).toEqual([
+      ["Unknown place", undefined],
+      ["Main St", undefined],
+    ])
 
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ type: "FeatureCollection" })))
     expect(await mapboxSuggest("main st", { mapboxToken: "pk.test" })).toEqual([])

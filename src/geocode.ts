@@ -137,21 +137,24 @@ const PositionSchema = z.tuple([z.number(), z.number()]).rest(z.unknown())
  */
 const FeatureCollectionSchema = z.object({ features: z.array(z.unknown()) })
 
+/** A feature with usable coordinates is kept; a malformed descriptive field only degrades its label. */
+const OptionalText = z.string().optional().catch(undefined)
+
 const PhotonPropertiesSchema = z.object({
-  name: z.string().optional(),
-  housenumber: z.string().optional(),
-  street: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().optional(),
-  osm_id: z.union([z.number(), z.string()]).optional(),
-  osm_type: z.string().optional(),
+  name: OptionalText,
+  housenumber: OptionalText,
+  street: OptionalText,
+  city: OptionalText,
+  state: OptionalText,
+  country: OptionalText,
+  osm_id: z.union([z.number(), z.string()]).optional().catch(undefined),
+  osm_type: OptionalText,
 })
 type PhotonProperties = z.infer<typeof PhotonPropertiesSchema>
 
 const PhotonFeatureSchema = z.object({
   geometry: z.object({ coordinates: PositionSchema }),
-  properties: PhotonPropertiesSchema.nullish(),
+  properties: PhotonPropertiesSchema.optional().catch(undefined),
 })
 
 /** Provider fields can arrive as empty strings, which must fall through to the next candidate. */
@@ -168,7 +171,6 @@ function photonSecondary(p: PhotonProperties, label: string): string | undefined
   return parts.length ? parts.join(", ") : undefined
 }
 
-/** The features of a provider response, or none when the body is not a feature collection. */
 async function responseFeatures(res: Response): Promise<unknown[]> {
   const parsed = FeatureCollectionSchema.safeParse(await res.json())
   return parsed.success ? parsed.data.features : []
@@ -218,21 +220,22 @@ export async function photonSuggest(query: string, opts: SuggestOptions = {}): P
 const MAPBOX_FORWARD_URL = "https://api.mapbox.com/search/geocode/v6/forward"
 
 const MapboxV6PropertiesSchema = z.object({
-  name: z.string().optional(),
-  place_formatted: z.string().optional(),
-  full_address: z.string().optional(),
+  name: OptionalText,
+  place_formatted: OptionalText,
+  full_address: OptionalText,
   context: z
     .object({
-      place: z.object({ name: z.string().optional() }).nullish(),
-      region: z.object({ name: z.string().optional(), region_code: z.string().optional() }).nullish(),
+      place: z.object({ name: OptionalText }).optional().catch(undefined),
+      region: z.object({ name: OptionalText, region_code: OptionalText }).optional().catch(undefined),
     })
-    .nullish(),
+    .optional()
+    .catch(undefined),
 })
 type MapboxV6Properties = z.infer<typeof MapboxV6PropertiesSchema>
 
 const MapboxV6FeatureSchema = z.object({
   geometry: z.object({ coordinates: PositionSchema }),
-  properties: MapboxV6PropertiesSchema.nullish(),
+  properties: MapboxV6PropertiesSchema.optional().catch(undefined),
 })
 
 function mapboxLabel(p: MapboxV6Properties): string {
