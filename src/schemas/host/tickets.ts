@@ -38,7 +38,7 @@ export const SALES_WINDOW_ISSUE = {
 }
 
 export function refineSalesWindow(
-  value: { salesOpensAt?: string | null; salesClosesAt?: string | null },
+  value: { salesOpensAt?: string | null | undefined; salesClosesAt?: string | null | undefined },
   ctx: z.RefinementCtx,
 ): void {
   const opens = value.salesOpensAt

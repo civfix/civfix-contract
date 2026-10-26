@@ -36,9 +36,9 @@ export const ERROR_HTTP_STATUS: Record<ErrorCode, number> = {
 }
 
 export interface AppErrorOptions {
-  httpStatus?: number
-  fields?: Record<string, string>
-  requestId?: string
+  httpStatus?: number | undefined
+  fields?: Record<string, string> | undefined
+  requestId?: string | undefined
   cause?: unknown
 }
 
@@ -163,7 +163,7 @@ function stringFields(fields: unknown): Record<string, string> | undefined {
 
 export interface ToAppErrorOptions {
   /** Message for a value that carries none of its own (an empty message, or a non-Error throw). */
-  fallbackMessage?: string
+  fallbackMessage?: string | undefined
 }
 
 const UNKNOWN_ERROR_MESSAGE = "Unknown error"

@@ -316,7 +316,7 @@ const GuestContactFields = {
 } as const
 
 function refineGuestContact(
-  value: { channel: GuestContactChannel; email?: string; phone?: string },
+  value: { channel: GuestContactChannel; email?: string | undefined; phone?: string | undefined },
   ctx: z.RefinementCtx,
 ): void {
   const required = value.channel === "email" ? "email" : "phone"

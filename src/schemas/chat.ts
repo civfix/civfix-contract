@@ -8,7 +8,7 @@ export { ChatMessageDTOSchema, ChatMessageKindSchema } from "./entities.js"
 export type { ChatMessageDTO, ChatMessageKind } from "./entities.js"
 
 export const rejectAroundWithBefore = (
-  v: { before?: string; around?: string },
+  v: { before?: string | undefined; around?: string | undefined },
   ctx: z.RefinementCtx,
 ): void => {
   if (v.before !== undefined && v.around !== undefined) {
