@@ -1,3 +1,72 @@
 import type { LegalBlock } from "../legal/blocks.js"
 
-export const SUBPROCESSORS_2026_10_26: readonly LegalBlock[] = []
+// Sub-processors 2026-10-26: the text of the 2026-09-16 web page, word for word (DECISIONS §66).
+export const SUBPROCESSORS_2026_10_26: readonly LegalBlock[] = [
+  {
+    kind: "paragraph",
+    text: "civfix uses a small set of third-party providers to operate the service. Each one Processes personal data on our behalf, under contract (or, for our open-source geocoding fallback, under its public terms of use), only to provide its part of civfix. We keep the list short on purpose. This page is the list referenced by our [Privacy Policy](https://civfix.org/legal/privacy).",
+  },
+  {
+    kind: "table",
+    columns: ["Sub-processor", "Purpose", "Personal data processed", "Location"],
+    rows: [
+      [
+        "Oracle Cloud Infrastructure (Oracle America, Inc.)",
+        "Outbound transactional and notification email (OCI Email Delivery).",
+        "Recipient email addresses and the contents of the emails we send (for example sign-in codes and report or notification updates).",
+        "United States / global",
+      ],
+      [
+        "Cloudflare, Inc.",
+        "Object storage (R2) for report photos and videos; content-delivery network for media; web app hosting (Cloudflare Pages); anti-bot challenge (Turnstile); edge security / WAF; inbound email routing; coarse IP-based geolocation for the location sanity check.",
+        "Report photos and videos; IP addresses; request metadata; anti-abuse challenge signals; inbound email content.",
+        "United States / global",
+      ],
+      [
+        "CARTO & OpenStreetMap contributors",
+        "Map basemap tiles loaded directly by your device or browser when you view the map.",
+        "IP address and tile requests made by your client when the basemap loads.",
+        "United States / EU",
+      ],
+      [
+        "Mapbox, Inc.",
+        "Address search / autocomplete and reverse geocoding (turning a selected map location into a street address) for the report and event location pickers. Requests are proxied through civfix's own servers, not sent directly from your device.",
+        "The address text you type into location search and the coordinates of the location you select or pin on the map (including the map area used to rank nearby results). Because the request comes from our server, your device IP address is not shared with Mapbox.",
+        "United States",
+      ],
+      [
+        "komoot (Photon geocoder)",
+        "The same address search / autocomplete and reverse geocoding as Mapbox, served by the free, open-source Photon geocoding service (photon.komoot.io). This is the keyless fallback used when Mapbox is unavailable or not enabled. Requests are proxied through civfix's own servers. As a free public endpoint it is used under its public terms of use, without a separate data-processing agreement.",
+        "The address text you type into location search and the coordinates of the location you select or pin on the map. Because the request comes from our server, your device IP address is not shared with komoot.",
+        "Germany / EU",
+      ],
+      [
+        "Apple Inc.",
+        "Sign in with Apple (authentication) and the Apple Push Notification service (push notifications to iOS devices).",
+        "Account identifier provided at sign-in; device push tokens and notification payloads.",
+        "United States",
+      ],
+      [
+        "Google LLC",
+        "Sign in with Google (authentication) and Firebase Cloud Messaging (push notifications to Android and web).",
+        "Account identifier provided at sign-in; device push tokens and notification payloads.",
+        "United States",
+      ],
+    ],
+  },
+  { kind: "heading", level: 2, text: "Sign-in and routing" },
+  {
+    kind: "paragraph",
+    text: "When you sign in through an identity provider (such as Google or Apple), that provider acts as an independent controller of your relationship with it; we receive only a basic identifier. When we forward a report to the government body responsible for a location, that agency receives the report as an independent recipient, not as our sub-processor.",
+  },
+  { kind: "heading", level: 2, text: "International transfers" },
+  {
+    kind: "paragraph",
+    text: "civfix is operated from the United States, and several of the providers above are located in the United States and other countries. Where we transfer the personal information of users in the European Economic Area, the United Kingdom, or Switzerland to a country without an adequacy decision, we rely on appropriate safeguards - principally the European Commission’s Standard Contractual Clauses and the UK International Data Transfer Addendum, together with the EU-US / UK Extension / Swiss-US Data Privacy Framework where the provider is certified. See the [Privacy Policy](https://civfix.org/legal/privacy) for details and how to request a copy of the safeguards.",
+  },
+  { kind: "heading", level: 2, text: "Changes to this list" },
+  {
+    kind: "paragraph",
+    text: "We may add or replace sub-processors as civfix evolves. When we do, we will update this page and the “Last updated” date. For questions, email roman@reachoutla.org.",
+  },
+]
