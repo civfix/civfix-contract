@@ -2338,3 +2338,52 @@ tests assert accepted values rather than zod's text. The explicit annotations ar
 
 Every consumer adopts it in one delivery set: civfix-backend (`services/api`, `services/media-worker`,
 `packages/seams`, with its own `zod` moved to `^4.6.6`), civfix-app and civfix-admin.
+
+## 65. Runtime flags are a fixed registry in the contract, and the developer console's shapes (0.67.0)
+
+**Runtime flags.** `RUNTIME_FLAGS` is the whole list of values an operator can change without a
+deploy. Each entry fixes its `key`, `label`, `description`, `type` (`boolean`, `semver`, `url`,
+`text` or `choice`), `default`, `envFallback` (the backend env var used when there is no override, or
+null), `public` (included in `GET /app/config`) and, by type, `choices`, `maxLength` or `urlPrefix`.
+Adding, removing or retyping a flag is a contract change, reviewed like any other; the backend stores
+only overrides and resolves every value against this list (override, else a non-empty env fallback,
+else the default), so a stored row whose key is not here is ignored. The first eight are the three
+switches founders flipped by redeploy (`host_messaging_kill_switch`, `outreach_digest_enabled`,
+`report_autoforward_enabled`, each still falling back to its env var), the minimum app versions and
+App Store link the force-update screen reads, and the site-wide announcement.
+
+**Values.** A flag value is JSON: `RuntimeFlagValueSchema` is boolean, string or null, and it is what
+`RuntimeFlagStateDTO` (`value`, `override`, `fallback`) and `AdminSetRuntimeFlagRequest` carry. The
+per-flag check is `runtimeFlagValueSchema(key)`, which the backend runs on every write and on every
+stored row. Strings are trimmed and an empty one is rejected, so "not set" is always null and never
+`""`; null is a value only for `semver`, `url` and `text` flags. `semver` is `MAJOR.MINOR.PATCH`
+digits only (no `v`, no pre-release), `url` must be a URL starting with its `urlPrefix`, `text` is
+capped at its `maxLength`, and `choice` takes one of its choice values. An unknown key accepts
+nothing, null included.
+
+**The flag key on the set request.** `adminSetRuntimeFlag` is `PUT /admin/dev/flags/:key` with the
+body `{ value }`. Like every request-carrying endpoint with a path param, its request schema declares
+the param, so `AdminSetRuntimeFlagRequest` is `{ key, value }`, strict, and the typed client fills
+`:key` from it. The server takes `key` from the path, as it does for `:id` elsewhere, so the wire body
+is the same. `key` is any string rather than an enum of the registry's keys: an unknown key reaches the
+server and is `NOT_FOUND`, not a parse `VALIDATION` error.
+
+**App config.** `AppConfigResponse` (`getAppConfig`, auth optional) is built from the public flags:
+`minAppVersion` and `storeUrl` per platform (the Android store link is a constant, so it is never
+null) and `announcement`, null when no text is set. It is not strict, so a phone on an older version
+still parses a response that gained a field; the admin shapes below are strict, like the rest of
+`/admin`.
+
+**Developer console.** Ten operator endpoints under `/admin/dev`, all auth required, csrf on every
+mutation: the flag list and set; `adminDevOverview` (environment `prod`, `staging`, `local` or
+`unknown`; the API's and worker's build identity, each field null when the deploy did not pass it;
+real or fake per seam, named by its lowercased flag; read-only env settings as strings; the test
+account addresses); `adminDevJobs` and `adminDevRunJob` (counts and ages are non-negative integers;
+the run has no body and answers `{ enqueued }`); and the staging test tools (force update, test push,
+test email, reset first run). Each test tool names its target by a trimmed, validated email and
+nothing else; the test email's request is an empty strict object, so it can only go to the signed-in
+operator. The test push caps `title` at 80 and `body` at 200 characters
+(`DEV_TEST_PUSH_TITLE_MAX_LENGTH`, `DEV_TEST_PUSH_BODY_MAX_LENGTH`).
+
+The change is additive: no existing export changes. The registry moves from 341 to 352 entries, 119
+of them under `/admin`.
