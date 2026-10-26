@@ -9,5 +9,5 @@ export interface AuthContext {
   userId: string | null
   roles: Role[]
   anon: boolean
-  anonSessionId?: string
+  anonSessionId?: string | undefined
 }

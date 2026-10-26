@@ -1,5 +1,11 @@
 # @civfix/contract
 
+## 0.64.1
+
+### Patch Changes
+
+- Hand-written option and input types now say `| undefined` on their optional properties, so a consumer that turns on `exactOptionalPropertyTypes` can pass a possibly-undefined value without building the object conditionally: `AppErrorOptions`, `ToAppErrorOptions`, `CreateApiClientOptions`, `RequestArgs`, `GeoSuggestion`, `SuggestOptions`, `AuthContext.anonSessionId`, `RelativeAgoOptions`, `EventWhenInput`, `EventWhenOptions`, `EventWindowLike`, `EventPhaseClock`, `IcsEventInput`, `SmsBodyOptions`, `BroadcastLinkOptions`, `SuppressOptions`, `BreakdownOptions`, `ArrivalsCurveOptions`, `ParseMarkdownOptions`, `SafeHttpsUrlOptions`, and the value parameters of `rejectAroundWithBefore` and `refineSalesWindow`. This only loosens the types; no shape or runtime behavior changes.
+
 ## 0.64.0
 
 ### Minor Changes

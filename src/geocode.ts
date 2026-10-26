@@ -29,7 +29,7 @@ export interface GeoSuggestion {
   /** Primary line: place / road name, or the raw coordinate. */
   label: string
   /** Secondary line: city, region, country (when known). */
-  secondary?: string
+  secondary?: string | undefined
   lat: number
   lng: number
   source: SuggestionSource
@@ -40,41 +40,41 @@ export type SuggestProvider = (query: string, opts?: SuggestOptions) => Promise<
 
 export interface SuggestOptions {
   /** Bias point for ranking/Photon (favor geographically close results). */
-  proximity?: LatLng | null
+  proximity?: LatLng | null | undefined
   /**
    * Photon `zoom`: the radius around `proximity` to concentrate on, "roughly the map zoom" (Photon's
    * default is 12). Pass the live map zoom so a zoomed-in view focuses tightly and a zoomed-out view
    * stays broad. Ignored unless `proximity` is set.
    */
-  proximityZoom?: number
+  proximityZoom?: number | undefined
   /**
    * Photon `location_bias_scale` (0..1, Photon default 0.4): how much a result's own prominence still
    * counts versus its closeness to `proximity`. Higher → closeness wins harder (a nearby match outranks
    * a famous far-away namesake). Ignored unless `proximity` is set.
    */
-  locationBiasScale?: number
-  signal?: AbortSignal
+  locationBiasScale?: number | undefined
+  signal?: AbortSignal | undefined
   /** Max suggestions to return (default 5). */
-  limit?: number
+  limit?: number | undefined
   /** When set, suggestAddresses uses Mapbox (Geocoding v6) as the primary provider, Photon as fallback. */
-  mapboxToken?: string
+  mapboxToken?: string | undefined
   /**
    * Language for the suggestion labels (an app locale like "es" / "de" / "ko"), default "en". Mapbox
    * takes it as-is; Photon only ships a handful of languages, so anything it does not support falls
    * back to "en" rather than erroring the request.
    */
-  language?: string
+  language?: string | undefined
   /**
    * ISO-3166-1 alpha-2 country filter for the Mapbox path, default "us". Pass `null` for worldwide
    * results. Ignored by Photon (which has no equivalent filter).
    */
-  country?: string | null
+  country?: string | null | undefined
   /**
    * Told about a provider failure that suggestAddresses degrades past (Mapbox falling back to Photon,
    * Photon resolving []), so a server caller can log an outage the result alone cannot show. Never
    * called for the caller's own abort.
    */
-  onError?: (error: unknown, provider: "mapbox" | "photon") => void
+  onError?: ((error: unknown, provider: "mapbox" | "photon") => void) | undefined
 }
 
 /** Languages Photon actually serves; anything else is requested as English. */
@@ -173,7 +173,7 @@ export async function photonSuggest(query: string, opts: SuggestOptions = {}): P
       url.searchParams.set("location_bias_scale", String(opts.locationBiasScale))
     }
   }
-  const res = await fetch(url.toString(), { signal: opts.signal, headers: { Accept: "application/json" } })
+  const res = await fetch(url.toString(), { signal: opts.signal ?? null, headers: { Accept: "application/json" } })
   if (!res.ok) throw new Error(`Photon request failed: ${res.status}`)
   const data = (await res.json()) as { features?: PhotonFeature[] }
   const features = Array.isArray(data.features) ? data.features : []
@@ -253,7 +253,7 @@ export async function mapboxSuggest(query: string, opts: SuggestOptions = {}): P
   if (opts.proximity) {
     url.searchParams.set("proximity", `${opts.proximity.lng},${opts.proximity.lat}`)
   }
-  const res = await fetch(url.toString(), { signal: opts.signal, headers: { Accept: "application/json" } })
+  const res = await fetch(url.toString(), { signal: opts.signal ?? null, headers: { Accept: "application/json" } })
   if (!res.ok) throw new Error(`Mapbox request failed: ${res.status}`)
   const data = (await res.json()) as { features?: MapboxV6Feature[] }
   const features = Array.isArray(data.features) ? data.features : []

@@ -49,7 +49,7 @@ export function inAppBodyFrom(text: string): string {
 }
 
 export interface SmsBodyOptions {
-  includeOptOut?: boolean
+  includeOptOut?: boolean | undefined
 }
 
 export function smsBodyFrom(text: string, options: SmsBodyOptions = {}): string {
@@ -81,8 +81,8 @@ export class BroadcastLinkError extends Error {
 }
 
 export interface BroadcastLinkOptions {
-  allowedHosts?: readonly string[]
-  maxLinks?: number
+  allowedHosts?: readonly string[] | undefined
+  maxLinks?: number | undefined
 }
 
 const ABSOLUTE_URL = /\b([a-zA-Z][a-zA-Z0-9+.-]*):\/\/[^\s<>"'`)\]}]+/g

@@ -17,31 +17,31 @@ export type MaybeAsync<T> = T | Promise<T>
 export interface CreateApiClientOptions {
   baseURL: string
   /** Returns auth headers (e.g. { Authorization: "Bearer ..." }) for required/optional endpoints. */
-  getAuthHeader?: () => MaybeAsync<HeaderInit | undefined>
+  getAuthHeader?: (() => MaybeAsync<HeaderInit | undefined>) | undefined
   /** Returns the CSRF token value injected as `x-csrf-token` for csrf endpoints. */
-  getCsrfToken?: () => MaybeAsync<string | undefined>
+  getCsrfToken?: (() => MaybeAsync<string | undefined>) | undefined
   /** Injected fetch. Defaults to globalThis.fetch (works in browser, RN, and Node 22). */
-  fetchImpl?: typeof fetch
+  fetchImpl?: typeof fetch | undefined
   /** Called whenever a 401 is observed, before the AppError is thrown. */
-  onUnauthorized?: () => void
+  onUnauthorized?: (() => void) | undefined
   /** Default headers merged into every request. */
-  defaultHeaders?: HeaderInit
+  defaultHeaders?: HeaderInit | undefined
 }
 
 /** Per-call options for the low-level request method. */
 export interface RequestArgs {
-  params?: Record<string, string | number>
-  query?: Record<string, unknown>
+  params?: Record<string, string | number> | undefined
+  query?: Record<string, unknown> | undefined
   /**
    * Input keys to exclude from the serialized query because they were already consumed as PATH params.
    * Prevents a path-param key (e.g. `cleanupId` for /cleanups/:id/messages) from being duplicated into
    * the query string. Only meaningful alongside `query`.
    */
-  queryOmitKeys?: ReadonlySet<string>
+  queryOmitKeys?: ReadonlySet<string> | undefined
   body?: unknown
-  signal?: AbortSignal
+  signal?: AbortSignal | undefined
   /** Extra headers for this call only. */
-  headers?: HeaderInit
+  headers?: HeaderInit | undefined
 }
 
 const CSRF_HEADER = "x-csrf-token"

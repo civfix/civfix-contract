@@ -14,7 +14,7 @@ export const MARKDOWN_MAX_BLOCKS = 200
 export const MARKDOWN_MAX_LIST_ITEMS = 100
 
 export interface ParseMarkdownOptions {
-  maxChars?: number
+  maxChars?: number | undefined
 }
 
 const ESCAPABLE = new Set(["\\", "`", "*", "_", "[", "]", "(", ")", "#", "+", "-", ".", "!", ">", "|"])

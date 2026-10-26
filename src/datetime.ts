@@ -46,11 +46,11 @@ export const DEFAULT_RELATIVE_UNITS: RelativeUnitLabels = {
 
 export interface RelativeAgoOptions {
   /** Label for the just-now bucket (< 60s, or a future time). Defaults to "now". */
-  justNow?: string
+  justNow?: string | undefined
   /** Localized unit suffixes; any omitted one falls back to `DEFAULT_RELATIVE_UNITS`. */
-  units?: Partial<RelativeUnitLabels>
+  units?: Partial<RelativeUnitLabels> | undefined
   /** Absolute formatter used past the one-week threshold instead of "<N>w". Receives the parsed Date. */
-  absoluteFallback?: (d: Date) => string
+  absoluteFallback?: ((d: Date) => string) | undefined
 }
 
 function toEpochMs(value: Date | string | number): number | null {
@@ -431,15 +431,15 @@ export function timeRangeLabel(
 
 export interface EventWhenInput {
   scheduledAt: string
-  endsAt?: string | null
-  timezone?: string | null
+  endsAt?: string | null | undefined
+  timezone?: string | null | undefined
 }
 
 export interface EventWhenOptions {
-  locale?: string
-  weekdays?: readonly string[]
-  viewerTimeZone?: string
-  now?: number
+  locale?: string | undefined
+  weekdays?: readonly string[] | undefined
+  viewerTimeZone?: string | undefined
+  now?: number | undefined
 }
 
 export interface EventWhenParts {
