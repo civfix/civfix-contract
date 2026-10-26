@@ -48,7 +48,7 @@ export interface RelativeAgoOptions {
   /** Label for the just-now bucket (< 60s, or a future time). Defaults to "now". */
   justNow?: string | undefined
   /** Localized unit suffixes; any omitted one falls back to `DEFAULT_RELATIVE_UNITS`. */
-  units?: Partial<RelativeUnitLabels> | undefined
+  units?: { [K in keyof RelativeUnitLabels]?: RelativeUnitLabels[K] | undefined } | undefined
   /** Absolute formatter used past the one-week threshold instead of "<N>w". Receives the parsed Date. */
   absoluteFallback?: ((d: Date) => string) | undefined
 }
