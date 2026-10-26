@@ -37,7 +37,7 @@ describe("currentLegalVersion", () => {
     expect(currentLegalVersion("terms", new Date("2026-09-21T00:00:00.000Z")).version).toBe("2026-09-21")
     expect(currentLegalVersion("terms", new Date("2026-09-20T23:59:59.999Z")).version).toBe("2026-09-16")
     expect(currentLegalVersion("privacy", new Date("2026-09-06T00:00:00.000Z")).version).toBe("2026-09-06")
-    expect(currentLegalVersion("cookies", new Date("2026-12-01T00:00:00.000Z")).version).toBe("2026-09-16")
+    expect(currentLegalVersion("cookies", new Date("2026-12-01T00:00:00.000Z")).version).toBe("2026-10-26")
     expect(() => currentLegalVersion("terms", new Date("2026-09-05T23:59:59.999Z"))).toThrow(RangeError)
     expect(() => currentLegalVersion("donations" as LegalDocumentType, new Date())).toThrow(RangeError)
   })

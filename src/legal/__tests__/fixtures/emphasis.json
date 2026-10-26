@@ -1,0 +1,84 @@
+{
+  "terms": {
+    "strong": [
+      "Reach Out Los Angeles Inc.",
+      "not",
+      "If you are reporting an emergency or a situation that threatens life, safety, or property, contact your local emergency services (such as 911 in the United States). Do not rely on civfix.",
+      "claim code",
+      "retroactively linkable",
+      "civfix does not process donations.",
+      "donation link",
+      "civfix is not a party to it, never receives, holds or disburses the money, charges no fee on it, and issues no receipt",
+      "“as is”",
+      "“as available,”",
+      "If you are a consumer in the European Economic Area or the United Kingdom,"
+    ],
+    "em": []
+  },
+  "privacy": {
+    "strong": [
+      "Reach Out Los Angeles Inc.",
+      "data controller",
+      "no advertising, analytics, or third-party tracking technology inside the civfix apps or website",
+      "Precise location.",
+      "Photos and videos.",
+      "strip embedded metadata, including any GPS coordinates stored in the file (EXIF)",
+      "Report details.",
+      "civfix does not process payments and never has access to your payment details.",
+      "donation link",
+      "IP address.",
+      "Anonymous-submission tokens and claim codes.",
+      "Device and log data.",
+      "not",
+      "Legal bases (GDPR / UK GDPR).",
+      "Performance of a contract",
+      "Consent",
+      "Legitimate interests",
+      "Legal obligation",
+      "vital interests",
+      "Marketing.",
+      "The public.",
+      "Government agencies.",
+      "Service providers (sub-processors).",
+      "Event hosts.",
+      "not",
+      "relayed",
+      "Legal and safety.",
+      "Business transfers.",
+      "International transfers.",
+      "Standard Contractual Clauses",
+      "International Data Transfer Addendum",
+      "EU-US / UK Extension / Swiss-US Data Privacy Framework",
+      "claim code",
+      "retroactively linkable",
+      "Access and portability.",
+      "Rectification.",
+      "Erasure.",
+      "Restriction.",
+      "Objection.",
+      "Withdraw consent.",
+      "Notifications and location controls.",
+      "EEA / UK data-protection contact and complaints.",
+      "Roman Aytur",
+      "Reach Out Los Angeles Inc.",
+      "Roman Aytur"
+    ],
+    "em": [
+      "about"
+    ]
+  },
+  "cookies": {
+    "strong": [
+      "strictly necessary",
+      "not",
+      "civfix does not show a cookie consent banner"
+    ],
+    "em": [
+      "about"
+    ]
+  },
+  "subprocessors": {
+    "strong": [],
+    "em": []
+  }
+}
