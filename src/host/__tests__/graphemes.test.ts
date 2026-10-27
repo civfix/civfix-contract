@@ -9,7 +9,7 @@ const ACCENT = "é"
 async function loadWithoutSegmenter(): Promise<typeof GraphemesModule> {
   vi.resetModules()
   const original = Intl.Segmenter
-  Reflect.deleteProperty(Intl as unknown as Record<string, unknown>, "Segmenter")
+  Reflect.deleteProperty(Intl, "Segmenter")
   try {
     return await import("../graphemes.js")
   } finally {

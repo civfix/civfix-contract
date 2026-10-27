@@ -258,7 +258,7 @@ describe("insights authz invariant (DECISIONS §36)", () => {
     let analyticsHolders = 0
     for (const eventRole of eventRoles) {
       for (const orgRole of orgRoles) {
-        const standing = { eventRole, orgRole } as HostStanding
+        const standing: HostStanding = { eventRole, orgRole }
         if (!can(standing, "view_analytics")) continue
         analyticsHolders += 1
         expect(can(standing, "view_roster"), `${eventRole ?? "none"}|${orgRole ?? "none"}`).toBe(

@@ -63,8 +63,8 @@ export const JurisdictionDirectoryDTOSchema = z
     geoid: z.string(),
     org: z.string(),
     dept: z.string().nullable(),
-    email: z.string().email().nullable(),
-    form: z.string().url().nullable(),
+    email: z.email().nullable(),
+    form: z.url().nullable(),
     method: JurisdictionMethodSchema,
     status: JurisdictionContactStatusSchema,
     coverage: z.string(),
@@ -140,13 +140,11 @@ export const JurisdictionDirectoryResponseSchema = pageResponse(JurisdictionDire
 })
 export type JurisdictionDirectoryResponse = z.infer<typeof JurisdictionDirectoryResponseSchema>
 
-/** A GeoJSON Polygon/MultiPolygon geometry (passthrough; only `type`/`coordinates` are read clientside). */
-export const GeoJsonGeometrySchema = z
-  .object({
-    type: z.string(),
-    coordinates: z.array(z.unknown()),
-  })
-  .passthrough()
+/** A GeoJSON Polygon/MultiPolygon geometry (loose; only `type`/`coordinates` are read clientside). */
+export const GeoJsonGeometrySchema = z.looseObject({
+  type: z.string(),
+  coordinates: z.array(z.unknown()),
+})
 export type GeoJsonGeometry = z.infer<typeof GeoJsonGeometrySchema>
 
 /** Path params for fetching one jurisdiction's boundary geometry. */

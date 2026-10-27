@@ -118,7 +118,7 @@ export const endpoints: typeof coreEndpoints &
 export type Endpoints = typeof endpoints
 export type EndpointName = keyof Endpoints
 
-export type RequestOf<N extends EndpointName> = Endpoints[N]["request"] extends z.ZodTypeAny
+export type RequestOf<N extends EndpointName> = Endpoints[N]["request"] extends z.ZodType
   ? z.infer<Endpoints[N]["request"]>
   : never
 

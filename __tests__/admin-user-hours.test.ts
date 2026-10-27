@@ -101,9 +101,9 @@ describe("admin user-hours registry", () => {
   })
 
   it("fills the path from either credit member and from the void's two ids", async () => {
-    const calls: Array<{ url: string; init: RequestInit }> = []
-    const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
-      calls.push({ url: String(url), init: init ?? {} })
+    const calls: Array<{ url: string; init: RequestInit; body: unknown }> = []
+    const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
+      calls.push({ url, init: init ?? {}, body: typeof init?.body === "string" ? JSON.parse(init.body) : undefined })
       if (init?.method === "GET") {
         return jsonResponse({
           items: [],
@@ -111,7 +111,7 @@ describe("admin user-hours registry", () => {
           totals: { totalHours: 0, liveEntries: 0, voidedEntries: 0 },
         })
       }
-      if (String(url).endsWith("/void")) return jsonResponse({ ok: true, affectedCertificates: [] })
+      if (url.endsWith("/void")) return jsonResponse({ ok: true, affectedCertificates: [] })
       return jsonResponse({ entryId: ENTRY, totalHours: 2.5 })
     }) as unknown as typeof fetch
     const warn = vi.spyOn(console, "warn")
@@ -127,9 +127,9 @@ describe("admin user-hours registry", () => {
     await client.getUserHours({ id: USER, limit: 20, cursor: "c1" })
 
     expect(calls[0]!.url).toBe(`https://api.civfix.test/v1/admin/users/${USER}/hours`)
-    expect(JSON.parse(String(calls[0]!.init.body))).toEqual(eventCredit)
+    expect(calls[0]!.body).toEqual(eventCredit)
     expect(calls[1]!.url).toBe(`https://api.civfix.test/v1/admin/users/${USER}/hours`)
-    expect(JSON.parse(String(calls[1]!.init.body))).toEqual(manualCredit)
+    expect(calls[1]!.body).toEqual(manualCredit)
     expect(calls[2]!.url).toBe(
       `https://api.civfix.test/v1/admin/users/${USER}/hours/${ENTRY}/void`,
     )

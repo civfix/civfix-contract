@@ -153,7 +153,7 @@ export const NOTIFICATION_CATEGORY_DEFAULTS: Readonly<
   organizations: { enabled: true, push: false, email: true },
 }
 
-function perCategory<T extends z.ZodTypeAny>(schema: T): { [C in NotificationCategory]: T } {
+function perCategory<T extends z.ZodType>(schema: T): { [C in NotificationCategory]: T } {
   return Object.fromEntries(NotificationCategorySchema.options.map((c) => [c, schema])) as {
     [C in NotificationCategory]: T
   }
@@ -173,12 +173,12 @@ export const UpdateNotificationSettingsRequestSchema = z
   .superRefine(({ categories }, ctx) => {
     const patches = Object.entries(categories).filter(([, patch]) => patch !== undefined)
     if (patches.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["categories"], message: "Change at least one category" })
+      ctx.addIssue({ code: "custom", path: ["categories"], message: "Change at least one category" })
     }
     for (const [category, patch] of patches) {
       if (Object.keys(patch ?? {}).length === 0) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           path: ["categories", category],
           message: "Change at least one of enabled, push and email",
         })
@@ -245,7 +245,7 @@ export const PushMessageDataSchema = z
   ])
   .superRefine((data, ctx) => {
     if (data.kind === "clear" && (data.ids === undefined) === (data.all === undefined)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A clear carries exactly one of ids and all" })
+      ctx.addIssue({ code: "custom", message: "A clear carries exactly one of ids and all" })
     }
   })
 export type PushMessageData = z.infer<typeof PushMessageDataSchema>

@@ -78,7 +78,7 @@ export const EventSlotInputSchema = EventSlotInputObjectSchema.superRefine((slot
   const ends = slot.endsAt ?? null
   if ((starts === null) !== (ends === null)) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       path: [starts === null ? "startsAt" : "endsAt"],
       message: "set both a start and an end, or neither",
     })
@@ -87,7 +87,7 @@ export const EventSlotInputSchema = EventSlotInputObjectSchema.superRefine((slot
   if (starts === null || ends === null) return
   if (Date.parse(ends) - Date.parse(starts) < MIN_SLOT_DURATION_MINUTES * 60_000) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       path: ["endsAt"],
       message: `must be at least ${MIN_SLOT_DURATION_MINUTES} minutes after startsAt`,
     })
@@ -307,7 +307,7 @@ export type GuestRegistrationRefusalReason =
 
 export const GuestPhoneSchema = z.string().regex(/^\+1[2-9]\d{9}$/)
 
-const GuestEmailSchema = z.string().email().max(EMAIL_MAX_LENGTH).toLowerCase()
+const GuestEmailSchema = z.email().max(EMAIL_MAX_LENGTH).toLowerCase()
 
 const GuestContactFields = {
   channel: GuestContactChannelSchema,
@@ -316,21 +316,21 @@ const GuestContactFields = {
 } as const
 
 function refineGuestContact(
-  value: { channel: GuestContactChannel; email?: string; phone?: string },
+  value: { channel: GuestContactChannel; email?: string | undefined; phone?: string | undefined },
   ctx: z.RefinementCtx,
 ): void {
   const required = value.channel === "email" ? "email" : "phone"
   const forbidden = value.channel === "email" ? "phone" : "email"
   if (value[required] === undefined) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       path: [required],
       message: `${required} is required when channel is "${value.channel}"`,
     })
   }
   if (value[forbidden] !== undefined) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       path: [forbidden],
       message: `${forbidden} must be absent when channel is "${value.channel}"`,
     })

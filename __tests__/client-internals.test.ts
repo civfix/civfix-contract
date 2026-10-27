@@ -38,7 +38,7 @@ describe("fillPath", () => {
   })
 
   it("throws a VALIDATION AppError when a required param is missing", () => {
-    expect(() => fillPath("/cleanups/:id/messages", {})).toThrowError(/Missing path param ":id"/)
+    expect(() => fillPath("/cleanups/:id/messages", {})).toThrow(/Missing path param ":id"/)
     try {
       fillPath("/cleanups/:id", {})
     } catch (e) {
@@ -70,6 +70,10 @@ describe("buildQuery", () => {
     const qs = buildQuery({ bbox: { west: -1, south: -2, east: 3, north: 4 } })
     const params = new URLSearchParams(qs.slice(1))
     expect(JSON.parse(params.get("bbox")!)).toEqual({ west: -1, south: -2, east: 3, north: 4 })
+  })
+
+  it("refuses a value with no query form instead of sending its source text", () => {
+    expect(() => buildQuery({ cb: () => 1 })).toThrow(/Query param "cb" is a function/)
   })
 
   it("stringifies scalar values", () => {
@@ -174,8 +178,8 @@ describe("parseError", () => {
 describe("createApiClient GET path-param de-duplication", () => {
   it("does NOT duplicate the path-param key into the query for GET /cleanups/:id/messages", async () => {
     let url = ""
-    const fetchImpl = vi.fn(async (u: string | URL | Request) => {
-      url = String(u)
+    const fetchImpl = vi.fn(async (u: string) => {
+      url = u
       return jsonResponse({ items: [], nextCursor: null })
     }) as unknown as typeof fetch
 
@@ -192,8 +196,8 @@ describe("createApiClient GET path-param de-duplication", () => {
 
   it("excludes the *Id-tolerated key (reportId) from the GET query while keeping other fields", async () => {
     let url = ""
-    const fetchImpl = vi.fn(async (u: string | URL | Request) => {
-      url = String(u)
+    const fetchImpl = vi.fn(async (u: string) => {
+      url = u
       return jsonResponse({ status: "submitted" })
     }) as unknown as typeof fetch
 
@@ -209,8 +213,8 @@ describe("createApiClient GET path-param de-duplication", () => {
 
   it("still serializes object (JSON) and array (repeat) query fields on a GET with no path param", async () => {
     let url = ""
-    const fetchImpl = vi.fn(async (u: string | URL | Request) => {
-      url = String(u)
+    const fetchImpl = vi.fn(async (u: string) => {
+      url = u
       return jsonResponse({ clusters: [], pins: [] })
     }) as unknown as typeof fetch
 
