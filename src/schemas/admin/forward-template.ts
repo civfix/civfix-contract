@@ -218,7 +218,7 @@ function refineTemplate(value: string, ctx: z.RefinementCtx): void {
   const issues = forwardTemplateIssues(value)
   if (issues.length === 0) return
   ctx.addIssue({
-    code: z.ZodIssueCode.custom,
+    code: "custom",
     message: issues.map(describeForwardTemplateIssue).join(" "),
   })
 }

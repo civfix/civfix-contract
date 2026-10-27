@@ -46,7 +46,7 @@ export function refineSalesWindow(
   if (opens == null || closes == null) return
   if (Date.parse(closes) > Date.parse(opens)) return
   ctx.addIssue({
-    code: z.ZodIssueCode.custom,
+    code: "custom",
     path: [...SALES_WINDOW_ISSUE.path],
     message: SALES_WINDOW_ISSUE.message,
   })

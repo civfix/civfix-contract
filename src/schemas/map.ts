@@ -110,8 +110,8 @@ export type SuggestPlacesResponse = z.infer<typeof SuggestPlacesResponseSchema>
 export const SuggestContactRequestSchema = z
   .object({
     geoid: z.string().min(1),
-    email: z.string().email().optional(),
-    formUrl: z.string().url().optional(),
+    email: z.email().optional(),
+    formUrl: z.url().optional(),
     note: z.string().max(2000).optional(),
   })
   .strict()

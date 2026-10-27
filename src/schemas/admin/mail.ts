@@ -16,7 +16,7 @@ export const MailAttachmentSchema = z
     // same link under an honest name. It expires MEDIA_GET_URL_TTL_SEC (15 minutes) after the response
     // is built, so refetch the message instead of caching the link.
     key: z.string(),
-    url: z.string().url().optional(),
+    url: z.url().optional(),
     filename: z.string(),
     size: z.number().int().nonnegative(),
   })
@@ -100,7 +100,7 @@ export type MailStatsResponse = z.infer<typeof MailStatsResponseSchema>
 
 export const ComposeRequestSchema = z
   .object({
-    to: z.string().email(),
+    to: z.email(),
     subject: z.string().min(1).max(300),
     body: z.string().min(1).max(20000),
   })

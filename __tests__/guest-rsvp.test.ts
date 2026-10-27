@@ -134,7 +134,7 @@ describe("the honeypot is accepted at the boundary and flagged server-side", () 
 
   it("matches the AnonReportRequest honeypot idiom rather than 422ing the bot", () => {
     const shape = GuestRsvpRequestRequestSchema.shape
-    expect(shape.website.isOptional()).toBe(true)
+    expect(shape.website.safeParse(undefined).success).toBe(true)
     expect(shape.website.def.type).toBe("optional")
   })
 })

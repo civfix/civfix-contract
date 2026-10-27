@@ -1,5 +1,11 @@
 # @civfix/contract
 
+## 0.65.0
+
+### Minor Changes
+
+- Zod 4 API modernization (DECISIONS §63). The schemas use zod 4's top-level string formats (`z.email()`, `z.url()`, `z.iso.datetime()`, `z.iso.date()`), `z.looseObject` instead of `.passthrough()`, string issue codes instead of `z.ZodIssueCode`, and `z.ZodType` instead of `z.ZodTypeAny`; the no-op `.finite()` is gone. Runtime behavior is unchanged: every schema accepts and rejects the same inputs, parses to the same output and reports the same issues. The inferred types of every exported schema and every endpoint's request and response are unchanged. What changes in the emitted `.d.ts` is the schema class types (an email field is a `ZodEmail` rather than a `ZodString`, a URL a `ZodURL`, a timestamp a `ZodISODateTime`), and the default type parameters of `EndpointDef` are now `z.ZodType` (output `unknown`) instead of `z.ZodTypeAny` (output `any`).
+
 ## 0.64.2
 
 ### Patch Changes

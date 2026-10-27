@@ -38,7 +38,7 @@ describe("fillPath", () => {
   })
 
   it("throws a VALIDATION AppError when a required param is missing", () => {
-    expect(() => fillPath("/cleanups/:id/messages", {})).toThrowError(/Missing path param ":id"/)
+    expect(() => fillPath("/cleanups/:id/messages", {})).toThrow(/Missing path param ":id"/)
     try {
       fillPath("/cleanups/:id", {})
     } catch (e) {
@@ -73,7 +73,7 @@ describe("buildQuery", () => {
   })
 
   it("refuses a value with no query form instead of sending its source text", () => {
-    expect(() => buildQuery({ cb: () => 1 })).toThrowError(/Query param "cb" is a function/)
+    expect(() => buildQuery({ cb: () => 1 })).toThrow(/Query param "cb" is a function/)
   })
 
   it("stringifies scalar values", () => {

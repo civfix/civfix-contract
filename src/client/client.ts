@@ -153,7 +153,7 @@ const warnedEndpoints = new Set<string>()
  * testing.
  */
 export function parseResponse<Res>(
-  endpoint: EndpointDef<z.ZodTypeAny | null, z.ZodTypeAny>,
+  endpoint: EndpointDef<z.ZodType | null, z.ZodType>,
   data: unknown,
 ): Res {
   // No body (204, or an unparsable/empty payload): nothing to validate.
@@ -184,7 +184,7 @@ type Extra = Omit<RequestArgs, "body" | "query" | "params">
 
 /** Typed method surface generated from the endpoint registry. */
 export type ApiMethods = {
-  [N in EndpointName]: Endpoints[N]["request"] extends z.ZodTypeAny
+  [N in EndpointName]: Endpoints[N]["request"] extends z.ZodType
     ? // Endpoint has a typed request (query for GET, body otherwise). Path params, if any, are
       // read from the request object by name, so the single typed input is enough.
       (input: RequestOf<N>, extra?: Extra) => Promise<ResponseOf<N>>
@@ -198,7 +198,7 @@ export type ApiMethods = {
 export interface ApiClient extends ApiMethods {
   /** Low-level escape hatch: call any endpoint descriptor with explicit params/query/body. */
   request<Res>(
-    endpoint: EndpointDef<z.ZodTypeAny | null, z.ZodTypeAny>,
+    endpoint: EndpointDef<z.ZodType | null, z.ZodType>,
     args?: RequestArgs,
   ): Promise<Res>
 }
@@ -217,7 +217,7 @@ export function createApiClient(opts: CreateApiClientOptions): ApiClient {
   }
 
   async function request<Res>(
-    endpoint: EndpointDef<z.ZodTypeAny | null, z.ZodTypeAny>,
+    endpoint: EndpointDef<z.ZodType | null, z.ZodType>,
     args: RequestArgs = {},
   ): Promise<Res> {
     const url =
@@ -280,7 +280,7 @@ export function createApiClient(opts: CreateApiClientOptions): ApiClient {
   const client = { request } as ApiClient
 
   for (const name of Object.keys(endpoints) as EndpointName[]) {
-    const endpoint = endpoints[name] as EndpointDef<z.ZodTypeAny | null, z.ZodTypeAny>
+    const endpoint = endpoints[name] as EndpointDef<z.ZodType | null, z.ZodType>
     const hasInput = endpoint.request !== null
     const isQuery = endpoint.method === "GET"
     const pathHasParams = /:[A-Za-z0-9_]+/.test(endpoint.path)
