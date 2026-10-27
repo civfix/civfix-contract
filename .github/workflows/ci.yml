@@ -45,6 +45,8 @@ jobs:
           min-severity: medium
           online-audits: false
           advanced-security: false
+      - name: Format check
+        run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm lint
       - name: Test (coverage thresholds)
