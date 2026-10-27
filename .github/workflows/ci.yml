@@ -29,8 +29,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # Dev tooling runs here next to the job's token, so a high advisory anywhere fails the PR, and a
-      # moderate one does in the production tree. A finding with no upstream fix gets a `pnpm.overrides`
-      # floor, or an `auditConfig.ignoreGhsas` entry documented in package.json, never a weaker gate.
+      # moderate one does in the production tree. A finding with no upstream fix gets an `overrides` floor,
+      # or an `auditConfig.ignoreGhsas` entry documented in pnpm-workspace.yaml, never a weaker gate.
       - name: Audit all dependencies (high and above)
         run: pnpm audit --audit-level high
       - name: Audit production dependencies (moderate and above)
