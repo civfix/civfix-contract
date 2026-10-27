@@ -27,12 +27,15 @@ describe("renderBroadcastVars", () => {
       "ticket_type",
       "manage_link",
     ])
-    const out = renderBroadcastVars("Hi {first_name}, {event_title} is {event_when} at {event_where}.", {
-      first_name: "Ada",
-      event_title: "Creek Cleanup",
-      event_when: "Saturday 9am",
-      event_where: "Elysian Park",
-    })
+    const out = renderBroadcastVars(
+      "Hi {first_name}, {event_title} is {event_when} at {event_where}.",
+      {
+        first_name: "Ada",
+        event_title: "Creek Cleanup",
+        event_when: "Saturday 9am",
+        event_where: "Elysian Park",
+      },
+    )
     expect(out).toBe("Hi Ada, Creek Cleanup is Saturday 9am at Elysian Park.")
   })
 
@@ -47,9 +50,9 @@ describe("renderBroadcastVars", () => {
   })
 
   it("never re-scans a substituted value", () => {
-    expect(renderBroadcastVars("{first_name}", { first_name: "{event_title}", event_title: "boom" })).toBe(
-      "{event_title}",
-    )
+    expect(
+      renderBroadcastVars("{first_name}", { first_name: "{event_title}", event_title: "boom" }),
+    ).toBe("{event_title}")
   })
 })
 
@@ -106,15 +109,48 @@ describe("assertSafeBroadcastLinks", () => {
   it("rejects non-https schemes", () => {
     expect(inspectBroadcastLinks("http://civfix.org")[0]?.kind).toBe("insecure_scheme")
     expect(inspectBroadcastLinks("javascript:alert(1)")[0]?.kind).toBe("insecure_scheme")
-    expect(inspectBroadcastLinks("data:text/html;base64,PHNjcmlwdD4=")[0]?.kind).toBe("insecure_scheme")
+    expect(inspectBroadcastLinks("data:text/html;base64,PHNjcmlwdD4=")[0]?.kind).toBe(
+      "insecure_scheme",
+    )
   })
 
   it("still flags every dangerous scheme wherever it starts a token and runs into a payload", () => {
     const schemes = ["javascript", "data", "vbscript", "file", "blob", "jar", "about"]
-    const openers = ["", " ", "\t", "\n", "(", "[", "{", "<", '"', "'", "`", "=", ",", ";", "!", "*", "|", ">", "](", "](<"]
-    const payloads = ["alert(1)", "//evil.example/x", "text/html;base64,PHNjcmlwdD4=", "%0aalert(1)", "blank"]
+    const openers = [
+      "",
+      " ",
+      "\t",
+      "\n",
+      "(",
+      "[",
+      "{",
+      "<",
+      '"',
+      "'",
+      "`",
+      "=",
+      ",",
+      ";",
+      "!",
+      "*",
+      "|",
+      ">",
+      "](",
+      "](<",
+    ]
+    const payloads = [
+      "alert(1)",
+      "//evil.example/x",
+      "text/html;base64,PHNjcmlwdD4=",
+      "%0aalert(1)",
+      "blank",
+    ]
     for (const scheme of schemes) {
-      for (const cased of [scheme, scheme.toUpperCase(), scheme[0]!.toUpperCase() + scheme.slice(1)]) {
+      for (const cased of [
+        scheme,
+        scheme.toUpperCase(),
+        scheme[0]!.toUpperCase() + scheme.slice(1),
+      ]) {
         for (const opener of openers) {
           for (const payload of payloads) {
             const text = `Tap ${opener}${cased}:${payload}`
@@ -129,7 +165,12 @@ describe("assertSafeBroadcastLinks", () => {
   })
 
   it("still flags an executable scheme with whitespace before its payload", () => {
-    for (const text of ["javascript: alert(1)", "javascript:\talert(1)", "see data: text/html,x", "Waiver file: here"]) {
+    for (const text of [
+      "javascript: alert(1)",
+      "javascript:\talert(1)",
+      "see data: text/html,x",
+      "Waiver file: here",
+    ]) {
       expect(inspectBroadcastLinks(text).length, text).toBeGreaterThan(0)
     }
   })
@@ -157,11 +198,13 @@ describe("assertSafeBroadcastLinks", () => {
     expect(
       inspectBroadcastLinks("https://civfix.org@evil.example/x").some((i) => i.kind === "userinfo"),
     ).toBe(true)
-    expect(inspectBroadcastLinks("https://192.168.0.1/x").some((i) => i.kind === "ip_literal")).toBe(true)
+    expect(
+      inspectBroadcastLinks("https://192.168.0.1/x").some((i) => i.kind === "ip_literal"),
+    ).toBe(true)
     expect(inspectBroadcastLinks("https://[::1]/x").some((i) => i.kind === "ip_literal")).toBe(true)
-    expect(inspectBroadcastLinks("https://xn--80ak6aa92e.com/x").some((i) => i.kind === "punycode")).toBe(
-      true,
-    )
+    expect(
+      inspectBroadcastLinks("https://xn--80ak6aa92e.com/x").some((i) => i.kind === "punycode"),
+    ).toBe(true)
     expect(
       inspectBroadcastLinks("https://аpple.com/x").some((i) => i.kind === "non_ascii_host"),
     ).toBe(true)
@@ -176,10 +219,16 @@ describe("assertSafeBroadcastLinks", () => {
 
   it("accepts a zero link cap and ignores a negative or fractional one", () => {
     const one = "https://civfix.org/0"
-    expect(inspectBroadcastLinks(one, { maxLinks: 0 })).toEqual([{ kind: "too_many", count: 1, max: 0 }])
+    expect(inspectBroadcastLinks(one, { maxLinks: 0 })).toEqual([
+      { kind: "too_many", count: 1, max: 0 },
+    ])
     const many = Array.from({ length: 6 }, (_, i) => `https://civfix.org/${i}`).join(" ")
     for (const maxLinks of [-1, 2.5, Number.NaN]) {
-      expect(inspectBroadcastLinks(many, { maxLinks })[0]).toEqual({ kind: "too_many", count: 6, max: 5 })
+      expect(inspectBroadcastLinks(many, { maxLinks })[0]).toEqual({
+        kind: "too_many",
+        count: 6,
+        max: 5,
+      })
     }
   })
 

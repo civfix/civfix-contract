@@ -15,7 +15,6 @@ function requestShape(schema: unknown): Record<string, unknown> | null {
   return null
 }
 
-
 const NEW_NAMES = [
   "completeCleanup",
   "claimEventSlot",

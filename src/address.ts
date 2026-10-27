@@ -7,7 +7,9 @@ import {
 import { GEOCODE_POINT_KEY_DECIMALS, roundGeocodeCoord, type LatLngLike } from "./geo.js"
 
 // A copy, so the ranking never aliases the live enum options array.
-export const ADDRESS_PRECISION_LADDER: readonly AddressPrecision[] = [...AddressPrecisionSchema.options]
+export const ADDRESS_PRECISION_LADDER: readonly AddressPrecision[] = [
+  ...AddressPrecisionSchema.options,
+]
 
 export function isLocatedPrecision(precision: AddressPrecision | null | undefined): boolean {
   return precision === "street" || precision === "intersection" || precision === "landmark"

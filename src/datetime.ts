@@ -342,11 +342,7 @@ export function eventChip(
  * Short weekday like "Sat", or "" for an invalid input. `weekdays` is a 7-length localized array
  * indexed by `Date#getDay()`; omitted, `WEEKDAYS` applies.
  */
-export function dowLabel(
-  iso: string,
-  weekdays?: readonly string[],
-  timeZone?: string,
-): string {
+export function dowLabel(iso: string, weekdays?: readonly string[], timeZone?: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ""
   const labels = weekdays ?? WEEKDAYS
@@ -612,9 +608,7 @@ export function datetimeLocalFromIso(iso: string | null | undefined, timeZone: s
 }
 
 export type DatetimeLocalValue =
-  | { kind: "empty" }
-  | { kind: "instant"; iso: string }
-  | { kind: "invalid" }
+  { kind: "empty" } | { kind: "instant"; iso: string } | { kind: "invalid" }
 
 const DATETIME_LOCAL = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/
 

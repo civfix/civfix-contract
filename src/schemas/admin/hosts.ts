@@ -9,7 +9,6 @@ import {
 } from "../common.js"
 import { AdminActorRefSchema, AdminListQuerySchema } from "./common.js"
 
-
 export const SetHostMessagingSuspendedRequestSchema = z
   .object({
     id: IdSchema,

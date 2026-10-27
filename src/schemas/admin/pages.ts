@@ -10,7 +10,6 @@ import {
 import { EventPageDTOSchema } from "../entities.js"
 import { AdminActorRefSchema, AdminListQuerySchema } from "./common.js"
 
-
 export const AdminEventPageListQuerySchema = AdminListQuerySchema.extend({
   status: EventPageStatusSchema.optional(),
   flagged: QueryBooleanSchema.optional(),

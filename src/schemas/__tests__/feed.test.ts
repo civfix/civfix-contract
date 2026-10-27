@@ -135,9 +135,9 @@ describe("feed score cursor", () => {
 
   it("rejects a negative score at the schema boundary", () => {
     expect(FeedScoreCursorSchema.safeParse({ score: -1, postId: UUID_A }).success).toBe(false)
-    expect(
-      FeedScoreCursorSchema.safeParse({ score: 1, postId: UUID_A, extra: true }).success,
-    ).toBe(false)
+    expect(FeedScoreCursorSchema.safeParse({ score: 1, postId: UUID_A, extra: true }).success).toBe(
+      false,
+    )
   })
 
   it("orders by score descending, then by post id descending", () => {

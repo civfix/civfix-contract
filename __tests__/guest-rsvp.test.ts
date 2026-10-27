@@ -182,12 +182,12 @@ describe("GuestRsvpVerifyRequestSchema code union", () => {
   })
 
   it("rejects codes between the two accepted lengths and beyond the max", () => {
-    expect(
-      GuestRsvpVerifyRequestSchema.safeParse({ ...verifyBase, code: "12345" }).success,
-    ).toBe(false)
-    expect(
-      GuestRsvpVerifyRequestSchema.safeParse({ ...verifyBase, code: "1234567" }).success,
-    ).toBe(false)
+    expect(GuestRsvpVerifyRequestSchema.safeParse({ ...verifyBase, code: "12345" }).success).toBe(
+      false,
+    )
+    expect(GuestRsvpVerifyRequestSchema.safeParse({ ...verifyBase, code: "1234567" }).success).toBe(
+      false,
+    )
     expect(
       GuestRsvpVerifyRequestSchema.safeParse({ ...verifyBase, code: "a".repeat(19) }).success,
     ).toBe(false)
@@ -378,9 +378,9 @@ describe("guest response shapes", () => {
       sent: true,
       resendAfterSec: 30,
     })
-    expect(GuestRsvpRequestResponseSchema.safeParse({ sent: false, resendAfterSec: 30 }).success).toBe(
-      false,
-    )
+    expect(
+      GuestRsvpRequestResponseSchema.safeParse({ sent: false, resendAfterSec: 30 }).success,
+    ).toBe(false)
   })
 
   it("refuses to mint a manage token the cancel endpoint would reject", () => {
@@ -412,7 +412,9 @@ describe("guest response shapes", () => {
       joinedAt: "2026-06-01T17:00:00.000Z",
       cancelledAt: null,
     }
-    expect(CleanupGuestDTOSchema.safeParse({ ...base, email: null, phone: null }).success).toBe(true)
+    expect(CleanupGuestDTOSchema.safeParse({ ...base, email: null, phone: null }).success).toBe(
+      true,
+    )
     expect(CleanupGuestDTOSchema.safeParse({ ...base, phone: null }).success).toBe(false)
     expect(CleanupGuestDTOSchema.safeParse({ ...base, email: null }).success).toBe(false)
   })

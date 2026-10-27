@@ -134,7 +134,9 @@ export type JurisdictionDirectoryFacets = z.infer<typeof JurisdictionDirectoryFa
  * and only returned on the first page (cursor absent), so a mid-scroll page omits them and an older client
  * still parses.
  */
-export const JurisdictionDirectoryResponseSchema = pageResponse(JurisdictionDirectoryDTOSchema).extend({
+export const JurisdictionDirectoryResponseSchema = pageResponse(
+  JurisdictionDirectoryDTOSchema,
+).extend({
   total: z.number().int().nonnegative().optional(),
   facets: JurisdictionDirectoryFacetsSchema.optional(),
 })

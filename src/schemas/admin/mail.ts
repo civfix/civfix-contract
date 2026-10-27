@@ -8,8 +8,6 @@ import {
   MailStatusSchema,
 } from "./common.js"
 
-
-
 export const MailAttachmentSchema = z
   .object({
     // Read endpoints overwrite `key` with the presigned link for older admin builds; `url` carries the
@@ -45,7 +43,6 @@ export const MailMessageDTOSchema = z
   .strict()
 export type MailMessageDTO = z.infer<typeof MailMessageDTOSchema>
 
-
 export const MailThreadListItemDTOSchema = z
   .object({
     id: z.string(),
@@ -76,7 +73,6 @@ export type MailListQuery = z.infer<typeof MailListQuerySchema>
 export const MailListResponseSchema = pageResponse(MailThreadListItemDTOSchema)
 export type MailListResponse = z.infer<typeof MailListResponseSchema>
 
-
 export const MailThreadDTOSchema = MailThreadListItemDTOSchema.extend({
   messages: z.array(MailMessageDTOSchema),
 }).strict()
@@ -84,7 +80,6 @@ export type MailThreadDTO = z.infer<typeof MailThreadDTOSchema>
 
 export const GetMailThreadResponseSchema = MailThreadDTOSchema
 export type GetMailThreadResponse = z.infer<typeof GetMailThreadResponseSchema>
-
 
 export const MailStatsResponseSchema = z
   .object({
@@ -96,7 +91,6 @@ export const MailStatsResponseSchema = z
   })
   .strict()
 export type MailStatsResponse = z.infer<typeof MailStatsResponseSchema>
-
 
 export const ComposeRequestSchema = z
   .object({

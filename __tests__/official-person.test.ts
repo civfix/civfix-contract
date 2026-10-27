@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest"
-import { AttendeeDTOSchema, ChatMessageDTOSchema, PersonDTOSchema } from "../src/schemas/entities.js"
+import {
+  AttendeeDTOSchema,
+  ChatMessageDTOSchema,
+  PersonDTOSchema,
+} from "../src/schemas/entities.js"
 import { UserProfileDTOSchema } from "../src/schemas/social.js"
 
 const PERSON = {
@@ -48,6 +52,8 @@ describe("PersonDTO.official", () => {
     })
     expect(profile.official).toBe(true)
 
-    expect(AttendeeDTOSchema.parse({ ...PERSON, official: true, role: "member" }).official).toBe(true)
+    expect(AttendeeDTOSchema.parse({ ...PERSON, official: true, role: "member" }).official).toBe(
+      true,
+    )
   })
 })

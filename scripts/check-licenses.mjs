@@ -1,7 +1,7 @@
-import { execFileSync } from "node:child_process";
-import { realpathSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { z } from "zod";
+import { execFileSync } from "node:child_process"
+import { realpathSync } from "node:fs"
+import { fileURLToPath } from "node:url"
+import { z } from "zod"
 
 // @civfix/contract ships under AGPL-3.0-only, so every production dependency must carry a license that
 // can be combined with it. Exact SPDX ids only: a variant nobody has reviewed (BSD-4-Clause's advertising
@@ -20,7 +20,12 @@ const ALLOWED_LICENSES = new Set(
     "BlueOak-1.0.0",
     "Python-2.0",
     "MPL-2.0",
-    ...["LGPL-2.0", "LGPL-2.1", "LGPL-3.0"].flatMap((id) => [id, `${id}-only`, `${id}-or-later`, `${id}+`]),
+    ...["LGPL-2.0", "LGPL-2.1", "LGPL-3.0"].flatMap((id) => [
+      id,
+      `${id}-only`,
+      `${id}-or-later`,
+      `${id}+`,
+    ]),
     "GPL-2.0-or-later",
     "GPL-2.0+",
     ...["GPL-3.0", "AGPL-3.0"].flatMap((id) => [id, `${id}-only`, `${id}-or-later`, `${id}+`]),
@@ -28,16 +33,23 @@ const ALLOWED_LICENSES = new Set(
     "WTFPL",
     "Zlib",
   ].map((id) => id.toLowerCase()),
-);
+)
 
-const DENIED_LICENSES = [/^SSPL/i, /^BUSL/i, /^Commons[- ]Clause/i, /^CC-BY-NC/i, /^UNLICENSED$/i, /^UNKNOWN$/i];
+const DENIED_LICENSES = [
+  /^SSPL/i,
+  /^BUSL/i,
+  /^Commons[- ]Clause/i,
+  /^CC-BY-NC/i,
+  /^UNLICENSED$/i,
+  /^UNKNOWN$/i,
+]
 
 /** @typedef {Record<string, { license: string, reason: string }>} AllowedPackages */
 
 // A package whose metadata misreports its license, accepted only while it still reports exactly the
 // recorded string, so a later relicense is reviewed again. Each entry says why it is safe.
 /** @type {AllowedPackages} */
-const ALLOWED_PACKAGES = {};
+const ALLOWED_PACKAGES = {}
 
 /**
  * @typedef {{ id: string }
@@ -54,105 +66,108 @@ const tokenize = (expression) =>
     .replace(/[()]/g, " $& ")
     .trim()
     .split(/\s+/)
-    .filter((token) => token !== "");
+    .filter((token) => token !== "")
 
 /**
  * @param {string} expression
  * @returns {LicenseNode}
  */
 export const parseLicenseExpression = (expression) => {
-  const tokens = tokenize(expression);
-  let index = 0;
-  const peek = () => tokens[index];
+  const tokens = tokenize(expression)
+  let index = 0
+  const peek = () => tokens[index]
   /** @param {string} word */
-  const keyword = (word) => peek()?.toUpperCase() === word;
+  const keyword = (word) => peek()?.toUpperCase() === word
 
   /** @returns {LicenseNode} */
   const parseAtom = () => {
-    const token = peek();
-    if (token === undefined) throw new LicenseSyntaxError(`unexpected end of "${expression}"`);
-    index++;
+    const token = peek()
+    if (token === undefined) throw new LicenseSyntaxError(`unexpected end of "${expression}"`)
+    index++
     if (token === "(") {
-      const inner = parseOr();
-      if (peek() !== ")") throw new LicenseSyntaxError(`unbalanced parentheses in "${expression}"`);
-      index++;
-      return inner;
+      const inner = parseOr()
+      if (peek() !== ")") throw new LicenseSyntaxError(`unbalanced parentheses in "${expression}"`)
+      index++
+      return inner
     }
     if (token === ")" || ["AND", "OR", "WITH"].includes(token.toUpperCase())) {
-      throw new LicenseSyntaxError(`unexpected "${token}" in "${expression}"`);
+      throw new LicenseSyntaxError(`unexpected "${token}" in "${expression}"`)
     }
-    return { id: token };
-  };
+    return { id: token }
+  }
 
   /** @returns {LicenseNode} */
   const parseWith = () => {
-    const base = parseAtom();
-    if (!keyword("WITH")) return base;
-    index++;
-    const exception = peek();
+    const base = parseAtom()
+    if (!keyword("WITH")) return base
+    index++
+    const exception = peek()
     if (exception === undefined || exception === "(" || exception === ")") {
-      throw new LicenseSyntaxError(`missing exception after WITH in "${expression}"`);
+      throw new LicenseSyntaxError(`missing exception after WITH in "${expression}"`)
     }
-    index++;
-    return { with: base, exception };
-  };
+    index++
+    return { with: base, exception }
+  }
 
   /** @returns {LicenseNode} */
   const parseAnd = () => {
-    const terms = [parseWith()];
+    const terms = [parseWith()]
     while (keyword("AND")) {
-      index++;
-      terms.push(parseWith());
+      index++
+      terms.push(parseWith())
     }
-    return terms.length === 1 && terms[0] !== undefined ? terms[0] : { and: terms };
-  };
+    return terms.length === 1 && terms[0] !== undefined ? terms[0] : { and: terms }
+  }
 
   /** @returns {LicenseNode} */
   function parseOr() {
-    const options = [parseAnd()];
+    const options = [parseAnd()]
     while (keyword("OR")) {
-      index++;
-      options.push(parseAnd());
+      index++
+      options.push(parseAnd())
     }
-    return options.length === 1 && options[0] !== undefined ? options[0] : { or: options };
+    return options.length === 1 && options[0] !== undefined ? options[0] : { or: options }
   }
 
-  const tree = parseOr();
-  const trailing = peek();
-  if (trailing !== undefined) throw new LicenseSyntaxError(`unexpected "${trailing}" in "${expression}"`);
-  return tree;
-};
+  const tree = parseOr()
+  const trailing = peek()
+  if (trailing !== undefined)
+    throw new LicenseSyntaxError(`unexpected "${trailing}" in "${expression}"`)
+  return tree
+}
 
 /** @param {string} id */
-const isDenied = (id) => DENIED_LICENSES.some((pattern) => pattern.test(id));
+const isDenied = (id) => DENIED_LICENSES.some((pattern) => pattern.test(id))
 
 /**
  * @param {LicenseNode} node
  * @returns {boolean}
  */
 const evaluate = (node) => {
-  if ("or" in node) return node.or.some(evaluate);
-  if ("and" in node) return node.and.every(evaluate);
+  if ("or" in node) return node.or.some(evaluate)
+  if ("and" in node) return node.and.every(evaluate)
   // An exception only ever grants extra permissions, except Commons Clause, which takes them away.
-  if ("with" in node) return !isDenied(node.exception) && evaluate(node.with);
-  return !isDenied(node.id) && ALLOWED_LICENSES.has(node.id.toLowerCase());
-};
+  if ("with" in node) return !isDenied(node.exception) && evaluate(node.with)
+  return !isDenied(node.id) && ALLOWED_LICENSES.has(node.id.toLowerCase())
+}
 
 /** @param {string | undefined} expression */
 export const isLicenseAllowed = (expression) => {
-  if (expression === undefined || expression.trim() === "") return false;
+  if (expression === undefined || expression.trim() === "") return false
   try {
-    return evaluate(parseLicenseExpression(expression));
+    return evaluate(parseLicenseExpression(expression))
   } catch (error) {
-    if (error instanceof LicenseSyntaxError) return false;
-    throw error;
+    if (error instanceof LicenseSyntaxError) return false
+    throw error
   }
-};
+}
 
 const LicenseReportSchema = z.record(
   z.string(),
-  z.array(z.object({ name: z.string(), versions: z.array(z.string()), license: z.string().optional() })),
-);
+  z.array(
+    z.object({ name: z.string(), versions: z.array(z.string()), license: z.string().optional() }),
+  ),
+)
 
 /** @typedef {z.infer<typeof LicenseReportSchema>} LicenseReport */
 
@@ -162,39 +177,49 @@ const LicenseReportSchema = z.record(
  */
 export const findViolations = (report, allowedPackages = ALLOWED_PACKAGES) => {
   /** @type {{ name: string, versions: string[], license: string }[]} */
-  const violations = [];
+  const violations = []
   for (const [license, packages] of Object.entries(report)) {
     for (const pkg of packages) {
-      const reported = pkg.license ?? license;
-      if (isLicenseAllowed(reported)) continue;
-      if (Object.hasOwn(allowedPackages, pkg.name) && allowedPackages[pkg.name]?.license === reported) continue;
-      violations.push({ name: pkg.name, versions: pkg.versions, license: reported });
+      const reported = pkg.license ?? license
+      if (isLicenseAllowed(reported)) continue
+      if (
+        Object.hasOwn(allowedPackages, pkg.name) &&
+        allowedPackages[pkg.name]?.license === reported
+      )
+        continue
+      violations.push({ name: pkg.name, versions: pkg.versions, license: reported })
     }
   }
-  return violations;
-};
+  return violations
+}
 
 const main = () => {
   const output = execFileSync("pnpm", ["licenses", "list", "--prod", "--json"], {
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
-  });
-  const violations = findViolations(LicenseReportSchema.parse(JSON.parse(output)));
+  })
+  const violations = findViolations(LicenseReportSchema.parse(JSON.parse(output)))
   if (violations.length === 0) {
-    console.log("check-licenses: every production dependency has an AGPL-3.0-compatible license.");
-    return;
+    console.log("check-licenses: every production dependency has an AGPL-3.0-compatible license.")
+    return
   }
-  console.error("check-licenses: production dependencies with a denied, unknown or unreviewed license:");
+  console.error(
+    "check-licenses: production dependencies with a denied, unknown or unreviewed license:",
+  )
   for (const { name, versions, license } of violations) {
-    console.error(`  ${name}@${versions.join(", ")}: ${license}`);
+    console.error(`  ${name}@${versions.join(", ")}: ${license}`)
   }
   console.error(
     "Replace the dependency, or, if its real license is compatible, add it to ALLOWED_PACKAGES with the reason.",
-  );
-  process.exitCode = 1;
-};
+  )
+  process.exitCode = 1
+}
 
 // realpath on both sides: through a symlinked path the comparison would otherwise miss, skip main() and
 // pass the gate without checking anything.
-const invokedAs = process.argv[1];
-if (invokedAs !== undefined && realpathSync(invokedAs) === realpathSync(fileURLToPath(import.meta.url))) main();
+const invokedAs = process.argv[1]
+if (
+  invokedAs !== undefined &&
+  realpathSync(invokedAs) === realpathSync(fileURLToPath(import.meta.url))
+)
+  main()

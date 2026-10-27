@@ -2,7 +2,6 @@ import { z } from "zod"
 import { ISODateSchema } from "./common.js"
 import { LegalDocumentVersionDTOSchema } from "./entities.js"
 
-
 export { LegalDocumentVersionDTOSchema } from "./entities.js"
 export type { LegalDocumentVersionDTO } from "./entities.js"
 export { LegalDocumentTypeSchema, ConsentSurfaceSchema } from "./common.js"

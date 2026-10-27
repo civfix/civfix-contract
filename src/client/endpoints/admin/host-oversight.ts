@@ -44,7 +44,10 @@ import {
   UnpublishEventPageRequestSchema,
   UnpublishEventPageResponseSchema,
 } from "../../../schemas/admin/pages.js"
-import { AdminGetMediaRequestSchema, AdminGetMediaResponseSchema } from "../../../schemas/admin/media.js"
+import {
+  AdminGetMediaRequestSchema,
+  AdminGetMediaResponseSchema,
+} from "../../../schemas/admin/media.js"
 
 export const hostAdminEndpoints = {
   adminListOrgVerifications: def({

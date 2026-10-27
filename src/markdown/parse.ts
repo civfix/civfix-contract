@@ -17,7 +17,23 @@ export interface ParseMarkdownOptions {
   maxChars?: number | undefined
 }
 
-const ESCAPABLE = new Set(["\\", "`", "*", "_", "[", "]", "(", ")", "#", "+", "-", ".", "!", ">", "|"])
+const ESCAPABLE = new Set([
+  "\\",
+  "`",
+  "*",
+  "_",
+  "[",
+  "]",
+  "(",
+  ")",
+  "#",
+  "+",
+  "-",
+  ".",
+  "!",
+  ">",
+  "|",
+])
 const UNORDERED_ITEM = /^ {0,3}[-*+][ \t]+(.*)$/
 const ORDERED_ITEM = /^ {0,3}\d{1,9}[.)][ \t]+(.*)$/
 // eslint-disable-next-line no-control-regex -- matching control characters is the point
@@ -110,13 +126,19 @@ function tryLink(src: string, i: number, depth: number, scan: InlineScan): Inlin
   const href = src.slice(labelEnd + 2, hrefEnd)
   const children = parseInline(src.slice(i + 1, labelEnd), depth + 1)
   if (!hasContent(children)) return null
-  const nodes: MarkdownInline[] = isSafeMarkdownHref(href) ? [{ type: "link", href: href.trim(), children }] : children
+  const nodes: MarkdownInline[] = isSafeMarkdownHref(href)
+    ? [{ type: "link", href: href.trim(), children }]
+    : children
   return { nodes, next: hrefEnd + 1 }
 }
 
 function tryDelimited(src: string, i: number, depth: number, scan: InlineScan): InlineMatch | null {
   if (depth >= MARKDOWN_MAX_INLINE_DEPTH) return null
-  return tryStrong(src, i, depth, scan) ?? tryEmphasis(src, i, depth, scan) ?? tryLink(src, i, depth, scan)
+  return (
+    tryStrong(src, i, depth, scan) ??
+    tryEmphasis(src, i, depth, scan) ??
+    tryLink(src, i, depth, scan)
+  )
 }
 
 function parseInline(src: string, depth: number): MarkdownInline[] {
@@ -173,7 +195,10 @@ function markerFor(line: string): { ordered: boolean; text: string } | null {
   return null
 }
 
-export function parseMarkdownSubset(src: string, options: ParseMarkdownOptions = {}): MarkdownNode[] {
+export function parseMarkdownSubset(
+  src: string,
+  options: ParseMarkdownOptions = {},
+): MarkdownNode[] {
   if (typeof src !== "string" || src.length === 0) return []
   const limit = intOr(options.maxChars, 1, MARKDOWN_SUBSET_MAX_CHARS)
   const normalized = src.slice(0, limit).replace(/\r\n?/gu, "\n").replace(CONTROL_CHARS_GLOBAL, "")

@@ -28,9 +28,7 @@ function jsonResponse(
 
 describe("fillPath", () => {
   it("substitutes and URL-encodes named params", () => {
-    expect(fillPath("/cleanups/:id/messages", { id: "a b/c" })).toBe(
-      "/cleanups/a%20b%2Fc/messages",
-    )
+    expect(fillPath("/cleanups/:id/messages", { id: "a b/c" })).toBe("/cleanups/a%20b%2Fc/messages")
   })
 
   it("supports multiple params and numeric values", () => {

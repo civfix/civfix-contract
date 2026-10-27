@@ -180,7 +180,10 @@ async function responseFeatures(res: Response): Promise<unknown[]> {
  * Live address/place autocomplete via Photon. Throws on network/HTTP failure so `suggestAddresses` can
  * degrade. Pass `proximity` to bias results toward a point.
  */
-export async function photonSuggest(query: string, opts: SuggestOptions = {}): Promise<GeoSuggestion[]> {
+export async function photonSuggest(
+  query: string,
+  opts: SuggestOptions = {},
+): Promise<GeoSuggestion[]> {
   const q = query.trim()
   if (!q) return []
   const url = new URL(PHOTON_URL)
@@ -196,7 +199,10 @@ export async function photonSuggest(query: string, opts: SuggestOptions = {}): P
       url.searchParams.set("location_bias_scale", String(opts.locationBiasScale))
     }
   }
-  const res = await fetch(url.toString(), { signal: opts.signal ?? null, headers: { Accept: "application/json" } })
+  const res = await fetch(url.toString(), {
+    signal: opts.signal ?? null,
+    headers: { Accept: "application/json" },
+  })
   if (!res.ok) throw new Error(`Photon request failed: ${res.status}`)
   const out: GeoSuggestion[] = []
   for (const raw of await responseFeatures(res)) {
@@ -226,7 +232,10 @@ const MapboxV6PropertiesSchema = z.object({
   context: z
     .object({
       place: z.object({ name: OptionalText }).optional().catch(undefined),
-      region: z.object({ name: OptionalText, region_code: OptionalText }).optional().catch(undefined),
+      region: z
+        .object({ name: OptionalText, region_code: OptionalText })
+        .optional()
+        .catch(undefined),
     })
     .optional()
     .catch(undefined),
@@ -253,7 +262,10 @@ function mapboxSecondary(p: MapboxV6Properties, label: string): string | undefin
  * Live address autocomplete via Mapbox Geocoding v6. Requires opts.mapboxToken (throws if missing).
  * Throws on network/HTTP failure so suggestAddresses can fall back to Photon.
  */
-export async function mapboxSuggest(query: string, opts: SuggestOptions = {}): Promise<GeoSuggestion[]> {
+export async function mapboxSuggest(
+  query: string,
+  opts: SuggestOptions = {},
+): Promise<GeoSuggestion[]> {
   const q = query.trim()
   if (!q) return []
   const token = opts.mapboxToken
@@ -271,7 +283,10 @@ export async function mapboxSuggest(query: string, opts: SuggestOptions = {}): P
   if (opts.proximity) {
     url.searchParams.set("proximity", `${opts.proximity.lng},${opts.proximity.lat}`)
   }
-  const res = await fetch(url.toString(), { signal: opts.signal ?? null, headers: { Accept: "application/json" } })
+  const res = await fetch(url.toString(), {
+    signal: opts.signal ?? null,
+    headers: { Accept: "application/json" },
+  })
   if (!res.ok) throw new Error(`Mapbox request failed: ${res.status}`)
   const out: GeoSuggestion[] = []
   for (const raw of await responseFeatures(res)) {
@@ -307,7 +322,10 @@ function isAbort(err: unknown, signal?: AbortSignal): boolean {
  * (falling back to Photon when Mapbox throws OR returns nothing); else Photon. Provider errors degrade
  * to [] and are reported through `opts.onError`, but an abort rejects.
  */
-export async function suggestAddresses(query: string, opts: SuggestOptions = {}): Promise<GeoSuggestion[]> {
+export async function suggestAddresses(
+  query: string,
+  opts: SuggestOptions = {},
+): Promise<GeoSuggestion[]> {
   const q = query.trim()
   if (!q) return []
 
