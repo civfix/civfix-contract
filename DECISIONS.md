@@ -153,7 +153,7 @@ the Zod runtime) and a drift test asserts the two stay byte-for-byte identical.
 
 Refined DTOs / responses:
 
-- `UserDTO.email`: `z.string().email().nullable().optional()`. Account email for display. Nullable for
+- `UserDTO.email`: `z.email().nullable().optional()`. Account email for display. Nullable for
   accounts without one (Apple private relay omitted) and optional for backward compatibility.
   `SessionResponse` / `SessionCheckResponse` continue to compose over `UserDTO` unchanged.
 - `SessionCheckResponse.enabledProviders`: `z.array(OAuthProviderSchema).optional()`, so the web can
@@ -2355,3 +2355,7 @@ clients receive.
 `z.ZodType` replaces `z.ZodTypeAny` in the client's generics. The default of `EndpointDef`'s type
 parameters is therefore a schema whose output is `unknown` rather than `any`; every registry entry's
 request and response types are unchanged.
+
+Every consumer adopts it in one delivery set, because a minor needs a range edit on 0.x:
+civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
+civfix-admin.
