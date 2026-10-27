@@ -13,7 +13,7 @@ export const rejectAroundWithBefore = (
 ): void => {
   if (v.before !== undefined && v.around !== undefined) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       path: ["around"],
       message: "`around` and `before` are mutually exclusive",
     })
@@ -47,7 +47,7 @@ export const MessageThreadDTOSchema = z.object({
   title: z.string(),
   last: z.string().nullable().optional(),
   ago: z.string().nullable().optional(),
-  lastMessageAt: z.string().datetime().nullable().optional(),
+  lastMessageAt: z.iso.datetime().nullable().optional(),
   refId: z.string().nullable().optional(),
   peer: PersonDTOSchema.nullable().optional(),
   lastFromMe: z.boolean().optional().default(false),

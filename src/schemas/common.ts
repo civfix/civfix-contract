@@ -30,7 +30,7 @@ export const PaginationQuerySchema = z
   .strict()
 export type PaginationQuery = z.infer<typeof PaginationQuerySchema>
 
-export function pageResponse<T extends z.ZodTypeAny>(item: T) {
+export function pageResponse<T extends z.ZodType>(item: T) {
   return z.object({
     items: z.array(item),
     nextCursor: z.string().nullable(),

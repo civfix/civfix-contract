@@ -67,6 +67,7 @@ const TYPED_RULES = {
   "@typescript-eslint/no-dynamic-delete": "error",
   "@typescript-eslint/use-unknown-in-catch-callback-variable": "error",
   "@typescript-eslint/no-non-null-assertion": "error",
+  "@typescript-eslint/no-deprecated": "error",
 }
 
 export default tseslint.config(

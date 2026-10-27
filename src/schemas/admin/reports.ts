@@ -49,7 +49,7 @@ export const ReportRoutingSchema = z
   .object({
     dept: z.string(),
     place: z.string(),
-    contact: z.string().email().nullable(),
+    contact: z.email().nullable(),
     routed: z.boolean(),
   })
   .strict()
@@ -80,7 +80,7 @@ export const ReportOutreachSchema = z
     /** The per-report mail thread id (so the admin can open the city conversation), or null. */
     threadId: z.string().nullable(),
     /** The address the report was sent to (the jurisdiction's contact on file), or null. */
-    routedTo: z.string().email().nullable(),
+    routedTo: z.email().nullable(),
     /** ISO timestamp of the (first) send to the jurisdiction, or null. */
     routedAt: z.string().nullable(),
     /** True when the latest send attempt was rejected by the mail provider; a resend is allowed. */
@@ -246,7 +246,7 @@ export const RouteReportResponseSchema = z
   .object({
     ok: z.literal(true),
     threadId: z.string(),
-    routedTo: z.string().email(),
+    routedTo: z.email(),
   })
   .strict()
 export type RouteReportResponse = z.infer<typeof RouteReportResponseSchema>
