@@ -102,13 +102,13 @@ export interface DerivedHourPanel {
 }
 
 export interface SuppressOptions {
-  k?: number
-  suppressPoints?: boolean
+  k?: number | undefined
+  suppressPoints?: boolean | undefined
 }
 
 export interface BreakdownOptions {
-  k?: number
-  totalPublishable?: boolean
+  k?: number | undefined
+  totalPublishable?: boolean | undefined
 }
 
 export interface BreakdownClosure {
@@ -119,9 +119,9 @@ export interface BreakdownClosure {
 }
 
 export interface ArrivalsCurveOptions extends SuppressOptions {
-  bucketMinutes?: number
-  fromMinutes?: number
-  toMinutes?: number
+  bucketMinutes?: number | undefined
+  fromMinutes?: number | undefined
+  toMinutes?: number | undefined
 }
 
 function dayToUtcMs(day: string): number {

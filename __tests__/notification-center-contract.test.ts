@@ -125,8 +125,7 @@ describe("notification settings schemas", () => {
     const dto = { categories: NOTIFICATION_CATEGORY_DEFAULTS, emailAvailable: false }
     expect(NotificationSettingsDTOSchema.safeParse(dto).success).toBe(true)
     for (const c of CATEGORIES) {
-      const categories: Record<string, unknown> = { ...NOTIFICATION_CATEGORY_DEFAULTS }
-      delete categories[c]
+      const categories = Object.fromEntries(Object.entries(NOTIFICATION_CATEGORY_DEFAULTS).filter(([k]) => k !== c))
       fails(NotificationSettingsDTOSchema, { categories, emailAvailable: false })
     }
     fails(NotificationSettingsDTOSchema, { categories: NOTIFICATION_CATEGORY_DEFAULTS })
@@ -401,9 +400,9 @@ describe("notification center endpoints", () => {
 
   it("T26: the typed client calls the new endpoints with csrf only on mutations", async () => {
     const calls: Array<{ url: string; method: string | undefined; csrf: string | null }> = []
-    const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+    const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
       calls.push({
-        url: String(url),
+        url,
         method: init?.method,
         csrf: new Headers(init?.headers).get("x-csrf-token"),
       })

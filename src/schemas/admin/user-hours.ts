@@ -23,10 +23,10 @@ export const AdminUserHoursQuerySchema = z
 export type AdminUserHoursQuery = z.infer<typeof AdminUserHoursQuerySchema>
 
 /** A calendar date (`YYYY-MM-DD`) with no time zone: the day a manual credit's service happened. */
-const CalendarDateSchema = z.string().date()
+const CalendarDateSchema = z.iso.date()
 
 /**
- * `z.string().date()` accepts any four-digit year, including 0000, which Postgres `date` rejects;
+ * `z.iso.date()` accepts any four-digit year, including 0000, which Postgres `date` rejects;
  * without a floor such a value would reach the insert and fail as a 500 instead of a VALIDATION error.
  * The floor lives on the credit request only, so a stored row keeps parsing if it is ever raised.
  */

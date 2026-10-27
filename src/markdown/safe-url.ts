@@ -9,7 +9,7 @@ const ASCII_HOST = /^[a-z0-9.-]+$/
 const IPV4_LITERAL = /^\d{1,3}(?:\.\d{1,3}){3}$/
 
 export interface SafeHttpsUrlOptions {
-  maxChars?: number
+  maxChars?: number | undefined
 }
 
 export function httpsUrlAuthority(url: string): string {

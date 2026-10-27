@@ -279,7 +279,7 @@ describe("error behaviour is unchanged", () => {
     })()
     expect(expected).toBeInstanceOf(RangeError)
     for (let i = 0; i < 2; i += 1) {
-      expect(() => dt.timeLabel(iso, "en_US!", LA)).toThrow(expected as RangeError)
+      expect(() => dt.timeLabel(iso, "en_US!", LA)).toThrow(expected)
       expect(() => dt.timeRangeLabel(iso, iso, "en_US!", LA)).toThrow(RangeError)
       expect(() => dt.timeLabel(iso, "en_US!")).toThrow(RangeError)
     }

@@ -183,7 +183,7 @@ export type DeleteAccountResponse = z.infer<typeof DeleteAccountResponseSchema>
 
 export const RequestDataExportResponseSchema = z.object({
   ok: z.literal(true),
-  email: z.string().email().nullable().optional(),
+  email: z.email().nullable().optional(),
 })
 export type RequestDataExportResponse = z.infer<typeof RequestDataExportResponseSchema>
 
