@@ -18,23 +18,46 @@ jobs:
     name: contract
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v4
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: 9.12.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Dev tooling runs here next to the job's token, so a high advisory anywhere fails the PR, and a
+      # moderate one does in the production tree. A finding with no upstream fix gets a `pnpm.overrides`
+      # floor, or an `auditConfig.ignoreGhsas` entry documented in package.json, never a weaker gate.
+      - name: Audit all dependencies (high and above)
+        run: pnpm audit --audit-level high
+      - name: Audit production dependencies (moderate and above)
+        run: pnpm audit --prod --audit-level moderate
+      - name: Production dependency licenses
+        run: pnpm check:licenses
+      - name: Workflow security (zizmor)
+        uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
+        with:
+          version: 1.31.1
+          persona: regular
+          min-severity: medium
+          online-audits: false
+          advanced-security: false
       - run: pnpm typecheck
       - run: pnpm lint
       - name: Test (coverage thresholds)
         run: pnpm test:coverage
       - run: pnpm build
       - run: pnpm check:package
-      - run: node --test scripts/check-version.test.mjs
-      # Fails a PR whose version the registry already holds from a commit main never released.
-      - run: node scripts/check-version.mjs
+      - name: Test repo scripts
+        run: pnpm test:scripts
+      # Fails a PR whose version the registry already holds from a commit main never released. Not on a
+      # push to main: publish.yml runs the same check before it publishes, and here it would race that
+      # publish, seeing the new version on the registry before its tag reaches main.
+      - name: Version check
+        if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+        run: node scripts/check-version.mjs
