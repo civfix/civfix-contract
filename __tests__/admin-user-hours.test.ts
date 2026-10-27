@@ -103,7 +103,11 @@ describe("admin user-hours registry", () => {
   it("fills the path from either credit member and from the void's two ids", async () => {
     const calls: Array<{ url: string; init: RequestInit; body: unknown }> = []
     const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
-      calls.push({ url, init: init ?? {}, body: typeof init?.body === "string" ? JSON.parse(init.body) : undefined })
+      calls.push({
+        url,
+        init: init ?? {},
+        body: typeof init?.body === "string" ? JSON.parse(init.body) : undefined,
+      })
       if (init?.method === "GET") {
         return jsonResponse({
           items: [],
@@ -130,9 +134,7 @@ describe("admin user-hours registry", () => {
     expect(calls[0]!.body).toEqual(eventCredit)
     expect(calls[1]!.url).toBe(`https://api.civfix.test/v1/admin/users/${USER}/hours`)
     expect(calls[1]!.body).toEqual(manualCredit)
-    expect(calls[2]!.url).toBe(
-      `https://api.civfix.test/v1/admin/users/${USER}/hours/${ENTRY}/void`,
-    )
+    expect(calls[2]!.url).toBe(`https://api.civfix.test/v1/admin/users/${USER}/hours/${ENTRY}/void`)
     for (const call of calls.slice(0, 3)) {
       expect((call.init.headers as Record<string, string>)["x-csrf-token"]).toBe("csrf-1")
     }
@@ -151,17 +153,24 @@ describe("AdminCreditUserHoursRequest", () => {
   })
 
   it("rejects an unknown kind and a missing kind", () => {
-    expect(AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, kind: "report" }).success).toBe(false)
+    expect(
+      AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, kind: "report" }).success,
+    ).toBe(false)
     const { kind: _kind, ...noKind } = manualCredit
     expect(AdminCreditUserHoursRequestSchema.safeParse(noKind).success).toBe(false)
   })
 
   it("keeps each member strict so one kind cannot carry the other's field", () => {
     expect(
-      AdminCreditUserHoursRequestSchema.safeParse({ ...eventCredit, serviceDate: "2026-09-20" }).success,
+      AdminCreditUserHoursRequestSchema.safeParse({ ...eventCredit, serviceDate: "2026-09-20" })
+        .success,
     ).toBe(false)
-    expect(AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, eventId: EVENT }).success).toBe(false)
-    expect(AdminCreditUserHoursRequestSchema.safeParse({ ...eventCredit, userId: USER }).success).toBe(false)
+    expect(
+      AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, eventId: EVENT }).success,
+    ).toBe(false)
+    expect(
+      AdminCreditUserHoursRequestSchema.safeParse({ ...eventCredit, userId: USER }).success,
+    ).toBe(false)
   })
 
   it("requires the event on an event credit and the service date on a manual one", () => {
@@ -169,28 +178,55 @@ describe("AdminCreditUserHoursRequest", () => {
     expect(AdminCreditUserHoursRequestSchema.safeParse(noEvent).success).toBe(false)
     const { serviceDate: _serviceDate, ...noDate } = manualCredit
     expect(AdminCreditUserHoursRequestSchema.safeParse(noDate).success).toBe(false)
-    expect(AdminCreditUserHoursRequestSchema.safeParse({ ...eventCredit, eventId: "EV-1234" }).success).toBe(false)
+    expect(
+      AdminCreditUserHoursRequestSchema.safeParse({ ...eventCredit, eventId: "EV-1234" }).success,
+    ).toBe(false)
   })
 
   it("bounds hours to the event-hours range on both members", () => {
     for (const base of [eventCredit, manualCredit]) {
-      expect(AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: MIN_EVENT_HOURS }).success).toBe(true)
-      expect(AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: MAX_EVENT_HOURS }).success).toBe(true)
+      expect(
+        AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: MIN_EVENT_HOURS }).success,
+      ).toBe(true)
+      expect(
+        AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: MAX_EVENT_HOURS }).success,
+      ).toBe(true)
       expect(AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: 0 }).success).toBe(false)
-      expect(AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: 0.001 }).success).toBe(false)
-      expect(AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: 24.01 }).success).toBe(false)
-      expect(AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: -1 }).success).toBe(false)
-      expect(AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: "2" }).success).toBe(false)
+      expect(AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: 0.001 }).success).toBe(
+        false,
+      )
+      expect(AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: 24.01 }).success).toBe(
+        false,
+      )
+      expect(AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: -1 }).success).toBe(
+        false,
+      )
+      expect(AdminCreditUserHoursRequestSchema.safeParse({ ...base, hours: "2" }).success).toBe(
+        false,
+      )
     }
   })
 
   it("trims the reason and requires 1-1000 characters of it", () => {
-    const parsed = AdminCreditUserHoursRequestSchema.parse({ ...eventCredit, reason: "  late signup  " })
+    const parsed = AdminCreditUserHoursRequestSchema.parse({
+      ...eventCredit,
+      reason: "  late signup  ",
+    })
     expect(parsed.reason).toBe("late signup")
-    expect(AdminCreditUserHoursRequestSchema.safeParse({ ...eventCredit, reason: "   " }).success).toBe(false)
-    expect(AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, reason: "" }).success).toBe(false)
-    expect(AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, reason: "x".repeat(1000) }).success).toBe(true)
-    expect(AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, reason: "x".repeat(1001) }).success).toBe(false)
+    expect(
+      AdminCreditUserHoursRequestSchema.safeParse({ ...eventCredit, reason: "   " }).success,
+    ).toBe(false)
+    expect(
+      AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, reason: "" }).success,
+    ).toBe(false)
+    expect(
+      AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, reason: "x".repeat(1000) })
+        .success,
+    ).toBe(true)
+    expect(
+      AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, reason: "x".repeat(1001) })
+        .success,
+    ).toBe(false)
   })
 })
 
@@ -198,7 +234,14 @@ describe("ServiceDate", () => {
   it("accepts a calendar date and nothing with a time or a loose format", () => {
     expect(ServiceDateSchema.safeParse("2026-09-20").success).toBe(true)
     expect(ServiceDateSchema.safeParse("2028-02-29").success).toBe(true)
-    for (const bad of ["2026-9-20", "2026-02-30", "2026-13-01", "2026-09-20T00:00:00Z", "20/09/2026", ""]) {
+    for (const bad of [
+      "2026-9-20",
+      "2026-02-30",
+      "2026-13-01",
+      "2026-09-20T00:00:00Z",
+      "20/09/2026",
+      "",
+    ]) {
       expect(ServiceDateSchema.safeParse(bad).success).toBe(false)
     }
   })
@@ -207,7 +250,10 @@ describe("ServiceDate", () => {
     expect(ServiceDateSchema.safeParse(SERVICE_DATE_MIN).success).toBe(true)
     for (const early of ["0000-01-01", "0001-01-01", "1900-06-15", "1999-12-31"]) {
       expect(ServiceDateSchema.safeParse(early).success).toBe(false)
-      expect(AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, serviceDate: early }).success).toBe(false)
+      expect(
+        AdminCreditUserHoursRequestSchema.safeParse({ ...manualCredit, serviceDate: early })
+          .success,
+      ).toBe(false)
     }
   })
 })
@@ -270,9 +316,13 @@ describe("AdminUserHoursResponse", () => {
   })
 
   it("requires the totals and rejects an entry with an unknown field", () => {
-    expect(AdminUserHoursResponseSchema.safeParse({ items: [], nextCursor: null }).success).toBe(false)
+    expect(AdminUserHoursResponseSchema.safeParse({ items: [], nextCursor: null }).success).toBe(
+      false,
+    )
     expect(AdminUserHoursEntryDTOSchema.safeParse({ ...ledgerEntry, extra: 1 }).success).toBe(false)
-    expect(AdminUserHoursEntryDTOSchema.safeParse({ ...ledgerEntry, source: "donation" }).success).toBe(false)
+    expect(
+      AdminUserHoursEntryDTOSchema.safeParse({ ...ledgerEntry, source: "donation" }).success,
+    ).toBe(false)
   })
 })
 
@@ -293,7 +343,8 @@ describe("AdminReasonSchema", () => {
   it("is the one reason rule the org writes and the hours writes share", () => {
     expect(AdminReasonSchema.parse("  why  ")).toBe("why")
     expect(
-      AdminSetOrgSuspendedRequestSchema.safeParse({ id: USER, suspended: true, reason: "   " }).success,
+      AdminSetOrgSuspendedRequestSchema.safeParse({ id: USER, suspended: true, reason: "   " })
+        .success,
     ).toBe(false)
   })
 })

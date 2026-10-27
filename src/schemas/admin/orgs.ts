@@ -24,7 +24,6 @@ import {
 } from "./common.js"
 import { AdminEventListItemDTOSchema } from "./events.js"
 
-
 export const AdminOrgVerificationListQuerySchema = AdminListQuerySchema.extend({
   status: OrgVerificationStatusSchema.optional(),
   kind: OrgVerificationKindSchema.optional(),
@@ -46,9 +45,7 @@ export const AdminOrgVerificationListItemDTOSchema = z.object({
   reviewedAt: ISODateSchema.nullable().optional(),
   rejectionReason: z.string().nullable().optional(),
 })
-export type AdminOrgVerificationListItemDTO = z.infer<
-  typeof AdminOrgVerificationListItemDTOSchema
->
+export type AdminOrgVerificationListItemDTO = z.infer<typeof AdminOrgVerificationListItemDTOSchema>
 
 export const AdminOrgVerificationListResponseSchema = pageResponse(
   AdminOrgVerificationListItemDTOSchema,
@@ -84,8 +81,7 @@ const AdminOrgDTOObjectSchema = z.object({
   logoMediaId: IdSchema.nullable().optional(),
 })
 export type AdminOrgDTO = z.infer<typeof AdminOrgDTOObjectSchema>
-export const AdminOrgDTOSchema: z.ZodType<AdminOrgDTO, unknown> =
-  AdminOrgDTOObjectSchema
+export const AdminOrgDTOSchema: z.ZodType<AdminOrgDTO, unknown> = AdminOrgDTOObjectSchema
 
 export const GetAdminOrgRequestSchema = z.object({ id: IdSchema }).strict()
 export type GetAdminOrgRequest = z.infer<typeof GetAdminOrgRequestSchema>
@@ -200,8 +196,8 @@ export const AdminOrgMemberDTOSchema: z.ZodType<AdminOrgMemberDTO, unknown> =
 
 const AdminOrgMemberListResponseObjectSchema = pageResponse(AdminOrgMemberDTOSchema)
 export type AdminOrgMemberListResponse = z.infer<typeof AdminOrgMemberListResponseObjectSchema>
-export const AdminOrgMemberListResponseSchema: z.ZodType<
-  AdminOrgMemberListResponse, unknown> = AdminOrgMemberListResponseObjectSchema
+export const AdminOrgMemberListResponseSchema: z.ZodType<AdminOrgMemberListResponse, unknown> =
+  AdminOrgMemberListResponseObjectSchema
 
 /** `role: "owner"` is an ownership transfer: the previous owner is demoted to admin (DECISIONS §32). */
 export const AdminAddOrgMemberRequestSchema = z
@@ -257,5 +253,5 @@ export type AdminOrgEventDTO = z.infer<typeof AdminOrgEventDTOSchema>
 
 const AdminOrgEventListResponseObjectSchema = pageResponse(AdminOrgEventDTOSchema)
 export type AdminOrgEventListResponse = z.infer<typeof AdminOrgEventListResponseObjectSchema>
-export const AdminOrgEventListResponseSchema: z.ZodType<
-  AdminOrgEventListResponse, unknown> = AdminOrgEventListResponseObjectSchema
+export const AdminOrgEventListResponseSchema: z.ZodType<AdminOrgEventListResponse, unknown> =
+  AdminOrgEventListResponseObjectSchema

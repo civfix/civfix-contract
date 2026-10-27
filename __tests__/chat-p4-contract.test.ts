@@ -139,7 +139,8 @@ describe("CreateChatGroupRequestSchema", () => {
 
   it("caps memberIds at 50", () => {
     expect(
-      CreateChatGroupRequestSchema.safeParse({ name: "x", memberIds: Array(51).fill(USER) }).success,
+      CreateChatGroupRequestSchema.safeParse({ name: "x", memberIds: Array(51).fill(USER) })
+        .success,
     ).toBe(false)
   })
 })
@@ -150,11 +151,15 @@ describe("UpdateChatGroupRequestSchema", () => {
   })
 
   it("accepts clearing the description via empty string", () => {
-    expect(UpdateChatGroupRequestSchema.safeParse({ id: GROUP, description: "" }).success).toBe(true)
+    expect(UpdateChatGroupRequestSchema.safeParse({ id: GROUP, description: "" }).success).toBe(
+      true,
+    )
   })
 
   it("rejects description null (empty string is the clear sentinel)", () => {
-    expect(UpdateChatGroupRequestSchema.safeParse({ id: GROUP, description: null }).success).toBe(false)
+    expect(UpdateChatGroupRequestSchema.safeParse({ id: GROUP, description: null }).success).toBe(
+      false,
+    )
   })
 })
 
@@ -185,7 +190,9 @@ describe("GroupHistoryRequestSchema", () => {
 
 describe("member management requests", () => {
   it("AddGroupMembers requires 1..50 ids", () => {
-    expect(AddGroupMembersRequestSchema.safeParse({ id: GROUP, memberIds: [USER] }).success).toBe(true)
+    expect(AddGroupMembersRequestSchema.safeParse({ id: GROUP, memberIds: [USER] }).success).toBe(
+      true,
+    )
     expect(AddGroupMembersRequestSchema.safeParse({ id: GROUP, memberIds: [] }).success).toBe(false)
   })
 

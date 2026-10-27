@@ -13,7 +13,6 @@ import { OkResponseSchema } from "../internal-fields.js"
 import { BroadcastDTOSchema, HttpsUrlSchema } from "../entities.js"
 import { MARKDOWN_SUBSET_MAX_CHARS } from "../../markdown/parse.js"
 
-
 export { BroadcastDTOSchema } from "../entities.js"
 export type { BroadcastDTO } from "../entities.js"
 export {
@@ -39,7 +38,7 @@ export const HostBroadcastChannelSchema = z.enum(["inapp", "push", "email"])
 export type HostBroadcastChannel = z.infer<typeof HostBroadcastChannelSchema>
 
 export const PUSH_REQUIRES_INAPP_MESSAGE =
-  "push notifications ride the in-app notification, so \"inapp\" must be selected with \"push\""
+  'push notifications ride the in-app notification, so "inapp" must be selected with "push"'
 
 export function hostBroadcastChannelsValid(channels: readonly HostBroadcastChannel[]): boolean {
   return !channels.includes("push") || channels.includes("inapp")
@@ -150,8 +149,10 @@ export const TestSendEventBroadcastRequestSchema = z
 export type TestSendEventBroadcastRequest = z.infer<typeof TestSendEventBroadcastRequestSchema>
 
 export type TestSendEventBroadcastResponse = z.infer<typeof OkResponseSchema>
-export const TestSendEventBroadcastResponseSchema: z.ZodType<TestSendEventBroadcastResponse, unknown> =
-  OkResponseSchema
+export const TestSendEventBroadcastResponseSchema: z.ZodType<
+  TestSendEventBroadcastResponse,
+  unknown
+> = OkResponseSchema
 
 export const SendEventBroadcastRequestSchema = z
   .object({ id: IdSchema, broadcastId: IdSchema })
@@ -226,9 +227,13 @@ export const ListBroadcastDeliveriesRequestSchema = PaginationQuerySchema.extend
 export type ListBroadcastDeliveriesRequest = z.infer<typeof ListBroadcastDeliveriesRequestSchema>
 
 const ListBroadcastDeliveriesResponseObjectSchema = pageResponse(BroadcastDeliveryDTOSchema)
-export type ListBroadcastDeliveriesResponse = z.infer<typeof ListBroadcastDeliveriesResponseObjectSchema>
-export const ListBroadcastDeliveriesResponseSchema: z.ZodType<ListBroadcastDeliveriesResponse, unknown> =
-  ListBroadcastDeliveriesResponseObjectSchema
+export type ListBroadcastDeliveriesResponse = z.infer<
+  typeof ListBroadcastDeliveriesResponseObjectSchema
+>
+export const ListBroadcastDeliveriesResponseSchema: z.ZodType<
+  ListBroadcastDeliveriesResponse,
+  unknown
+> = ListBroadcastDeliveriesResponseObjectSchema
 
 export const UNSUBSCRIBE_TOKEN_MIN = 20
 export const UNSUBSCRIBE_TOKEN_MAX = 512
@@ -246,22 +251,28 @@ export const UnsubscribeBroadcastsRequestSchema = z
 export type UnsubscribeBroadcastsRequest = z.infer<typeof UnsubscribeBroadcastsRequestSchema>
 
 export type UnsubscribeBroadcastsResponse = z.infer<typeof OkResponseSchema>
-export const UnsubscribeBroadcastsResponseSchema: z.ZodType<UnsubscribeBroadcastsResponse, unknown> =
-  OkResponseSchema
+export const UnsubscribeBroadcastsResponseSchema: z.ZodType<
+  UnsubscribeBroadcastsResponse,
+  unknown
+> = OkResponseSchema
 
 export const OpenUnsubscribeBroadcastsRequestSchema = z
   .object({
     t: UnsubscribeTokenSchema,
   })
   .strict()
-export type OpenUnsubscribeBroadcastsRequest = z.infer<typeof OpenUnsubscribeBroadcastsRequestSchema>
+export type OpenUnsubscribeBroadcastsRequest = z.infer<
+  typeof OpenUnsubscribeBroadcastsRequestSchema
+>
 
 const OpenUnsubscribeBroadcastsResponseObjectSchema = z.object({}).strict()
 export type OpenUnsubscribeBroadcastsResponse = z.infer<
   typeof OpenUnsubscribeBroadcastsResponseObjectSchema
 >
 export const OpenUnsubscribeBroadcastsResponseSchema: z.ZodType<
-  OpenUnsubscribeBroadcastsResponse, unknown> = OpenUnsubscribeBroadcastsResponseObjectSchema
+  OpenUnsubscribeBroadcastsResponse,
+  unknown
+> = OpenUnsubscribeBroadcastsResponseObjectSchema
 
 export const SetEventBroadcastMuteRequestSchema = z
   .object({ id: IdSchema, muted: z.boolean() })
@@ -269,6 +280,10 @@ export const SetEventBroadcastMuteRequestSchema = z
 export type SetEventBroadcastMuteRequest = z.infer<typeof SetEventBroadcastMuteRequestSchema>
 
 const SetEventBroadcastMuteResponseObjectSchema = z.object({ muted: z.boolean() })
-export type SetEventBroadcastMuteResponse = z.infer<typeof SetEventBroadcastMuteResponseObjectSchema>
-export const SetEventBroadcastMuteResponseSchema: z.ZodType<SetEventBroadcastMuteResponse, unknown> =
-  SetEventBroadcastMuteResponseObjectSchema
+export type SetEventBroadcastMuteResponse = z.infer<
+  typeof SetEventBroadcastMuteResponseObjectSchema
+>
+export const SetEventBroadcastMuteResponseSchema: z.ZodType<
+  SetEventBroadcastMuteResponse,
+  unknown
+> = SetEventBroadcastMuteResponseObjectSchema

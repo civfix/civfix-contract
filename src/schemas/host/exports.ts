@@ -8,7 +8,6 @@ import {
   pageResponse,
 } from "../common.js"
 
-
 export { HostExportKindSchema, HostExportStatusSchema } from "../common.js"
 export type { HostExportKind, HostExportStatus } from "../common.js"
 
@@ -27,8 +26,7 @@ const HostExportDTOObjectSchema = z.object({
   expiresAt: ISODateSchema.nullable().optional(),
 })
 export type HostExportDTO = z.infer<typeof HostExportDTOObjectSchema>
-export const HostExportDTOSchema: z.ZodType<HostExportDTO, unknown> =
-  HostExportDTOObjectSchema
+export const HostExportDTOSchema: z.ZodType<HostExportDTO, unknown> = HostExportDTOObjectSchema
 
 export const HostExportFiltersSchema = z
   .object({

@@ -3,7 +3,6 @@ import { UpdateSettingsRequestSchema, UserProfileDTOSchema } from "../src/schema
 import { UserDTOSchema } from "../src/schemas/auth.js"
 import { NotificationTypeSchema, NotificationPrefsDTOSchema } from "../src/schemas/notifications.js"
 
-
 const UUID = "123e4567-e89b-12d3-a456-426614174000"
 
 const profile = (extra: Record<string, unknown> = {}) => ({

@@ -15,7 +15,10 @@ import {
   ListBlocksResponseSchema,
   ConnectionsListQuerySchema,
 } from "../../schemas/social.js"
-import { ReportContentRequestSchema, ReportContentResponseSchema } from "../../schemas/content-report.js"
+import {
+  ReportContentRequestSchema,
+  ReportContentResponseSchema,
+} from "../../schemas/content-report.js"
 import { PaginationQuerySchema } from "../../schemas/common.js"
 
 export const socialEndpoints = {

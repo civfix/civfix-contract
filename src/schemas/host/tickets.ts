@@ -4,7 +4,6 @@ import { TicketTypeDTOSchema } from "../entities.js"
 import { OkResponseSchema, SortOrderInputSchema } from "../internal-fields.js"
 import { MAX_EVENT_QUESTIONS } from "./questions.js"
 
-
 export { TicketTypeDTOSchema } from "../entities.js"
 export type { TicketTypeDTO } from "../entities.js"
 export { TicketTypeVisibilitySchema } from "../common.js"
@@ -103,8 +102,10 @@ export const DeleteEventTicketTypeRequestSchema = z
 export type DeleteEventTicketTypeRequest = z.infer<typeof DeleteEventTicketTypeRequestSchema>
 
 export type DeleteEventTicketTypeResponse = z.infer<typeof OkResponseSchema>
-export const DeleteEventTicketTypeResponseSchema: z.ZodType<DeleteEventTicketTypeResponse, unknown> =
-  OkResponseSchema
+export const DeleteEventTicketTypeResponseSchema: z.ZodType<
+  DeleteEventTicketTypeResponse,
+  unknown
+> = OkResponseSchema
 
 export const ReorderEventTicketTypesRequestSchema = z
   .object({
@@ -117,6 +118,10 @@ export type ReorderEventTicketTypesRequest = z.infer<typeof ReorderEventTicketTy
 const ReorderEventTicketTypesResponseObjectSchema = z.object({
   items: z.array(TicketTypeDTOSchema),
 })
-export type ReorderEventTicketTypesResponse = z.infer<typeof ReorderEventTicketTypesResponseObjectSchema>
-export const ReorderEventTicketTypesResponseSchema: z.ZodType<ReorderEventTicketTypesResponse, unknown> =
-  ReorderEventTicketTypesResponseObjectSchema
+export type ReorderEventTicketTypesResponse = z.infer<
+  typeof ReorderEventTicketTypesResponseObjectSchema
+>
+export const ReorderEventTicketTypesResponseSchema: z.ZodType<
+  ReorderEventTicketTypesResponse,
+  unknown
+> = ReorderEventTicketTypesResponseObjectSchema

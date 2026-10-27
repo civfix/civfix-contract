@@ -51,7 +51,11 @@ const COORDINATOR_CAPABILITIES: readonly HostCapability[] = COHOST_CAPABILITIES.
   (cap) => !COORDINATOR_ONLY_TO_COHOST.includes(cap),
 )
 
-const STAFF_CAPABILITIES: readonly HostCapability[] = ["view_event_private", "view_roster", "check_in"]
+const STAFF_CAPABILITIES: readonly HostCapability[] = [
+  "view_event_private",
+  "view_roster",
+  "check_in",
+]
 
 const ORG_OWNER_CAPABILITIES: readonly HostCapability[] = [
   ...ORGANIZER_CAPABILITIES,

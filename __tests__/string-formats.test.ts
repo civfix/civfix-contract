@@ -21,9 +21,13 @@ function issue(schema: z.ZodType, input: unknown) {
   }))
 }
 
-const INVALID_EMAIL = [{ code: "invalid_format", format: "email", message: "Invalid email address", path: [] }]
+const INVALID_EMAIL = [
+  { code: "invalid_format", format: "email", message: "Invalid email address", path: [] },
+]
 const INVALID_URL = [{ code: "invalid_format", format: "url", message: "Invalid URL", path: [] }]
-const INVALID_DATETIME = [{ code: "invalid_format", format: "datetime", message: "Invalid ISO datetime", path: [] }]
+const INVALID_DATETIME = [
+  { code: "invalid_format", format: "datetime", message: "Invalid ISO datetime", path: [] },
+]
 
 describe("email fields", () => {
   const email = EmailOtpRequestRequestSchema.shape.email
@@ -54,7 +58,12 @@ describe("email fields", () => {
 
   it("rejects a non-string as invalid_type", () => {
     expect(issue(email, 42)).toEqual([
-      { code: "invalid_type", message: "Invalid input: expected string, received number", path: [], format: undefined },
+      {
+        code: "invalid_type",
+        message: "Invalid input: expected string, received number",
+        path: [],
+        format: undefined,
+      },
     ])
   })
 
@@ -62,7 +71,12 @@ describe("email fields", () => {
     expect(HostEventEmailSchema.parse("  Host@Example.COM  ")).toBe("host@example.com")
     expect(issue(HostEventEmailSchema, " ")).toEqual(INVALID_EMAIL)
     expect(issue(HostEventEmailSchema, `${"a".repeat(250)}@b.co`)).toEqual([
-      { code: "too_big", message: "Too big: expected string to have <=254 characters", path: [], format: undefined },
+      {
+        code: "too_big",
+        message: "Too big: expected string to have <=254 characters",
+        path: [],
+        format: undefined,
+      },
     ])
   })
 
@@ -96,16 +110,24 @@ describe("URL fields", () => {
     expect(formUrl.parse(" https://example.com")).toBe("https://example.com")
   })
 
-  it.each(["example.com", "//example.com", "https://", "https://exa mple.com"])("rejects %s", (value) => {
-    expect(issue(formUrl, value)).toEqual(INVALID_URL)
-  })
+  it.each(["example.com", "//example.com", "https://", "https://exa mple.com"])(
+    "rejects %s",
+    (value) => {
+      expect(issue(formUrl, value)).toEqual(INVALID_URL)
+    },
+  )
 
   it("HttpsUrlSchema trims, caps at 500 characters and requires https://", () => {
     const base = "https://example.com/"
     expect(HttpsUrlSchema.parse("  https://example.com/a  ")).toBe("https://example.com/a")
     expect(HttpsUrlSchema.parse(base + "a".repeat(480))).toBe(base + "a".repeat(480))
     expect(issue(HttpsUrlSchema, base + "a".repeat(481))).toEqual([
-      { code: "too_big", message: "Too big: expected string to have <=500 characters", path: [], format: undefined },
+      {
+        code: "too_big",
+        message: "Too big: expected string to have <=500 characters",
+        path: [],
+        format: undefined,
+      },
     ])
     for (const value of ["http://example.com", "javascript:alert(1)", "HTTPS://EXAMPLE.COM"]) {
       expect(issue(HttpsUrlSchema, value)).toEqual([
@@ -161,9 +183,12 @@ describe("calendar date fields", () => {
     expect(ServiceDateSchema.parse(value)).toBe(value)
   })
 
-  it.each(["2026-02-29", "2026-13-01", "2026-1-1", "2026-10-26T00:00:00Z"])("rejects %s", (value) => {
-    expect(issue(ServiceDateSchema, value)).toEqual([
-      { code: "invalid_format", format: "date", message: "Invalid ISO date", path: [] },
-    ])
-  })
+  it.each(["2026-02-29", "2026-13-01", "2026-1-1", "2026-10-26T00:00:00Z"])(
+    "rejects %s",
+    (value) => {
+      expect(issue(ServiceDateSchema, value)).toEqual([
+        { code: "invalid_format", format: "date", message: "Invalid ISO date", path: [] },
+      ])
+    },
+  )
 })

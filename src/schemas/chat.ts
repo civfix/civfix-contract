@@ -3,7 +3,6 @@ import { IdSchema, MESSAGE_BODY_MAX, pageResponse, RoomKindSchema } from "./comm
 import { ChatMessageDTOSchema, PersonDTOSchema, ReactionEmojiSchema } from "./entities.js"
 import { MAX_MENTIONED_USERS, OkResponseSchema, PageLimitSchema } from "./internal-fields.js"
 
-
 export { ChatMessageDTOSchema, ChatMessageKindSchema } from "./entities.js"
 export type { ChatMessageDTO, ChatMessageKind } from "./entities.js"
 
@@ -71,7 +70,6 @@ export type MarkThreadReadRequest = z.infer<typeof MarkThreadReadRequestSchema>
 
 export const MarkThreadReadResponseSchema = OkResponseSchema
 export type MarkThreadReadResponse = z.infer<typeof MarkThreadReadResponseSchema>
-
 
 export const OpenDmRequestSchema = z.object({ userId: IdSchema }).strict()
 export type OpenDmRequest = z.infer<typeof OpenDmRequestSchema>
@@ -195,7 +193,6 @@ export type ToggleReportMessageReactionRequest = z.infer<
   typeof ToggleReportMessageReactionRequestSchema
 >
 
-
 export const PollRoomKindSchema = z.enum(["cleanup", "report", "group"])
 export type PollRoomKind = z.infer<typeof PollRoomKindSchema>
 
@@ -209,7 +206,10 @@ export const CreatePollRequestSchema = z
     roomKind: PollRoomKindSchema,
     roomId: IdSchema,
     question: z.string().min(1).max(POLL_QUESTION_MAX),
-    options: z.array(z.string().min(1).max(POLL_OPTION_MAX)).min(POLL_MIN_OPTIONS).max(POLL_MAX_OPTIONS),
+    options: z
+      .array(z.string().min(1).max(POLL_OPTION_MAX))
+      .min(POLL_MIN_OPTIONS)
+      .max(POLL_MAX_OPTIONS),
     allowMultiple: z.boolean().default(false),
     anonymous: z.boolean().default(true),
   })
@@ -219,7 +219,15 @@ export type CreatePollRequest = z.infer<typeof CreatePollRequestSchema>
 export const VotePollRequestSchema = z
   .object({
     messageId: IdSchema,
-    optionIdxs: z.array(z.number().int().min(0).max(POLL_MAX_OPTIONS - 1)).max(POLL_MAX_OPTIONS),
+    optionIdxs: z
+      .array(
+        z
+          .number()
+          .int()
+          .min(0)
+          .max(POLL_MAX_OPTIONS - 1),
+      )
+      .max(POLL_MAX_OPTIONS),
   })
   .strict()
 export type VotePollRequest = z.infer<typeof VotePollRequestSchema>

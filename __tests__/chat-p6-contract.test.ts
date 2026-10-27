@@ -86,7 +86,9 @@ describe("CreatePollRequestSchema", () => {
 
 describe("VotePollRequestSchema", () => {
   it("accepts a normal ballot", () => {
-    expect(VotePollRequestSchema.safeParse({ messageId: MSG, optionIdxs: [0, 2] }).success).toBe(true)
+    expect(VotePollRequestSchema.safeParse({ messageId: MSG, optionIdxs: [0, 2] }).success).toBe(
+      true,
+    )
   })
 
   it("accepts an empty array (retract)", () => {
@@ -94,7 +96,9 @@ describe("VotePollRequestSchema", () => {
   })
 
   it("rejects an option idx of 10 (max idx is 9)", () => {
-    expect(VotePollRequestSchema.safeParse({ messageId: MSG, optionIdxs: [10] }).success).toBe(false)
+    expect(VotePollRequestSchema.safeParse({ messageId: MSG, optionIdxs: [10] }).success).toBe(
+      false,
+    )
   })
 
   it("rejects more than 10 idxs", () => {
