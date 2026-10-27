@@ -27,6 +27,6 @@
     "types": ["node"],
     "outDir": "dist"
   },
-  "include": ["src", "__tests__", "tsup.config.ts"],
+  "include": ["src", "__tests__", "tsup.config.ts", "vitest.console-guard.ts"],
   "exclude": ["node_modules", "dist"]
 }

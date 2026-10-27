@@ -41,6 +41,23 @@ function mapboxResponse(features: unknown[]): Response {
   })
 }
 
+const MAPBOX_HOST = "api.mapbox.com"
+const PHOTON_HOST = "photon.komoot.io"
+
+/** A fetch stub that answers by exact hostname and fails any request to a host it was not given. */
+function routeByHost(routes: Record<string, () => Response>) {
+  return vi.fn(async (url: string | URL) => {
+    const { hostname } = new URL(url)
+    const reply = routes[hostname]
+    if (!reply) throw new Error(`unexpected request to ${hostname}`)
+    return reply()
+  })
+}
+
+function requestedHosts(fetchMock: ReturnType<typeof routeByHost>): string[] {
+  return fetchMock.mock.calls.map(([url]) => new URL(url).hostname)
+}
+
 describe("parseLatLng", () => {
   it("parses comma- and space-separated pairs", () => {
     expect(parseLatLng("34.0522, -118.2437")).toEqual({ lat: 34.0522, lng: -118.2437 })
@@ -291,29 +308,25 @@ describe("suggestAddresses", () => {
   })
 
   it("falls back to Photon when Mapbox throws (HTTP error)", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (url: string | URL) =>
-        String(url).includes("mapbox.com")
-          ? new Response("err", { status: 500 })
-          : photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
-      ),
-    )
+    const fetchMock = routeByHost({
+      [MAPBOX_HOST]: () => new Response("err", { status: 500 }),
+      [PHOTON_HOST]: () => photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
+    })
+    vi.stubGlobal("fetch", fetchMock)
     const out = await suggestAddresses("echo park", { mapboxToken: "pk.test" })
     expect(out[0]?.source).toBe("photon")
+    expect(requestedHosts(fetchMock)).toEqual([MAPBOX_HOST, PHOTON_HOST])
   })
 
   it("falls back to Photon when Mapbox returns empty", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (url: string | URL) =>
-        String(url).includes("mapbox.com")
-          ? mapboxResponse([])
-          : photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
-      ),
-    )
+    const fetchMock = routeByHost({
+      [MAPBOX_HOST]: () => mapboxResponse([]),
+      [PHOTON_HOST]: () => photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
+    })
+    vi.stubGlobal("fetch", fetchMock)
     const out = await suggestAddresses("echo park", { mapboxToken: "pk.test" })
     expect(out[0]?.source).toBe("photon")
+    expect(requestedHosts(fetchMock)).toEqual([MAPBOX_HOST, PHOTON_HOST])
   })
 
   // An aborted (stale) keystroke must not RESOLVE [] and clobber the newer query's results.
@@ -356,17 +369,15 @@ describe("suggestAddresses onError", () => {
   })
 
   it("reports a Mapbox failure it falls back past, then the Photon result wins", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (url: string | URL) =>
-        String(url).includes("mapbox.com")
-          ? new Response("err", { status: 500 })
-          : photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
-      ),
-    )
+    const fetchMock = routeByHost({
+      [MAPBOX_HOST]: () => new Response("err", { status: 500 }),
+      [PHOTON_HOST]: () => photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
+    })
+    vi.stubGlobal("fetch", fetchMock)
     const onError = vi.fn<OnError>()
     const out = await suggestAddresses("echo park", { mapboxToken: "pk.test", onError })
     expect(out[0]?.source).toBe("photon")
+    expect(requestedHosts(fetchMock)).toEqual([MAPBOX_HOST, PHOTON_HOST])
     expect(onError.mock.calls.map((call) => call[1])).toEqual(["mapbox"])
   })
 

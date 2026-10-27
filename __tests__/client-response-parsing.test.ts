@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import type * as ClientModule from "../src/client/client.js"
 import type * as EndpointsModule from "../src/client/endpoints.js"
+import { expectConsoleWarn } from "./support/console.js"
 
 /**
  * The typed client parses 2xx bodies against the endpoint's response schema, so the registry's
@@ -74,7 +75,8 @@ describe("typed client response parsing", () => {
   })
 
   it("passes a mismatching body through raw and warns exactly once per endpoint", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
+    expectConsoleWarn('response for "listCleanups" did not match its schema')
+    const warn = vi.spyOn(console, "warn")
     const bogus = { items: "not-an-array" }
     const client = clientReturning(bogus)
 
@@ -86,13 +88,13 @@ describe("typed client response parsing", () => {
   })
 
   it("never throws on a mismatching body", async () => {
-    vi.spyOn(console, "warn").mockImplementation(() => {})
+    expectConsoleWarn('response for "listCleanups" did not match its schema')
     const client = clientReturning(null)
     await expect(client.listCleanups({})).resolves.toBeNull()
   })
 
   it("leaves a 204 / empty body alone without warning", () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
+    const warn = vi.spyOn(console, "warn")
     expect(parseResponse(endpoints.listCleanups, undefined)).toBeUndefined()
     expect(warn).not.toHaveBeenCalled()
   })

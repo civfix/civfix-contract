@@ -1,4 +1,5 @@
 import eslint from "@eslint/js"
+import vitest from "@vitest/eslint-plugin"
 import tseslint from "typescript-eslint"
 
 // The @civfix/contract contract must stay framework-free: never import or re-export react / react-dom /
@@ -126,6 +127,17 @@ export default tseslint.config(
     files: ["__tests__/**", "src/**/__tests__/**", "scripts/**/*.test.mjs"],
     rules: {
       "@typescript-eslint/no-non-null-assertion": "off",
+    },
+  },
+  {
+    files: ["__tests__/**", "src/**/__tests__/**", "vitest.console-guard.ts"],
+    plugins: { vitest },
+    rules: {
+      "vitest/no-focused-tests": "error",
+      "vitest/no-disabled-tests": "error",
+      "vitest/valid-expect": ["error", { maxArgs: 2 }],
+      // The rule follows helpers declared in the same file on its own; these are the shared ones that assert.
+      "vitest/expect-expect": ["error", { assertFunctionNames: ["expect", "expectTypeOf", "expectConsole*"] }],
     },
   },
 )

@@ -419,14 +419,14 @@ describe("guest response shapes", () => {
 })
 
 describe("typed client wiring for the new endpoints", () => {
-  function harness() {
+  function harness(...replies: unknown[]) {
     const calls: Array<{ url: string; body: unknown }> = []
     const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
       calls.push({
         url,
         body: typeof init?.body === "string" ? JSON.parse(init.body) : undefined,
       })
-      return new Response(JSON.stringify({}), {
+      return new Response(JSON.stringify(replies[calls.length - 1]), {
         status: 200,
         headers: { "content-type": "application/json" },
       })
@@ -435,7 +435,7 @@ describe("typed client wiring for the new endpoints", () => {
   }
 
   it("fills :id from the body on the guest RSVP writes and keeps it in the payload", async () => {
-    const { calls, client } = harness()
+    const { calls, client } = harness({ sent: true, resendAfterSec: 60 })
     await client.guestRsvpRequest({
       id: UUID,
       name: "Ada",
@@ -448,7 +448,10 @@ describe("typed client wiring for the new endpoints", () => {
   })
 
   it("consumes :id from the query on the paged reads", async () => {
-    const { calls, client } = harness()
+    const { calls, client } = harness(
+      { items: [], nextCursor: null },
+      { guests: [], count: 0, nextCursor: null },
+    )
     await client.getProfileEvents({ id: "ada", limit: 10 })
     expect(calls[0]?.url).toBe("https://api.civfix.test/v1/people/ada/events?limit=10")
 
