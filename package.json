@@ -1,6 +1,6 @@
 {
   "name": "@civfix/contract",
-  "version": "0.64.1",
+  "version": "0.64.2",
   "description": "civfix API contract: zod schemas and inferred types, the endpoints registry, AppError/ErrorCode, the typed API client, and the domain helpers both the backend and the apps run. Consumed from the registry by civfix-backend, civfix-admin and civfix-app.",
   "license": "AGPL-3.0-only",
   "private": false,
@@ -108,10 +108,10 @@
   "scripts": {
     "build": "tsup",
     "prepublishOnly": "pnpm build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.scripts.json",
     "test": "vitest run",
     "lint": "eslint . --max-warnings=0",
-    "check:package": "publint --strict && attw --pack . --profile node16",
+    "check:package": "publint --strict --pack npm && attw --pack . --profile node16",
     "clean": "rimraf dist *.tsbuildinfo",
     "dev": "tsup --watch",
     "changeset": "changeset"

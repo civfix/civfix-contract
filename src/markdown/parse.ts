@@ -210,7 +210,7 @@ export function parseMarkdownSubset(src: string, options: ParseMarkdownOptions =
     if (marker !== null) {
       closeParagraph()
       if (list !== null && list.ordered !== marker.ordered) closeList()
-      if (list === null) list = { type: "list", ordered: marker.ordered, items: [] }
+      list ??= { type: "list", ordered: marker.ordered, items: [] }
       const item = listItemFrom(marker.text)
       droppedListItem = list.items.length >= MARKDOWN_MAX_LIST_ITEMS
       if (item !== null && !droppedListItem) list.items.push(item)

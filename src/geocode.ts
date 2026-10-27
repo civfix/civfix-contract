@@ -14,6 +14,7 @@
  * location as the fallback. Everything degrades gracefully - offline you still get pasted coordinates.
  */
 import { coordsLabel, type LatLngLike } from "./geo.js"
+import { z } from "zod"
 
 export type LatLng = LatLngLike
 
@@ -127,30 +128,52 @@ function coordSuggestion(coord: LatLng): GeoSuggestion {
 
 const PHOTON_URL = "https://photon.komoot.io/api/"
 
-interface PhotonProperties {
-  name?: string
-  housenumber?: string
-  street?: string
-  city?: string
-  district?: string
-  state?: string
-  country?: string
-  osm_id?: number | string
-  osm_type?: string
-}
-interface PhotonFeature {
-  geometry?: { coordinates?: [number, number] } // [lon, lat]
-  properties?: PhotonProperties
+/** GeoJSON position: [lon, lat], optionally followed by an altitude the pickers ignore. */
+const PositionSchema = z.tuple([z.number(), z.number()]).rest(z.unknown())
+
+/**
+ * A provider response is untrusted JSON, so each feature is parsed on its own: one malformed feature is
+ * skipped instead of discarding its well-formed siblings.
+ */
+const FeatureCollectionSchema = z.object({ features: z.array(z.unknown()) })
+
+/** A feature with usable coordinates is kept; a malformed descriptive field only degrades its label. */
+const OptionalText = z.string().optional().catch(undefined)
+
+const PhotonPropertiesSchema = z.object({
+  name: OptionalText,
+  housenumber: OptionalText,
+  street: OptionalText,
+  city: OptionalText,
+  state: OptionalText,
+  country: OptionalText,
+  osm_id: z.union([z.number(), z.string()]).optional().catch(undefined),
+  osm_type: OptionalText,
+})
+type PhotonProperties = z.infer<typeof PhotonPropertiesSchema>
+
+const PhotonFeatureSchema = z.object({
+  geometry: z.object({ coordinates: PositionSchema }),
+  properties: PhotonPropertiesSchema.optional().catch(undefined),
+})
+
+/** Provider fields can arrive as empty strings, which must fall through to the next candidate. */
+function firstNonEmpty(...values: (string | undefined)[]): string | undefined {
+  return values.find((value) => value !== undefined && value !== "")
 }
 
 function photonLabel(p: PhotonProperties): string {
-  if (p.name) return p.name
   const street = [p.housenumber, p.street].filter(Boolean).join(" ")
-  return street || p.city || p.state || UNKNOWN_PLACE_LABEL
+  return firstNonEmpty(p.name, street, p.city, p.state) ?? UNKNOWN_PLACE_LABEL
 }
 function photonSecondary(p: PhotonProperties, label: string): string | undefined {
   const parts = [p.city, p.state, p.country].filter((v): v is string => !!v && v !== label)
   return parts.length ? parts.join(", ") : undefined
+}
+
+async function responseFeatures(res: Response): Promise<unknown[]> {
+  const parsed = FeatureCollectionSchema.safeParse(await res.json())
+  return parsed.success ? parsed.data.features : []
 }
 
 /**
@@ -175,15 +198,12 @@ export async function photonSuggest(query: string, opts: SuggestOptions = {}): P
   }
   const res = await fetch(url.toString(), { signal: opts.signal ?? null, headers: { Accept: "application/json" } })
   if (!res.ok) throw new Error(`Photon request failed: ${res.status}`)
-  const data = (await res.json()) as { features?: PhotonFeature[] }
-  const features = Array.isArray(data.features) ? data.features : []
   const out: GeoSuggestion[] = []
-  for (const f of features) {
-    const coords = f.geometry?.coordinates
-    if (!coords || coords.length < 2) continue
-    const [lng, lat] = coords
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
-    const props = f.properties ?? {}
+  for (const raw of await responseFeatures(res)) {
+    const feature = PhotonFeatureSchema.safeParse(raw)
+    if (!feature.success) continue
+    const [lng, lat] = feature.data.geometry.coordinates
+    const props = feature.data.properties ?? {}
     const label = photonLabel(props)
     out.push({
       id: `photon:${props.osm_type ?? ""}${props.osm_id ?? `${lat},${lng}`}`,
@@ -199,29 +219,27 @@ export async function photonSuggest(query: string, opts: SuggestOptions = {}): P
 
 const MAPBOX_FORWARD_URL = "https://api.mapbox.com/search/geocode/v6/forward"
 
-interface MapboxV6Context {
-  address?: { name?: string }
-  street?: { name?: string }
-  neighborhood?: { name?: string }
-  place?: { name?: string }
-  region?: { name?: string; region_code?: string }
-  postcode?: { name?: string }
-  country?: { name?: string; country_code?: string }
-}
-interface MapboxV6Properties {
-  name?: string
-  place_formatted?: string
-  full_address?: string
-  feature_type?: string
-  context?: MapboxV6Context
-}
-interface MapboxV6Feature {
-  geometry?: { coordinates?: [number, number] } // [lon, lat]
-  properties?: MapboxV6Properties
-}
+const MapboxV6PropertiesSchema = z.object({
+  name: OptionalText,
+  place_formatted: OptionalText,
+  full_address: OptionalText,
+  context: z
+    .object({
+      place: z.object({ name: OptionalText }).optional().catch(undefined),
+      region: z.object({ name: OptionalText, region_code: OptionalText }).optional().catch(undefined),
+    })
+    .optional()
+    .catch(undefined),
+})
+type MapboxV6Properties = z.infer<typeof MapboxV6PropertiesSchema>
+
+const MapboxV6FeatureSchema = z.object({
+  geometry: z.object({ coordinates: PositionSchema }),
+  properties: MapboxV6PropertiesSchema.optional().catch(undefined),
+})
 
 function mapboxLabel(p: MapboxV6Properties): string {
-  return p.name || p.full_address || p.place_formatted || UNKNOWN_PLACE_LABEL
+  return firstNonEmpty(p.name, p.full_address, p.place_formatted) ?? UNKNOWN_PLACE_LABEL
 }
 function mapboxSecondary(p: MapboxV6Properties, label: string): string | undefined {
   if (p.place_formatted && p.place_formatted !== label) return p.place_formatted
@@ -255,15 +273,12 @@ export async function mapboxSuggest(query: string, opts: SuggestOptions = {}): P
   }
   const res = await fetch(url.toString(), { signal: opts.signal ?? null, headers: { Accept: "application/json" } })
   if (!res.ok) throw new Error(`Mapbox request failed: ${res.status}`)
-  const data = (await res.json()) as { features?: MapboxV6Feature[] }
-  const features = Array.isArray(data.features) ? data.features : []
   const out: GeoSuggestion[] = []
-  for (const f of features) {
-    const coords = f.geometry?.coordinates
-    if (!coords || coords.length < 2) continue
-    const [lng, lat] = coords
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
-    const props = f.properties ?? {}
+  for (const raw of await responseFeatures(res)) {
+    const feature = MapboxV6FeatureSchema.safeParse(raw)
+    if (!feature.success) continue
+    const [lng, lat] = feature.data.geometry.coordinates
+    const props = feature.data.properties ?? {}
     const label = mapboxLabel(props)
     out.push({
       id: `mapbox:${label}:${lat.toFixed(5)},${lng.toFixed(5)}`,

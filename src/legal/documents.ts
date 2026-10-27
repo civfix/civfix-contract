@@ -50,9 +50,9 @@ export const LEGAL_DOCUMENTS: readonly LegalDocumentVersion[] = Object.freeze(
 )
 
 export function legalDocument(type: LegalDocumentType): LegalDocumentVersion {
-  const document = DOCUMENTS[type]
-  if (document === undefined) throw new RangeError(`unknown legal document type "${type}"`)
-  return document
+  // A caller can hand over an unchecked string; an own-key check also refuses prototype keys like "toString".
+  if (!Object.hasOwn(DOCUMENTS, type)) throw new RangeError(`unknown legal document type "${type}"`)
+  return DOCUMENTS[type]
 }
 
 export function currentVersion(type: LegalDocumentType): string {

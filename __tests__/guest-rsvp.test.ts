@@ -421,10 +421,10 @@ describe("guest response shapes", () => {
 describe("typed client wiring for the new endpoints", () => {
   function harness() {
     const calls: Array<{ url: string; body: unknown }> = []
-    const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+    const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
       calls.push({
-        url: String(url),
-        body: init?.body === undefined ? undefined : JSON.parse(String(init.body)),
+        url,
+        body: typeof init?.body === "string" ? JSON.parse(init.body) : undefined,
       })
       return new Response(JSON.stringify({}), {
         status: 200,

@@ -112,7 +112,7 @@ export function inspectBroadcastLinks(
 
   for (const match of text.matchAll(DANGEROUS_SCHEME)) {
     const scheme = (match[1] ?? match[2] ?? "").toLowerCase()
-    issues.push({ kind: "insecure_scheme", url: match[0] ?? "", scheme })
+    issues.push({ kind: "insecure_scheme", url: match[0], scheme })
   }
 
   for (const match of text.matchAll(SCHEME_RELATIVE)) {
@@ -121,7 +121,7 @@ export function inspectBroadcastLinks(
   }
 
   for (const match of text.matchAll(ABSOLUTE_URL)) {
-    const url = match[0] ?? ""
+    const url = match[0]
     count++
     const scheme = (match[1] ?? "").toLowerCase()
     if (scheme !== "https") {

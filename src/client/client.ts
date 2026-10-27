@@ -50,7 +50,7 @@ const CSRF_HEADER = "x-csrf-token"
 export function fillPath(path: string, params?: Record<string, string | number>): string {
   return path.replace(/:([A-Za-z0-9_]+)/g, (_m, name: string) => {
     const value = params?.[name]
-    if (value === undefined || value === null) {
+    if (value == null) {
       throw new AppError(ErrorCode.VALIDATION, `Missing path param ":${name}" for ${path}`)
     }
     return encodeURIComponent(String(value))
@@ -74,8 +74,15 @@ export function buildQuery(query?: Record<string, unknown>, omitKeys?: ReadonlyS
       for (const v of value) sp.append(key, String(v))
     } else if (typeof value === "object") {
       sp.append(key, JSON.stringify(value))
-    } else {
+    } else if (
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean" ||
+      typeof value === "bigint"
+    ) {
       sp.append(key, String(value))
+    } else {
+      throw new AppError(ErrorCode.VALIDATION, `Query param "${key}" is a ${typeof value}, which has no query form`)
     }
   }
   const qs = sp.toString()
@@ -130,7 +137,7 @@ export async function parseError(res: Response, requestId?: string): Promise<App
  */
 const endpointNames: WeakMap<object, string> = new WeakMap()
 for (const name of Object.keys(endpoints) as EndpointName[]) {
-  endpointNames.set(endpoints[name] as unknown as object, name)
+  endpointNames.set(endpoints[name], name)
 }
 
 /** Endpoint names already warned about, so a mismatching server logs once instead of per call. */
@@ -153,7 +160,7 @@ export function parseResponse<Res>(
   if (data === undefined) return data as Res
   const parsed = endpoint.response.safeParse(data)
   if (parsed.success) return parsed.data as Res
-  const name = endpointNames.get(endpoint as unknown as object) ?? `${endpoint.method} ${endpoint.path}`
+  const name = endpointNames.get(endpoint) ?? `${endpoint.method} ${endpoint.path}`
   if (!warnedEndpoints.has(name)) {
     warnedEndpoints.add(name)
     console.warn(
@@ -284,7 +291,7 @@ export function createApiClient(opts: CreateApiClientOptions): ApiClient {
         // is the optional per-call extra.
         if (pathHasParams) {
           const params = firstArg as Record<string, string | number> | undefined
-          const extra = (maybeExtra ?? {}) as RequestArgs
+          const extra = maybeExtra ?? {}
           return request(endpoint, { ...extra, params })
         }
         const extra = (firstArg ?? {}) as RequestArgs
@@ -292,7 +299,7 @@ export function createApiClient(opts: CreateApiClientOptions): ApiClient {
       }
 
       const input = firstArg
-      const extra = (maybeExtra ?? {}) as RequestArgs
+      const extra = maybeExtra ?? {}
       // For GET requests the input is the typed query; for others it is the JSON body. Declared
       // path params are pulled from the input object by name (and the keys they consumed are reported
       // so they can be excluded from the GET query rather than duplicated).

@@ -31,6 +31,12 @@ export function stableHash(seed: string): number {
   return h >>> 0
 }
 
+function paletteColor(index: number): AvatarColor {
+  const color = AVATAR_PALETTE[index % AVATAR_PALETTE.length]
+  if (color === undefined) throw new RangeError(`avatar palette index ${index} is not a non-negative integer`)
+  return color
+}
+
 /**
  * Pick two DISTINCT palette colors for `seed`, deterministically: the hash picks the first, and a
  * stride from a second hash round picks the second, matching PersonDTO.avatar / UserProfileDTO.avatar.
@@ -43,7 +49,7 @@ export function avatarGradient(seed: string): AvatarGradient {
   // works, but deriving it from a rehash spreads the second color rather than always being "next".
   const stride = 1 + (stableHash(`${seed}:2`) % (n - 1))
   const second = (first + stride) % n
-  return [AVATAR_PALETTE[first]!, AVATAR_PALETTE[second]!]
+  return [paletteColor(first), paletteColor(second)]
 }
 
 /**
@@ -54,7 +60,7 @@ export function resolveAvatarGradient(
   avatar: readonly [string, string] | null | undefined,
   seed: string,
 ): [string, string] {
-  if (avatar && avatar.length === 2) return [avatar[0], avatar[1]]
+  if (avatar) return [avatar[0], avatar[1]]
   return avatarGradient(seed)
 }
 
@@ -63,7 +69,7 @@ export function resolveAvatarGradient(
  * behind a monogram initial when there is no photo.
  */
 export function avatarColor(seed: string): AvatarColor {
-  return AVATAR_PALETTE[stableHash(seed) % AVATAR_PALETTE.length]!
+  return paletteColor(stableHash(seed))
 }
 
 /**
@@ -75,6 +81,6 @@ export function avatarColor(seed: string): AvatarColor {
  * CJK-extension glyph) the first UTF-16 unit renders as a lone surrogate.
  */
 export function monogram(value: string): string {
-  const ch = [...value.trim().replace(/^@+/, "")][0] ?? ""
-  return ch ? ch.toUpperCase() : "?"
+  const first = value.trim().replace(/^@+/, "").codePointAt(0)
+  return first === undefined ? "?" : String.fromCodePoint(first).toUpperCase()
 }

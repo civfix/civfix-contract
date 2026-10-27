@@ -218,8 +218,7 @@ export function byErrorCode<Value>(
   fallback: Value,
 ): Value {
   if (!isErrorCode(code)) return fallback
-  const value = table[code]
-  return value === undefined ? fallback : value
+  return table[code] ?? fallback
 }
 
 export function errorCopyKey<Value>(
