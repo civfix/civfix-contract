@@ -11,7 +11,6 @@ import { OrganizationRefDTOSchema, PersonDTOSchema } from "../entities.js"
 import { MAX_BROADCAST_BODY, MAX_BROADCAST_SUBJECT } from "./broadcasts.js"
 import type { HostBroadcastChannel } from "./broadcasts.js"
 
-
 export const ANNOUNCEMENT_BROADCAST_KIND = "announcement" satisfies BroadcastKind
 
 export const MAX_ANNOUNCEMENT_TITLE = MAX_BROADCAST_SUBJECT
@@ -93,7 +92,9 @@ export type ListEventAnnouncementsResponse = z.infer<
   typeof ListEventAnnouncementsResponseObjectSchema
 >
 export const ListEventAnnouncementsResponseSchema: z.ZodType<
-  ListEventAnnouncementsResponse, unknown> = ListEventAnnouncementsResponseObjectSchema
+  ListEventAnnouncementsResponse,
+  unknown
+> = ListEventAnnouncementsResponseObjectSchema
 
 export const GetEventAnnouncementRequestSchema = z
   .object({ id: IdSchema, announcementId: IdSchema })

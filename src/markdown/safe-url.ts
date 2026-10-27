@@ -24,7 +24,9 @@ export function hostOfAuthority(authority: string): string {
   const withoutUserinfo = authority.slice(authority.lastIndexOf("@") + 1)
   if (withoutUserinfo.startsWith("[")) {
     const close = withoutUserinfo.indexOf("]")
-    return close === -1 ? withoutUserinfo.toLowerCase() : withoutUserinfo.slice(0, close + 1).toLowerCase()
+    return close === -1
+      ? withoutUserinfo.toLowerCase()
+      : withoutUserinfo.slice(0, close + 1).toLowerCase()
   }
   const colon = withoutUserinfo.indexOf(":")
   return (colon === -1 ? withoutUserinfo : withoutUserinfo.slice(0, colon)).toLowerCase()

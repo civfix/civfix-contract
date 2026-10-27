@@ -18,10 +18,7 @@ import {
   GovMethodSchema,
   DiscoveryReviewStatusSchema,
 } from "../src/schemas/admin/common.js"
-import {
-  AdminSessionResponseSchema,
-  AdminOperatorDTOSchema,
-} from "../src/schemas/admin/auth.js"
+import { AdminSessionResponseSchema, AdminOperatorDTOSchema } from "../src/schemas/admin/auth.js"
 import { HomeSummaryResponseSchema, HomeMapResponseSchema } from "../src/schemas/admin/home.js"
 import {
   DiscoveryTaskDTOSchema,
@@ -356,15 +353,17 @@ describe("jurisdictions schemas", () => {
     expect(
       PatchJurisdictionRequestSchema.safeParse({ geoid: "1", handle: "san francisco" }).success,
     ).toBe(false)
-    expect(PatchJurisdictionRequestSchema.safeParse({ geoid: "1", handle: "a" }).success).toBe(false)
+    expect(PatchJurisdictionRequestSchema.safeParse({ geoid: "1", handle: "a" }).success).toBe(
+      false,
+    )
   })
 
   it("accepts the new oldest sort + needs_mapping filter and the template overrides", () => {
     expect(JurisdictionListQuerySchema.safeParse({ sort: "oldest" }).success).toBe(true)
     expect(JurisdictionListQuerySchema.safeParse({ filter: "needs_mapping" }).success).toBe(true)
-    expect(JurisdictionListQuerySchema.safeParse({ sort: "population", filter: "none" }).success).toBe(
-      true,
-    )
+    expect(
+      JurisdictionListQuerySchema.safeParse({ sort: "population", filter: "none" }).success,
+    ).toBe(true)
     expect(JurisdictionListQuerySchema.safeParse({ sort: "bogus" }).success).toBe(false)
     expect(
       PatchJurisdictionRequestSchema.safeParse({
@@ -374,8 +373,10 @@ describe("jurisdictions schemas", () => {
       }).success,
     ).toBe(true)
     expect(
-      PatchJurisdictionRequestSchema.safeParse({ geoid: "1", forwardSubjectTemplate: "x".repeat(301) })
-        .success,
+      PatchJurisdictionRequestSchema.safeParse({
+        geoid: "1",
+        forwardSubjectTemplate: "x".repeat(301),
+      }).success,
     ).toBe(false)
   })
 
@@ -402,12 +403,12 @@ describe("jurisdictions schemas", () => {
     expect(Object.keys(FORWARD_TEMPLATE_SAMPLE_VALUES).sort()).toEqual([...paletteNames].sort())
     expect(forwardTemplateIssues(DEFAULT_FORWARD_SUBJECT_TEMPLATE)).toEqual([])
     expect(forwardTemplateIssues(DEFAULT_FORWARD_BODY_TEMPLATE)).toEqual([])
-    expect(interpolateForwardTemplate(DEFAULT_FORWARD_SUBJECT_TEMPLATE, FORWARD_TEMPLATE_SAMPLE_VALUES)).toBe(
-      "[civfix: DU-42-000123] Overflowing bin at 5th & Main",
-    )
-    expect(interpolateForwardTemplate(DEFAULT_FORWARD_BODY_TEMPLATE, FORWARD_TEMPLATE_SAMPLE_VALUES)).not.toMatch(
-      /\{[a-zA-Z]+\}/,
-    )
+    expect(
+      interpolateForwardTemplate(DEFAULT_FORWARD_SUBJECT_TEMPLATE, FORWARD_TEMPLATE_SAMPLE_VALUES),
+    ).toBe("[civfix: DU-42-000123] Overflowing bin at 5th & Main")
+    expect(
+      interpolateForwardTemplate(DEFAULT_FORWARD_BODY_TEMPLATE, FORWARD_TEMPLATE_SAMPLE_VALUES),
+    ).not.toMatch(/\{[a-zA-Z]+\}/)
   })
 
   it("forwardTemplateIssues flags unknown tokens and double braces, and the schemas reject them", () => {
@@ -421,7 +422,9 @@ describe("jurisdictions schemas", () => {
     expect(forwardTemplateIssues("{{title}")).toEqual([
       { kind: "double_braces", token: "{{title}", index: 0 },
     ])
-    expect(forwardTemplateIssues("{title}}")).toEqual([{ kind: "stray_brace", token: "{title}}", index: 0 }])
+    expect(forwardTemplateIssues("{title}}")).toEqual([
+      { kind: "stray_brace", token: "{title}}", index: 0 },
+    ])
     expect(forwardTemplateIssues("a{b{title}}c")).toEqual([
       { kind: "stray_brace", token: "{title}}", index: 3 },
     ])
@@ -438,24 +441,37 @@ describe("jurisdictions schemas", () => {
     const long = forwardTemplateIssues(`{${"b".repeat(60)}}`)[0]
     expect(long && describeForwardTemplateIssue(long).length).toBeLessThan(120)
     expect(
-      PatchJurisdictionRequestSchema.safeParse({ geoid: "1", forwardSubjectTemplate: "New {{title}}" }).success,
+      PatchJurisdictionRequestSchema.safeParse({
+        geoid: "1",
+        forwardSubjectTemplate: "New {{title}}",
+      }).success,
     ).toBe(false)
     expect(
-      PatchJurisdictionRequestSchema.safeParse({ geoid: "1", forwardBodyTemplate: "{title} at {place}" }).success,
+      PatchJurisdictionRequestSchema.safeParse({
+        geoid: "1",
+        forwardBodyTemplate: "{title} at {place}",
+      }).success,
     ).toBe(true)
     expect(
-      SaveContactsRequestSchema.safeParse({ geoid: "1", forwardBodyTemplate: "{reporterName}" }).success,
+      SaveContactsRequestSchema.safeParse({ geoid: "1", forwardBodyTemplate: "{reporterName}" })
+        .success,
     ).toBe(false)
     expect(
-      SetForwardTemplateDefaultRequestSchema.safeParse({ subjectTemplate: null, bodyTemplate: "{title}" })
-        .success,
+      SetForwardTemplateDefaultRequestSchema.safeParse({
+        subjectTemplate: null,
+        bodyTemplate: "{title}",
+      }).success,
     ).toBe(true)
     expect(
-      SetForwardTemplateDefaultRequestSchema.safeParse({ subjectTemplate: "{{title}}", bodyTemplate: null })
-        .success,
+      SetForwardTemplateDefaultRequestSchema.safeParse({
+        subjectTemplate: "{{title}}",
+        bodyTemplate: null,
+      }).success,
     ).toBe(false)
     expect(PreviewForwardTemplateRequestSchema.safeParse({}).success).toBe(true)
-    expect(PreviewForwardTemplateRequestSchema.safeParse({ bodyTemplate: "{nope}" }).success).toBe(false)
+    expect(PreviewForwardTemplateRequestSchema.safeParse({ bodyTemplate: "{nope}" }).success).toBe(
+      false,
+    )
   })
 })
 
@@ -615,7 +631,9 @@ describe("admin org management", () => {
       AdminCreateOrgRequestSchema.safeParse({ ...base, verifiedKind: "government" }).success,
     ).toBe(true)
     expect(AdminCreateOrgRequestSchema.safeParse({ ...base, reason: "  " }).success).toBe(false)
-    expect(AdminCreateOrgRequestSchema.safeParse({ ...base, ownerHandle: "ada" }).success).toBe(false)
+    expect(AdminCreateOrgRequestSchema.safeParse({ ...base, ownerHandle: "ada" }).success).toBe(
+      false,
+    )
     expect(
       AdminCreateOrgRequestSchema.safeParse({ ...base, websiteUrl: "http://x.org" }).success,
     ).toBe(false)
@@ -678,12 +696,19 @@ describe("admin org management", () => {
       ).toBe(true)
     }
     expect(
-      AdminAddOrgMemberRequestSchema.safeParse({ id: UUID, userId: UUID, role: "staff", reason: "r" })
-        .success,
+      AdminAddOrgMemberRequestSchema.safeParse({
+        id: UUID,
+        userId: UUID,
+        role: "staff",
+        reason: "r",
+      }).success,
     ).toBe(false)
     expect(
-      AdminRemoveOrgMemberRequestSchema.safeParse({ id: UUID, userId: UUID, reason: "Left the org" })
-        .success,
+      AdminRemoveOrgMemberRequestSchema.safeParse({
+        id: UUID,
+        userId: UUID,
+        reason: "Left the org",
+      }).success,
     ).toBe(true)
     expect(AdminRemoveOrgMemberRequestSchema.safeParse({ id: UUID, userId: UUID }).success).toBe(
       false,

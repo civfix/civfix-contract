@@ -285,10 +285,15 @@ describe("createApiClient", () => {
       fixedByMe: false,
     })
     expect(
-      await client.pressingReports({ bbox: { west: -118.5, south: 34, east: -118.2, north: 34.2 } }),
+      await client.pressingReports({
+        bbox: { west: -118.5, south: 34, east: -118.2, north: 34.2 },
+      }),
     ).toEqual({ items: [] })
 
-    expect(calls[0]).toEqual({ url: `https://api.civfix.test/v1/reports/${UUID}/confirm`, method: "POST" })
+    expect(calls[0]).toEqual({
+      url: `https://api.civfix.test/v1/reports/${UUID}/confirm`,
+      method: "POST",
+    })
     expect(calls[1]).toEqual({
       url: `https://api.civfix.test/v1/reports/${UUID}/confirm`,
       method: "DELETE",

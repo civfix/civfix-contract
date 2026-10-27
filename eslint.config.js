@@ -1,4 +1,5 @@
 import eslint from "@eslint/js"
+import vitest from "@vitest/eslint-plugin"
 import tseslint from "typescript-eslint"
 
 // The @civfix/contract contract must stay framework-free: never import or re-export react / react-dom /
@@ -10,20 +11,39 @@ const FRAMEWORK_FREE_IMPORTS = {
     "error",
     {
       paths: [
-        { name: "react", message: "@civfix/contract must stay framework-free; React belongs in @civfix/ui." },
-        { name: "react-dom", message: "@civfix/contract must stay framework-free; react-dom belongs in @civfix/ui." },
-        { name: "react-native", message: "@civfix/contract must stay framework-free; react-native belongs in @civfix/ui." },
-        { name: "@civfix/ui", message: "@civfix/contract must not depend on @civfix/ui (the dependency runs the other way)." },
-        { name: "@civfix/tokens", message: "@civfix/contract must not depend on @civfix/tokens: the backend reads the contract and must not pull UI packages in." },
+        {
+          name: "react",
+          message: "@civfix/contract must stay framework-free; React belongs in @civfix/ui.",
+        },
+        {
+          name: "react-dom",
+          message: "@civfix/contract must stay framework-free; react-dom belongs in @civfix/ui.",
+        },
+        {
+          name: "react-native",
+          message: "@civfix/contract must stay framework-free; react-native belongs in @civfix/ui.",
+        },
+        {
+          name: "@civfix/ui",
+          message:
+            "@civfix/contract must not depend on @civfix/ui (the dependency runs the other way).",
+        },
+        {
+          name: "@civfix/tokens",
+          message:
+            "@civfix/contract must not depend on @civfix/tokens: the backend reads the contract and must not pull UI packages in.",
+        },
       ],
       patterns: [
         {
           group: ["react-native-*"],
-          message: "@civfix/contract must stay framework-free; react-native-* libs belong in @civfix/ui.",
+          message:
+            "@civfix/contract must stay framework-free; react-native-* libs belong in @civfix/ui.",
         },
         {
           group: ["@civfix/ui/*"],
-          message: "@civfix/contract must not depend on @civfix/ui subpaths (the dependency runs the other way).",
+          message:
+            "@civfix/contract must not depend on @civfix/ui subpaths (the dependency runs the other way).",
         },
       ],
     },
@@ -35,13 +55,23 @@ const TYPED_RULES = {
   // node:test's test() returns a promise the runner itself tracks.
   "@typescript-eslint/no-floating-promises": [
     "error",
-    { allowForKnownSafeCalls: [{ from: "package", package: "node:test", name: ["test", "describe", "it"] }] },
+    {
+      allowForKnownSafeCalls: [
+        { from: "package", package: "node:test", name: ["test", "describe", "it"] },
+      ],
+    },
   ],
   "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: { attributes: true } }],
   // A `default` branch is a deliberate catch-all; the rule only has to catch a switch that silently
   // falls through to undefined when a union grows.
-  "@typescript-eslint/switch-exhaustiveness-check": ["error", { considerDefaultExhaustiveForUnions: true }],
-  "@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports", fixStyle: "separate-type-imports" }],
+  "@typescript-eslint/switch-exhaustiveness-check": [
+    "error",
+    { considerDefaultExhaustiveForUnions: true },
+  ],
+  "@typescript-eslint/consistent-type-imports": [
+    "error",
+    { prefer: "type-imports", fixStyle: "separate-type-imports" },
+  ],
   "@typescript-eslint/no-unsafe-argument": "error",
   "@typescript-eslint/no-unsafe-assignment": "error",
   "@typescript-eslint/no-unsafe-call": "error",
@@ -56,7 +86,14 @@ const TYPED_RULES = {
   "@typescript-eslint/no-unnecessary-type-assertion": "error",
   "@typescript-eslint/restrict-template-expressions": [
     "error",
-    { allowNumber: true, allowAny: false, allowBoolean: false, allowNullish: false, allowRegExp: false, allowNever: false },
+    {
+      allowNumber: true,
+      allowAny: false,
+      allowBoolean: false,
+      allowNullish: false,
+      allowRegExp: false,
+      allowNever: false,
+    },
   ],
   "@typescript-eslint/restrict-plus-operands": "error",
   "@typescript-eslint/prefer-nullish-coalescing": "error",
@@ -126,6 +163,20 @@ export default tseslint.config(
     files: ["__tests__/**", "src/**/__tests__/**", "scripts/**/*.test.mjs"],
     rules: {
       "@typescript-eslint/no-non-null-assertion": "off",
+    },
+  },
+  {
+    files: ["__tests__/**", "src/**/__tests__/**", "vitest.console-guard.ts"],
+    plugins: { vitest },
+    rules: {
+      "vitest/no-focused-tests": "error",
+      "vitest/no-disabled-tests": "error",
+      "vitest/valid-expect": ["error", { maxArgs: 2 }],
+      // The rule follows helpers declared in the same file on its own; these are the shared ones that assert.
+      "vitest/expect-expect": [
+        "error",
+        { assertFunctionNames: ["expect", "expectTypeOf", "expectConsole*"] },
+      ],
     },
   },
 )

@@ -27,7 +27,8 @@ function stringMaxima(schema: unknown, path: string, out: Record<string, number>
       return
     }
     case "object":
-      for (const [key, value] of Object.entries(def.shape ?? {})) stringMaxima(value, `${path}.${key}`, out)
+      for (const [key, value] of Object.entries(def.shape ?? {}))
+        stringMaxima(value, `${path}.${key}`, out)
       return
     case "array":
       stringMaxima(def.element, `${path}[]`, out)
@@ -42,7 +43,9 @@ function stringMaxima(schema: unknown, path: string, out: Record<string, number>
       stringMaxima(def.out, path, out)
       return
     case "union":
-      ;(def.options ?? []).forEach((option, index) => stringMaxima(option, `${path}<${index}>`, out))
+      ;(def.options ?? []).forEach((option, index) =>
+        stringMaxima(option, `${path}<${index}>`, out),
+      )
       return
     default:
       return
@@ -62,9 +65,9 @@ describe("markdown body maxima", () => {
     expect(entries.length).toBeGreaterThan(10)
     const over = entries.filter(([, max]) => max > MARKDOWN_SUBSET_MAX_CHARS)
     expect(over).toEqual([])
-    expect(entries.some(([path, max]) => path.endsWith(".body") && max === MARKDOWN_SUBSET_MAX_CHARS)).toBe(
-      true,
-    )
+    expect(
+      entries.some(([path, max]) => path.endsWith(".body") && max === MARKDOWN_SUBSET_MAX_CHARS),
+    ).toBe(true)
   })
 
   it("parses a body of the maximum accepted length without truncating it", () => {
@@ -73,7 +76,9 @@ describe("markdown body maxima", () => {
 
     const parsed = EventPageBlockSchema.parse({ id: "b1", kind: "about", body })
     expect((parsed as { body: string }).body).toHaveLength(MARKDOWN_SUBSET_MAX_CHARS)
-    expect(() => EventPageBlockSchema.parse({ id: "b1", kind: "about", body: `${body}a` })).toThrow()
+    expect(() =>
+      EventPageBlockSchema.parse({ id: "b1", kind: "about", body: `${body}a` }),
+    ).toThrow()
   })
 
   it("stays fast on a pathological body of the maximum accepted length", () => {

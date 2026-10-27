@@ -12,8 +12,12 @@ import {
 describe("announcement vocabulary", () => {
   it("lists exactly the audience kinds the audience schema accepts, in the schema's order", () => {
     expect(AnnouncementAudienceSchema).toBeInstanceOf(z.ZodDiscriminatedUnion)
-    const union = AnnouncementAudienceSchema as unknown as z.ZodDiscriminatedUnion<z.ZodObject<{ kind: z.ZodLiteral<string> }>[]>
-    expect(union.options.map((option) => option.shape.kind.value)).toEqual([...ANNOUNCEMENT_AUDIENCE_KINDS])
+    const union = AnnouncementAudienceSchema as unknown as z.ZodDiscriminatedUnion<
+      z.ZodObject<{ kind: z.ZodLiteral<string> }>[]
+    >
+    expect(union.options.map((option) => option.shape.kind.value)).toEqual([
+      ...ANNOUNCEMENT_AUDIENCE_KINDS,
+    ])
     expectTypeOf<AnnouncementAudienceKind>().toEqualTypeOf<AnnouncementAudience["kind"]>()
   })
 

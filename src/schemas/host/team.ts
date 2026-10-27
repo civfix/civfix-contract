@@ -10,7 +10,6 @@ import {
 import { OkResponseSchema } from "../internal-fields.js"
 import { CleanupDTOSchema, InviteEventRefSchema, PersonDTOSchema } from "../entities.js"
 
-
 export { InviteEventRefSchema } from "../entities.js"
 export type { InviteEventRef } from "../entities.js"
 
@@ -82,9 +81,13 @@ const InviteEventTeamMemberResponseObjectSchema = z.object({
   ok: z.literal(true),
   invite: EventTeamInviteDTOSchema,
 })
-export type InviteEventTeamMemberResponse = z.infer<typeof InviteEventTeamMemberResponseObjectSchema>
-export const InviteEventTeamMemberResponseSchema: z.ZodType<InviteEventTeamMemberResponse, unknown> =
-  InviteEventTeamMemberResponseObjectSchema
+export type InviteEventTeamMemberResponse = z.infer<
+  typeof InviteEventTeamMemberResponseObjectSchema
+>
+export const InviteEventTeamMemberResponseSchema: z.ZodType<
+  InviteEventTeamMemberResponse,
+  unknown
+> = InviteEventTeamMemberResponseObjectSchema
 
 export const RevokeEventTeamInviteRequestSchema = z
   .object({ id: IdSchema, inviteId: IdSchema })
@@ -92,8 +95,10 @@ export const RevokeEventTeamInviteRequestSchema = z
 export type RevokeEventTeamInviteRequest = z.infer<typeof RevokeEventTeamInviteRequestSchema>
 
 export type RevokeEventTeamInviteResponse = z.infer<typeof OkResponseSchema>
-export const RevokeEventTeamInviteResponseSchema: z.ZodType<RevokeEventTeamInviteResponse, unknown> =
-  OkResponseSchema
+export const RevokeEventTeamInviteResponseSchema: z.ZodType<
+  RevokeEventTeamInviteResponse,
+  unknown
+> = OkResponseSchema
 
 export const ACCEPT_TEAM_INVITE_TOKEN_MIN = 20
 export const ACCEPT_TEAM_INVITE_TOKEN_MAX = 128
@@ -110,9 +115,13 @@ const AcceptEventTeamInviteResponseObjectSchema = z.object({
   ok: z.literal(true),
   role: CleanupMemberRoleSchema,
 })
-export type AcceptEventTeamInviteResponse = z.infer<typeof AcceptEventTeamInviteResponseObjectSchema>
-export const AcceptEventTeamInviteResponseSchema: z.ZodType<AcceptEventTeamInviteResponse, unknown> =
-  AcceptEventTeamInviteResponseObjectSchema
+export type AcceptEventTeamInviteResponse = z.infer<
+  typeof AcceptEventTeamInviteResponseObjectSchema
+>
+export const AcceptEventTeamInviteResponseSchema: z.ZodType<
+  AcceptEventTeamInviteResponse,
+  unknown
+> = AcceptEventTeamInviteResponseObjectSchema
 
 const PendingEventTeamInviteDTOObjectSchema = z.object({
   id: IdSchema,

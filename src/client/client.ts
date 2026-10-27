@@ -64,7 +64,10 @@ export function fillPath(path: string, params?: Record<string, string | number>)
  * `?cleanupId=...`). Conventions: arrays repeat the key; nested objects (bbox, near, ...) are
  * JSON-encoded so they survive the query string; scalars are stringified.
  */
-export function buildQuery(query?: Record<string, unknown>, omitKeys?: ReadonlySet<string>): string {
+export function buildQuery(
+  query?: Record<string, unknown>,
+  omitKeys?: ReadonlySet<string>,
+): string {
   if (!query) return ""
   const sp = new URLSearchParams()
   for (const [key, value] of Object.entries(query)) {
@@ -82,7 +85,10 @@ export function buildQuery(query?: Record<string, unknown>, omitKeys?: ReadonlyS
     ) {
       sp.append(key, String(value))
     } else {
-      throw new AppError(ErrorCode.VALIDATION, `Query param "${key}" is a ${typeof value}, which has no query form`)
+      throw new AppError(
+        ErrorCode.VALIDATION,
+        `Query param "${key}" is a ${typeof value}, which has no query form`,
+      )
     }
   }
   const qs = sp.toString()
@@ -197,10 +203,7 @@ export type ApiMethods = {
 
 export interface ApiClient extends ApiMethods {
   /** Low-level escape hatch: call any endpoint descriptor with explicit params/query/body. */
-  request<Res>(
-    endpoint: EndpointDef<z.ZodType | null, z.ZodType>,
-    args?: RequestArgs,
-  ): Promise<Res>
+  request<Res>(endpoint: EndpointDef<z.ZodType | null, z.ZodType>, args?: RequestArgs): Promise<Res>
 }
 
 /**

@@ -3,7 +3,6 @@ import { IdSchema, ISODateSchema, pageResponse, PushPlatformSchema } from "./com
 import { OkResponseSchema } from "./internal-fields.js"
 import { UnsubscribeTokenSchema } from "./host/broadcasts.js"
 
-
 export const NotificationTypeSchema = z.enum([
   "report_update",
   "cleanup_chat",
@@ -78,7 +77,9 @@ export type GetNotificationPrefsResponse = z.infer<typeof GetNotificationPrefsRe
 
 // zod 4's .partial() still applies an inner .default() to a missing key, so the update is built from a
 // default-free hostBroadcasts: a patch that omits it must leave the user's stored opt-out alone.
-export const UpdateNotificationPrefsRequestSchema = NotificationPrefsDTOSchema.extend({ hostBroadcasts: z.boolean() })
+export const UpdateNotificationPrefsRequestSchema = NotificationPrefsDTOSchema.extend({
+  hostBroadcasts: z.boolean(),
+})
   .partial()
   .strict()
 export type UpdateNotificationPrefsRequest = z.infer<typeof UpdateNotificationPrefsRequestSchema>

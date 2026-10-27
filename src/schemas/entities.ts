@@ -36,7 +36,12 @@ import { isSafeHttpsUrl } from "../markdown/safe-url.js"
 
 export const HTTPS_URL_MAX_LENGTH = 500
 
-export const HttpsUrlSchema = z.string().trim().check(z.url()).max(HTTPS_URL_MAX_LENGTH).startsWith("https://")
+export const HttpsUrlSchema = z
+  .string()
+  .trim()
+  .check(z.url())
+  .max(HTTPS_URL_MAX_LENGTH)
+  .startsWith("https://")
 
 export const AvatarPairSchema = z.tuple([z.string(), z.string()]).nullable().optional()
 
@@ -71,9 +76,6 @@ const OrgHoursDTOObjectSchema = z.object({
 })
 export type OrgHoursDTO = z.infer<typeof OrgHoursDTOObjectSchema>
 export const OrgHoursDTOSchema: z.ZodType<OrgHoursDTO, unknown> = OrgHoursDTOObjectSchema
-
-
-
 
 export const EventKindSchema = z.enum(["cleanup", "other_volunteer"])
 export type EventKind = z.infer<typeof EventKindSchema>
@@ -162,7 +164,9 @@ const SocialHandleSchema = z
 const WhatsAppNumberSchema = z
   .string()
   .trim()
-  .regex(new RegExp(`^[1-9]\\d{${WHATSAPP_NUMBER_MIN_LENGTH - 1},${WHATSAPP_NUMBER_MAX_LENGTH - 1}}$`))
+  .regex(
+    new RegExp(`^[1-9]\\d{${WHATSAPP_NUMBER_MIN_LENGTH - 1},${WHATSAPP_NUMBER_MAX_LENGTH - 1}}$`),
+  )
 
 export const SocialLinksSchema = z
   .object({
@@ -212,7 +216,6 @@ export const MediaDTOSchema = z.object({
 })
 export type MediaDTO = z.infer<typeof MediaDTOSchema>
 
-
 export const LinkedReportRefSchema = z.object({
   id: IdSchema,
   category: ReportCategorySchema,
@@ -241,7 +244,6 @@ export const LinkedEventRefSchema = z.object({
 })
 export type LinkedEventRef = z.infer<typeof LinkedEventRefSchema>
 
-
 export const ReportTimelineEntryDTOSchema = z.object({
   status: ReportStatusSchema,
   at: ISODateSchema,
@@ -254,12 +256,7 @@ export type ReportTimelineEntryDTO = z.infer<typeof ReportTimelineEntryDTOSchema
 export const ReportVisibilitySchema = z.enum(["public", "hidden"])
 export type ReportVisibility = z.infer<typeof ReportVisibilitySchema>
 
-export const AddressPrecisionSchema = z.enum([
-  "street",
-  "intersection",
-  "landmark",
-  "locality",
-])
+export const AddressPrecisionSchema = z.enum(["street", "intersection", "landmark", "locality"])
 export type AddressPrecision = z.infer<typeof AddressPrecisionSchema>
 
 export const EventAddressSourceSchema = z.enum(["resolved", "edited", "manual"])
@@ -330,7 +327,6 @@ export const ReportPinDTOSchema = z.object({
 })
 export type ReportPinDTO = z.infer<typeof ReportPinDTOSchema>
 
-
 const LegalDocumentVersionDTOObjectSchema = z.object({
   type: LegalDocumentTypeSchema,
   version: z.string().min(1).max(32),
@@ -399,8 +395,7 @@ const TicketTypeDTOObjectSchema = z.object({
   waitlistEnabled: z.boolean().default(false),
 })
 export type TicketTypeDTO = z.infer<typeof TicketTypeDTOObjectSchema>
-export const TicketTypeDTOSchema: z.ZodType<TicketTypeDTO, unknown> =
-  TicketTypeDTOObjectSchema
+export const TicketTypeDTOSchema: z.ZodType<TicketTypeDTO, unknown> = TicketTypeDTOObjectSchema
 
 const EventSeatDTOObjectSchema = z.object({
   id: IdSchema,
@@ -413,8 +408,7 @@ const EventSeatDTOObjectSchema = z.object({
   noShowAt: ISODateSchema.nullable().optional(),
 })
 export type EventSeatDTO = z.infer<typeof EventSeatDTOObjectSchema>
-export const EventSeatDTOSchema: z.ZodType<EventSeatDTO, unknown> =
-  EventSeatDTOObjectSchema
+export const EventSeatDTOSchema: z.ZodType<EventSeatDTO, unknown> = EventSeatDTOObjectSchema
 
 export const RegistrantKindSchema = z.enum(["member", "guest"])
 export type RegistrantKind = z.infer<typeof RegistrantKindSchema>
@@ -426,8 +420,7 @@ const EventAnswerDTOObjectSchema = z.object({
   scrubbedAt: ISODateSchema.nullable().optional(),
 })
 export type EventAnswerDTO = z.infer<typeof EventAnswerDTOObjectSchema>
-export const EventAnswerDTOSchema: z.ZodType<EventAnswerDTO, unknown> =
-  EventAnswerDTOObjectSchema
+export const EventAnswerDTOSchema: z.ZodType<EventAnswerDTO, unknown> = EventAnswerDTOObjectSchema
 
 const EventRegistrationObjectSchema = z.object({
   id: IdSchema,
@@ -454,8 +447,8 @@ const EventRegistrationObjectSchema = z.object({
 })
 export type EventRegistrationDTO = z.infer<typeof EventRegistrationObjectSchema>
 
-export const EventRegistrationDTOSchema: z.ZodType<
-  EventRegistrationDTO, unknown> = EventRegistrationObjectSchema
+export const EventRegistrationDTOSchema: z.ZodType<EventRegistrationDTO, unknown> =
+  EventRegistrationObjectSchema
 
 const MyEventRegistrationRefObjectSchema = z.object({
   id: IdSchema,
@@ -493,7 +486,12 @@ export const SafeHttpsLinkSchema = z
     message: SAFE_HTTPS_LINK_MESSAGE,
   })
 
-export const HostEventEmailSchema = z.string().trim().toLowerCase().check(z.email()).max(EMAIL_MAX_LENGTH)
+export const HostEventEmailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .check(z.email())
+  .max(EMAIL_MAX_LENGTH)
 
 export const EVENT_PAGE_BLOCK_LIMITS = {
   title: 160,
@@ -640,8 +638,7 @@ const EventPageBlockUnionSchema = z.discriminatedUnion("kind", [
 ])
 export type EventPageBlock = z.infer<typeof EventPageBlockUnionSchema>
 
-export const EventPageBlockSchema: z.ZodType<EventPageBlock, unknown> =
-  EventPageBlockUnionSchema
+export const EventPageBlockSchema: z.ZodType<EventPageBlock, unknown> = EventPageBlockUnionSchema
 
 export const MAX_EVENT_PAGE_BLOCKS = 24
 
@@ -680,8 +677,7 @@ const EventPageObjectSchema = z.object({
 })
 export type EventPageDTO = z.infer<typeof EventPageObjectSchema>
 
-export const EventPageDTOSchema: z.ZodType<EventPageDTO, unknown> =
-  EventPageObjectSchema
+export const EventPageDTOSchema: z.ZodType<EventPageDTO, unknown> = EventPageObjectSchema
 
 const InviteEventRefObjectSchema = z.object({
   id: IdSchema,
@@ -694,8 +690,7 @@ const InviteEventRefObjectSchema = z.object({
 })
 export type InviteEventRef = z.infer<typeof InviteEventRefObjectSchema>
 
-export const InviteEventRefSchema: z.ZodType<InviteEventRef, unknown> =
-  InviteEventRefObjectSchema
+export const InviteEventRefSchema: z.ZodType<InviteEventRef, unknown> = InviteEventRefObjectSchema
 
 const HostedEventObjectSchema = z.object({
   id: IdSchema,
@@ -721,8 +716,7 @@ const HostedEventObjectSchema = z.object({
 })
 export type HostedEventDTO = z.infer<typeof HostedEventObjectSchema>
 
-export const HostedEventDTOSchema: z.ZodType<HostedEventDTO, unknown> =
-  HostedEventObjectSchema
+export const HostedEventDTOSchema: z.ZodType<HostedEventDTO, unknown> = HostedEventObjectSchema
 
 const BroadcastDTOObjectSchema = z.object({
   id: IdSchema,
@@ -750,8 +744,7 @@ const BroadcastDTOObjectSchema = z.object({
   contentScrubbedAt: ISODateSchema.nullable().optional(),
 })
 export type BroadcastDTO = z.infer<typeof BroadcastDTOObjectSchema>
-export const BroadcastDTOSchema: z.ZodType<BroadcastDTO, unknown> =
-  BroadcastDTOObjectSchema
+export const BroadcastDTOSchema: z.ZodType<BroadcastDTO, unknown> = BroadcastDTOObjectSchema
 
 export const RegistrationStateSchema = z.enum([
   "open",
@@ -819,7 +812,6 @@ export type CleanupDTO = z.infer<typeof CleanupObjectSchema>
 
 export const CleanupDTOSchema: z.ZodType<CleanupDTO, unknown> = CleanupObjectSchema
 
-
 export const ReactionSummaryDTOSchema = z.object({
   emoji: z.string(),
   count: z.number().int().nonnegative(),
@@ -827,7 +819,16 @@ export const ReactionSummaryDTOSchema = z.object({
 })
 export type ReactionSummaryDTO = z.infer<typeof ReactionSummaryDTOSchema>
 
-export const REACTION_EMOJIS = ["like", "heart", "celebrate", "support", "insightful", "concerned", "laugh", "sad"] as const
+export const REACTION_EMOJIS = [
+  "like",
+  "heart",
+  "celebrate",
+  "support",
+  "insightful",
+  "concerned",
+  "laugh",
+  "sad",
+] as const
 export const ReactionEmojiSchema = z.enum(REACTION_EMOJIS)
 export type ReactionEmoji = z.infer<typeof ReactionEmojiSchema>
 
@@ -837,8 +838,6 @@ export const UserMentionDTOSchema = z.object({
   displayName: z.string(),
 })
 export type UserMentionDTO = z.infer<typeof UserMentionDTOSchema>
-
-
 
 export const PostKindSchema = z.enum(["post", "repost", "quote", "reply"])
 export type PostKind = z.infer<typeof PostKindSchema>
@@ -905,7 +904,6 @@ const PostDTOObjectSchema = z.object({
 export type PostDTO = z.infer<typeof PostDTOObjectSchema>
 
 export const PostDTOSchema: z.ZodType<PostDTO, unknown> = PostDTOObjectSchema
-
 
 export const ChatMessageKindSchema = z.enum([
   "text",

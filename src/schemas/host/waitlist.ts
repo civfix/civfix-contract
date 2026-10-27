@@ -10,7 +10,6 @@ import { OkResponseSchema } from "../internal-fields.js"
 import { PersonDTOSchema } from "../entities.js"
 import { AccessCodeSchema, MAX_PARTY_SIZE } from "./tickets.js"
 
-
 export { WaitlistStatusSchema } from "../common.js"
 export type { WaitlistStatus } from "../common.js"
 
@@ -70,12 +69,7 @@ export type ListEventWaitlistResponse = z.infer<typeof ListEventWaitlistResponse
 export const ListEventWaitlistResponseSchema: z.ZodType<ListEventWaitlistResponse, unknown> =
   ListEventWaitlistResponseObjectSchema
 
-export const WaitlistClaimOutcomeSchema = z.enum([
-  "claimed",
-  "expired",
-  "not_offered",
-  "not_found",
-])
+export const WaitlistClaimOutcomeSchema = z.enum(["claimed", "expired", "not_offered", "not_found"])
 export type WaitlistClaimOutcome = z.infer<typeof WaitlistClaimOutcomeSchema>
 
 export const ClaimWaitlistOfferRequestSchema = z

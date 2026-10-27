@@ -112,7 +112,8 @@ describe("relativeAgo options + inputs", () => {
 function pinDeviceTimeZone(zone: string): void {
   beforeEach(() => {
     vi.stubEnv("TZ", zone)
-    const canonical = new Intl.DateTimeFormat("en-US", { timeZone: zone }).resolvedOptions().timeZone
+    const canonical = new Intl.DateTimeFormat("en-US", { timeZone: zone }).resolvedOptions()
+      .timeZone
     expect(new Intl.DateTimeFormat().resolvedOptions().timeZone).toBe(canonical)
   })
   afterEach(() => {
@@ -211,9 +212,7 @@ describe("zoneOffsetMs", () => {
   })
 
   it("handles a half-hour zone and UTC", () => {
-    expect(zoneOffsetMs(Date.parse("2026-07-01T12:00:00.000Z"), "Asia/Kolkata")).toBe(
-      5.5 * HOUR_MS,
-    )
+    expect(zoneOffsetMs(Date.parse("2026-07-01T12:00:00.000Z"), "Asia/Kolkata")).toBe(5.5 * HOUR_MS)
     expect(zoneOffsetMs(Date.parse("2026-07-01T12:00:00.000Z"), "UTC")).toBe(0)
   })
 
@@ -299,9 +298,9 @@ describe("formatters in an event zone", () => {
 
   it("prints the clock and the range in the event zone", () => {
     expect(timeLabel("2026-09-05T20:00:00.000Z", "en-US", LA)).toBe("1:00 PM")
-    expect(timeRangeLabel("2026-09-05T20:00:00.000Z", "2026-09-05T23:00:00.000Z", "en-US", LA)).toBe(
-      `1:00${EN_DASH_RANGE}4:00 PM`,
-    )
+    expect(
+      timeRangeLabel("2026-09-05T20:00:00.000Z", "2026-09-05T23:00:00.000Z", "en-US", LA),
+    ).toBe(`1:00${EN_DASH_RANGE}4:00 PM`)
   })
 
   it("falls back to the viewer zone for an unknown zone rather than throwing", () => {
@@ -334,7 +333,9 @@ describe("eventWhenParts / eventWhenLabel", () => {
 
   it("drops the suffix when the viewer sits at the same offset, however the zone is spelled", () => {
     expect(eventWhenParts(laEvent, { locale: "en-US", viewerTimeZone: LA }).zone).toBeNull()
-    expect(eventWhenParts(laEvent, { locale: "en-US", viewerTimeZone: "US/Pacific" }).zone).toBeNull()
+    expect(
+      eventWhenParts(laEvent, { locale: "en-US", viewerTimeZone: "US/Pacific" }).zone,
+    ).toBeNull()
     expect(eventWhenLabel(laEvent, { locale: "en-US", viewerTimeZone: LA })).toBe(
       `Sat, Sep 5 · 1:00${EN_DASH_RANGE}4:00 PM`,
     )
@@ -364,9 +365,7 @@ describe("eventWhenParts / eventWhenLabel", () => {
     const legacy = { scheduledAt: "2026-09-05T20:00:00.000Z", endsAt: "2026-09-05T23:00:00.000Z" }
     const parts = eventWhenParts(legacy, { locale: "en-US", viewerTimeZone: DENVER })
     expect(parts.zone).toBeNull()
-    expect(parts.range).toBe(
-      timeRangeLabel(legacy.scheduledAt, legacy.endsAt, "en-US"),
-    )
+    expect(parts.range).toBe(timeRangeLabel(legacy.scheduledAt, legacy.endsAt, "en-US"))
   })
 
   it("returns empty parts for an unparseable instant rather than throwing", () => {

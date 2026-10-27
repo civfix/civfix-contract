@@ -2,7 +2,6 @@ import { z } from "zod"
 import { IdSchema, PaginationQuerySchema } from "../common.js"
 import { HostedEventDTOSchema } from "../entities.js"
 
-
 export { HostedEventDTOSchema } from "../entities.js"
 export type { HostedEventDTO } from "../entities.js"
 
