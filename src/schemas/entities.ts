@@ -36,7 +36,7 @@ import { isSafeHttpsUrl } from "../markdown/safe-url.js"
 
 export const HTTPS_URL_MAX_LENGTH = 500
 
-export const HttpsUrlSchema = z.string().trim().url().max(HTTPS_URL_MAX_LENGTH).startsWith("https://")
+export const HttpsUrlSchema = z.string().trim().check(z.url()).max(HTTPS_URL_MAX_LENGTH).startsWith("https://")
 
 export const AvatarPairSchema = z.tuple([z.string(), z.string()]).nullable().optional()
 
@@ -510,7 +510,7 @@ export const SafeHttpsLinkSchema = z
     message: SAFE_HTTPS_LINK_MESSAGE,
   })
 
-export const HostEventEmailSchema = z.string().trim().toLowerCase().email().max(EMAIL_MAX_LENGTH)
+export const HostEventEmailSchema = z.string().trim().toLowerCase().check(z.email()).max(EMAIL_MAX_LENGTH)
 
 export const EVENT_PAGE_BLOCK_LIMITS = {
   title: 160,

@@ -365,7 +365,7 @@ describe("eventWhenParts / eventWhenLabel", () => {
     const parts = eventWhenParts(legacy, { locale: "en-US", viewerTimeZone: DENVER })
     expect(parts.zone).toBeNull()
     expect(parts.range).toBe(
-      timeRangeLabel(legacy.scheduledAt, legacy.endsAt ?? "", "en-US"),
+      timeRangeLabel(legacy.scheduledAt, legacy.endsAt, "en-US"),
     )
   })
 

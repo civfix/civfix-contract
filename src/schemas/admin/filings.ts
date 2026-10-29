@@ -124,7 +124,7 @@ export const FilingRouteInputSchema = z
   .superRefine((route, ctx) => {
     if ((route.channel === "portal") !== (route.formUrl !== null)) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         path: ["formUrl"],
         message: "A portal route needs a form URL, and only a portal route takes one.",
       })

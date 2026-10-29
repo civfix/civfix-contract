@@ -60,7 +60,7 @@ describe("grapheme-safe truncation", () => {
     expect(segmentGraphemes(`${flag}${family}`)).toEqual([flag, family])
     expect(graphemeLength("é")).toBe(1)
     expect(truncateGraphemes(`${flag}${family}x`, 2)).toBe(`${flag}…`)
-    expect([...truncateGraphemes(`${family}${family}`, 2)].length).toBeGreaterThan(0)
+    expect(truncateGraphemes(`${family}${family}`, 2)).toBe(`${family}${family}`)
   })
 
   it("returns the input untouched when it already fits", () => {

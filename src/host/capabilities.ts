@@ -88,9 +88,9 @@ function immutableSet(values: Iterable<HostCapability>): ReadonlySet<HostCapabil
   const refuse = (): never => {
     throw new TypeError("hostCapabilities returns an immutable, shared capability set")
   }
-  set.add = refuse as never
-  set.delete = refuse as never
-  set.clear = refuse as never
+  set.add = refuse
+  set.delete = refuse
+  set.clear = refuse
   return Object.freeze(set)
 }
 

@@ -7,9 +7,14 @@
     "moduleDetection": "force",
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": false,
+    "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noUncheckedSideEffectImports": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "declarationMap": true,
@@ -18,10 +23,10 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    "verbatimModuleSyntax": false,
+    "verbatimModuleSyntax": true,
     "types": ["node"],
     "outDir": "dist"
   },
-  "include": ["src", "__tests__", "tsup.config.ts", "eslint.config.js"],
+  "include": ["src", "__tests__", "tsup.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

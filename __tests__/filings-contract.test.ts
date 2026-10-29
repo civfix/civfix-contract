@@ -274,8 +274,7 @@ describe("FilingRouteInput shape", () => {
 
   it("T11: category, formUrl, requestTypeHint and channel are required keys", () => {
     for (const key of ["category", "formUrl", "requestTypeHint", "channel"] as const) {
-      const input: Record<string, unknown> = { ...emailDefault }
-      delete input[key]
+      const input = Object.fromEntries(Object.entries(emailDefault).filter(([k]) => k !== key))
       expect(passes(FilingRouteInputSchema, input), `without ${key}`).toBe(false)
     }
   })

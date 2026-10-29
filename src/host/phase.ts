@@ -11,11 +11,11 @@ export const DEFAULT_DURATION_MS = DEFAULT_EVENT_DURATION_MS
 export interface EventWindowLike {
   status: CleanupStatus
   scheduledAt: string
-  endsAt?: string | null
+  endsAt?: string | null | undefined
 }
 
 export interface EventPhaseClock extends EventWindowLike {
-  completedAt?: string | null
+  completedAt?: string | null | undefined
 }
 
 export type HostStage = "upcoming" | "soon" | "underway" | "wrapping_up" | "past" | "cancelled"

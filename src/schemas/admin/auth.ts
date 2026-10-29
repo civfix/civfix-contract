@@ -23,7 +23,7 @@ export const AdminOperatorDTOSchema = z
   .object({
     id: IdSchema,
     name: z.string(),
-    email: z.string().email(),
+    email: z.email(),
     role: RoleSchema,
   })
   .strict()

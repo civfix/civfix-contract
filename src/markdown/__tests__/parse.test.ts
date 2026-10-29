@@ -160,7 +160,7 @@ describe("parseMarkdownSubset inline", () => {
       expect(json).not.toContain('"href":"javascript')
       expect(json).not.toContain('"href":"data')
       for (const node of nodes) {
-        expect(node.type === "paragraph" || node.type === "list").toBe(true)
+        expect(["paragraph", "list"]).toContain(node.type)
       }
     }
   })
