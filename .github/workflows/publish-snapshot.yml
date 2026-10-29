@@ -9,8 +9,8 @@ name: publish @civfix/contract snapshot
 # The version is <package.json version>-b-<branch slug>.g<short sha>, under the `snapshot` dist-tag. A
 # caret range never matches a prerelease, so a consumer only gets it by pinning that exact version.
 # Nothing is committed and no tag is pushed. The package is built before the registry token is
-# written and published with --ignore-scripts, so no lifecycle script from the branch runs while the
-# token is present.
+# written and published with --ignore-scripts, and dependencies install with --ignore-scripts too, so
+# no lifecycle script from the branch or its dependencies runs in this job.
 #
 # Required secret: NPM_TOKEN (the Verdaccio ci-publisher token).
 
@@ -29,16 +29,17 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/') && github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          version: 9.12.0
-      - uses: actions/setup-node@v4
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      # No dependency cache: a cache another branch's run wrote could poison what this job publishes.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
-          cache: pnpm
+          package-manager-cache: false
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Stamp snapshot version
         id: stamp
@@ -54,7 +55,8 @@ jobs:
 
       - name: Append registry auth to .npmrc
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Repo-scoped by decision (civfix/issue-tracker#259 D13): no GitHub environment holds it.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # zizmor: ignore[secrets-outside-env]
         run: |
           {
             echo "//repo.civfix.org/:_authToken=${NPM_TOKEN}"

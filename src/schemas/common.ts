@@ -1,7 +1,5 @@
 import { z } from "zod"
 
-
-
 // zod 4 made .uuid() RFC-strict (version and variant nibbles); z.guid() keeps the 8-4-4-4-12 hex shape every
 // client and stored id was validated against under zod 3, so no existing id stops parsing.
 export const IdSchema = z.guid()
@@ -30,7 +28,7 @@ export const PaginationQuerySchema = z
   .strict()
 export type PaginationQuery = z.infer<typeof PaginationQuerySchema>
 
-export function pageResponse<T extends z.ZodTypeAny>(item: T) {
+export function pageResponse<T extends z.ZodType>(item: T) {
   return z.object({
     items: z.array(item),
     nextCursor: z.string().nullable(),
@@ -61,10 +59,7 @@ export const BBoxSchema = z
 export type BBox = z.infer<typeof BBoxSchema>
 
 export const ISODateSchema = z
-  .preprocess(
-    (v) => (typeof v === "string" || v instanceof Date ? v : undefined),
-    z.coerce.date(),
-  )
+  .preprocess((v) => (typeof v === "string" || v instanceof Date ? v : undefined), z.coerce.date())
   .transform((d) => d.toISOString())
 export type ISODate = string
 
@@ -77,7 +72,6 @@ export const AppErrorSchema = z.object({
   fields: z.record(z.string(), z.string()).optional(),
 })
 export type AppErrorShape = z.infer<typeof AppErrorSchema>
-
 
 export const ReportCategorySchema = z.enum([
   "trash",
@@ -116,7 +110,11 @@ export const PUBLIC_REPORT_STATUSES: readonly ReportStatus[] = [
  * The public statuses in which a report still takes a new vote, "I see this too" or "This is fixed"; a
  * `resolved` report keeps its counts but takes no new votes.
  */
-export const OPEN_REPORT_STATUSES: readonly ReportStatus[] = ["published", "acknowledged", "in_progress"]
+export const OPEN_REPORT_STATUSES: readonly ReportStatus[] = [
+  "published",
+  "acknowledged",
+  "in_progress",
+]
 
 export const REPORT_STATUS_LABELS: Record<ReportStatus, string> = {
   submitted: "Submitted",
@@ -259,7 +257,6 @@ export type RoomKind = z.infer<typeof RoomKindSchema>
 export const DiscoveryStatusSchema = z.enum(["open", "in_progress", "done"])
 export type DiscoveryStatus = z.infer<typeof DiscoveryStatusSchema>
 
-
 export const EventVisibilitySchema = z.enum(["public", "unlisted", "private"])
 export type EventVisibility = z.infer<typeof EventVisibilitySchema>
 
@@ -334,13 +331,7 @@ export type ThemeAccent = z.infer<typeof ThemeAccentSchema>
 export const HostExportKindSchema = z.enum(["roster", "answers", "checkins"])
 export type HostExportKind = z.infer<typeof HostExportKindSchema>
 
-export const HostExportStatusSchema = z.enum([
-  "queued",
-  "running",
-  "ready",
-  "failed",
-  "expired",
-])
+export const HostExportStatusSchema = z.enum(["queued", "running", "ready", "failed", "expired"])
 export type HostExportStatus = z.infer<typeof HostExportStatusSchema>
 
 export const HostCapabilitySchema = z.enum([
@@ -403,9 +394,7 @@ export type DeliveryStatus = z.infer<typeof DeliveryStatusSchema>
 
 const BroadcastSegmentUnionSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("all_registered") }).strict(),
-  z
-    .object({ kind: z.literal("ticket_types"), ids: z.array(IdSchema).min(1).max(20) })
-    .strict(),
+  z.object({ kind: z.literal("ticket_types"), ids: z.array(IdSchema).min(1).max(20) }).strict(),
   z.object({ kind: z.literal("slots"), ids: z.array(IdSchema).min(1).max(20) }).strict(),
   z.object({ kind: z.literal("waitlist") }).strict(),
   z.object({ kind: z.literal("checked_in") }).strict(),

@@ -130,9 +130,7 @@ describe("CreateCleanupRequestSchema / UpdateCleanupRequestSchema slot + list ca
   it("accepts an update payload with slots, and [] to delete them all", () => {
     expect(UpdateCleanupRequestSchema.parse({ id: UUID, slots: [] }).slots).toEqual([])
     expect(UpdateCleanupRequestSchema.parse({ id: UUID }).slots).toBeUndefined()
-    expect(UpdateCleanupRequestSchema.parse({ id: UUID, slots: [slotInput] }).slots).toHaveLength(
-      1,
-    )
+    expect(UpdateCleanupRequestSchema.parse({ id: UUID, slots: [slotInput] }).slots).toHaveLength(1)
   })
 
   it("rejects more than MAX_EVENT_SLOTS slots on both create and update", () => {
@@ -140,9 +138,7 @@ describe("CreateCleanupRequestSchema / UpdateCleanupRequestSchema slot + list ca
     const atCap = tooMany.slice(0, MAX_EVENT_SLOTS)
     expect(CreateCleanupRequestSchema.safeParse({ ...base, slots: atCap }).success).toBe(true)
     expect(CreateCleanupRequestSchema.safeParse({ ...base, slots: tooMany }).success).toBe(false)
-    expect(UpdateCleanupRequestSchema.safeParse({ id: UUID, slots: tooMany }).success).toBe(
-      false,
-    )
+    expect(UpdateCleanupRequestSchema.safeParse({ id: UUID, slots: tooMany }).success).toBe(false)
   })
 
   it("rejects an invalid slot nested in an otherwise valid payload", () => {
@@ -163,7 +159,9 @@ describe("CreateCleanupRequestSchema / UpdateCleanupRequestSchema slot + list ca
       false,
     )
     expect(UpdateCleanupRequestSchema.safeParse({ id: UUID, bring }).success).toBe(false)
-    expect(UpdateCleanupRequestSchema.safeParse({ id: UUID, linkedReportIds: ids }).success).toBe(false)
+    expect(UpdateCleanupRequestSchema.safeParse({ id: UUID, linkedReportIds: ids }).success).toBe(
+      false,
+    )
   })
 
   it("stays strict", () => {
@@ -237,7 +235,9 @@ describe("EventSlotDTOSchema / EventSlotRefSchema (tolerant responses)", () => {
   })
 
   it("treats capacity null as unlimited", () => {
-    expect(EventSlotDTOSchema.parse({ id: UUID, title: "Sweep", capacity: null }).capacity).toBeNull()
+    expect(
+      EventSlotDTOSchema.parse({ id: UUID, title: "Sweep", capacity: null }).capacity,
+    ).toBeNull()
   })
 
   it("parses a slot ref", () => {
@@ -338,14 +338,15 @@ describe("slot windows (0.45.0, DECISIONS §38)", () => {
         "set both a start and an end, or neither",
       )
     }
-    expect(EventSlotInputSchema.safeParse({ ...slotInput, startsAt: START, endsAt: null }).success).toBe(
-      false,
-    )
+    expect(
+      EventSlotInputSchema.safeParse({ ...slotInput, startsAt: START, endsAt: null }).success,
+    ).toBe(false)
   })
 
   it("rejects a window shorter than MIN_SLOT_DURATION_MINUTES and accepts exactly that long", () => {
     expect(
-      EventSlotInputSchema.safeParse({ ...slotInput, startsAt: START, endsAt: endAfter(15) }).success,
+      EventSlotInputSchema.safeParse({ ...slotInput, startsAt: START, endsAt: endAfter(15) })
+        .success,
     ).toBe(true)
     const tooShort = EventSlotInputSchema.safeParse({
       ...slotInput,
@@ -361,7 +362,8 @@ describe("slot windows (0.45.0, DECISIONS §38)", () => {
 
   it("rejects an end before the start and an end equal to the start", () => {
     expect(
-      EventSlotInputSchema.safeParse({ ...slotInput, startsAt: START, endsAt: endAfter(-60) }).success,
+      EventSlotInputSchema.safeParse({ ...slotInput, startsAt: START, endsAt: endAfter(-60) })
+        .success,
     ).toBe(false)
     expect(
       EventSlotInputSchema.safeParse({ ...slotInput, startsAt: START, endsAt: START }).success,
@@ -393,7 +395,8 @@ describe("slot windows (0.45.0, DECISIONS §38)", () => {
       }).success,
     ).toBe(false)
     expect(
-      UpdateCleanupRequestSchema.safeParse({ id: UUID, slots: [{ ...shift, endsAt: START }] }).success,
+      UpdateCleanupRequestSchema.safeParse({ id: UUID, slots: [{ ...shift, endsAt: START }] })
+        .success,
     ).toBe(false)
   })
 
@@ -411,9 +414,9 @@ describe("slot windows (0.45.0, DECISIONS §38)", () => {
     const legacy = EventSlotDTOSchema.parse({ id: UUID, title: "Grill", claimed: 0, sortOrder: 0 })
     expect(legacy.startsAt).toBeUndefined()
     expect(legacy.endsAt).toBeUndefined()
-    expect(EventSlotRefSchema.safeParse({ id: UUID, title: "Grill", startsAt: START }).success).toBe(
-      true,
-    )
+    expect(
+      EventSlotRefSchema.safeParse({ id: UUID, title: "Grill", startsAt: START }).success,
+    ).toBe(true)
     expect(EventSlotRefSchema.parse({ id: UUID, title: "Grill" })).toEqual({
       id: UUID,
       title: "Grill",

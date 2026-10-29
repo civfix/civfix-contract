@@ -10,6 +10,24 @@
   - `getAppConfig` (`GET /app/config`, auth optional) returning `AppConfigResponse`: minimum app versions, store links and the announcement.
   - Operator endpoints under `/admin/dev`, all auth required and csrf on every mutation: `adminListRuntimeFlags` and `adminSetRuntimeFlag` (`RuntimeFlagStateDTO`, `AdminSetRuntimeFlagRequest`), `adminDevOverview` (`AdminDevOverviewResponse`), `adminDevJobs` and `adminDevRunJob` (`AdminDevJobsResponse`, `AdminDevRunJobResponse`), and the staging test tools `adminDevListForceUpdate`, `adminDevSetForceUpdate`, `adminDevTestPush`, `adminDevTestEmail` and `adminDevResetFirstRun`, whose request schemas are strict and trim and validate the email.
 
+## 0.65.0
+
+### Minor Changes
+
+- Zod 4 API modernization (DECISIONS §63). The schemas use zod 4's top-level string formats (`z.email()`, `z.url()`, `z.iso.datetime()`, `z.iso.date()`), `z.looseObject` instead of `.passthrough()`, string issue codes instead of `z.ZodIssueCode`, and `z.ZodType` instead of `z.ZodTypeAny`; the no-op `.finite()` is gone. Runtime behavior is unchanged: every schema accepts and rejects the same inputs, parses to the same output and reports the same issues. The inferred types of every exported schema and every endpoint's request and response are unchanged. What changes in the emitted `.d.ts` is the schema class types (an email field is a `ZodEmail` rather than a `ZodString`, a URL a `ZodURL`, a timestamp a `ZodISODateTime`), and the default type parameters of `EndpointDef` are now `z.ZodType` (output `unknown`) instead of `z.ZodTypeAny` (output `any`).
+
+## 0.64.2
+
+### Patch Changes
+
+- Photon and Mapbox geocoding responses are parsed with zod instead of cast: a feature without two numeric coordinates is skipped, a malformed name or address field is ignored as if absent, and a body that is not a feature collection resolves no suggestions, so a bad provider response can no longer put a non-string label or a non-numeric coordinate into a `GeoSuggestion`. `legalDocument` now refuses an inherited key such as `"toString"` with the same `RangeError` as any other unknown type (it used to return the prototype function), and the typed client refuses a top-level function or symbol query value with a `VALIDATION` `AppError` instead of sending its text. `byErrorCode` reads a `null` table entry as missing and returns the fallback, as it already did for `undefined`. Valid inputs behave exactly as before, and the exported types are unchanged.
+
+## 0.64.1
+
+### Patch Changes
+
+- Hand-written option and input types now say `| undefined` on their optional properties, so a consumer that turns on `exactOptionalPropertyTypes` can pass a possibly-undefined value without building the object conditionally: `AppErrorOptions`, `ToAppErrorOptions`, `CreateApiClientOptions`, `RequestArgs`, `GeoSuggestion`, `SuggestOptions`, `AuthContext.anonSessionId`, `RelativeAgoOptions`, `EventWhenInput`, `EventWhenOptions`, `EventWindowLike`, `EventPhaseClock`, `IcsEventInput`, `SmsBodyOptions`, `BroadcastLinkOptions`, `SuppressOptions`, `BreakdownOptions`, `ArrivalsCurveOptions`, `ParseMarkdownOptions`, `SafeHttpsUrlOptions`, and the value parameters of `rejectAroundWithBefore` and `refineSalesWindow`. This only loosens the types; no shape or runtime behavior changes.
+
 ## 0.64.0
 
 ### Minor Changes

@@ -9,11 +9,15 @@ const ACCENT = "é"
 async function loadWithoutSegmenter(): Promise<typeof GraphemesModule> {
   vi.resetModules()
   const original = Intl.Segmenter
-  Reflect.deleteProperty(Intl as unknown as Record<string, unknown>, "Segmenter")
+  Reflect.deleteProperty(Intl, "Segmenter")
   try {
     return await import("../graphemes.js")
   } finally {
-    Object.defineProperty(Intl, "Segmenter", { value: original, configurable: true, writable: true })
+    Object.defineProperty(Intl, "Segmenter", {
+      value: original,
+      configurable: true,
+      writable: true,
+    })
   }
 }
 
@@ -24,7 +28,12 @@ afterEach(() => {
 describe("segmentGraphemes with Intl.Segmenter", () => {
   it("keeps flags, ZWJ sequences, skin tones and combining marks whole", async () => {
     const { segmentGraphemes } = await import("../graphemes.js")
-    expect(segmentGraphemes(`${FLAG}${FAMILY}${THUMB}${ACCENT}`)).toEqual([FLAG, FAMILY, THUMB, ACCENT])
+    expect(segmentGraphemes(`${FLAG}${FAMILY}${THUMB}${ACCENT}`)).toEqual([
+      FLAG,
+      FAMILY,
+      THUMB,
+      ACCENT,
+    ])
     expect(segmentGraphemes("")).toEqual([])
   })
 })
@@ -32,7 +41,12 @@ describe("segmentGraphemes with Intl.Segmenter", () => {
 describe("segmentGraphemes fallback (no Intl.Segmenter, e.g. a trimmed RN runtime)", () => {
   it("still keeps flags, ZWJ sequences, skin tones and combining marks whole", async () => {
     const { segmentGraphemes, graphemeLength } = await loadWithoutSegmenter()
-    expect(segmentGraphemes(`${FLAG}${FAMILY}${THUMB}${ACCENT}`)).toEqual([FLAG, FAMILY, THUMB, ACCENT])
+    expect(segmentGraphemes(`${FLAG}${FAMILY}${THUMB}${ACCENT}`)).toEqual([
+      FLAG,
+      FAMILY,
+      THUMB,
+      ACCENT,
+    ])
     expect(graphemeLength(`${FLAG}${FLAG}`)).toBe(2)
     expect(graphemeLength("abc")).toBe(3)
   })

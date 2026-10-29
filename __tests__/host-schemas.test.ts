@@ -156,11 +156,7 @@ describe("host platform enum tuples (mirrored byte-identical by the backend)", (
       "verified",
       "rejected",
     ])
-    expect([...OrgVerificationKindSchema.options]).toEqual([
-      "nonprofit",
-      "government",
-      "community",
-    ])
+    expect([...OrgVerificationKindSchema.options]).toEqual(["nonprofit", "government", "community"])
     expect([...TicketTypeVisibilitySchema.options]).toEqual(["public", "hidden", "access_code"])
     expect([...RegistrationStatusSchema.options]).toEqual([
       "registered",
@@ -275,9 +271,10 @@ describe("BroadcastSegment discriminated union", () => {
     expect(BroadcastSegmentSchema.parse({ kind: "all_registered" })).toEqual({
       kind: "all_registered",
     })
-    expect(
-      BroadcastSegmentSchema.parse({ kind: "ticket_types", ids: [UUID, UUID2] }),
-    ).toEqual({ kind: "ticket_types", ids: [UUID, UUID2] })
+    expect(BroadcastSegmentSchema.parse({ kind: "ticket_types", ids: [UUID, UUID2] })).toEqual({
+      kind: "ticket_types",
+      ids: [UUID, UUID2],
+    })
     for (const kind of ["waitlist", "checked_in", "not_checked_in", "guests_only"]) {
       expect(BroadcastSegmentSchema.safeParse({ kind }).success).toBe(true)
     }
@@ -474,9 +471,9 @@ describe("question definitions and page blocks", () => {
     expect(
       EventQuestionDefSchema.safeParse({ kind: "single_select", prompt: "Shirt size" }).success,
     ).toBe(false)
-    expect(
-      EventQuestionDefSchema.safeParse({ kind: "consent", prompt: "Waiver" }).success,
-    ).toBe(false)
+    expect(EventQuestionDefSchema.safeParse({ kind: "consent", prompt: "Waiver" }).success).toBe(
+      false,
+    )
     expect(
       EventQuestionDefSchema.safeParse({
         kind: "consent",
@@ -718,8 +715,9 @@ describe("host-wide analytics summary (DECISIONS §54)", () => {
       label: `Event ${i}`,
       value: i,
     }))
-    expect(HostAnalyticsSummaryResponseSchema.safeParse(summary({ byEvent: { rows } })).success)
-      .toBe(false)
+    expect(
+      HostAnalyticsSummaryResponseSchema.safeParse(summary({ byEvent: { rows } })).success,
+    ).toBe(false)
     expect(
       HostAnalyticsSummaryResponseSchema.safeParse(summary({ hoursByEvent: { rows } })).success,
     ).toBe(false)
@@ -774,9 +772,9 @@ describe("organization invites", () => {
     expect(
       OrganizationInviteDTOSchema.safeParse({ ...emailInvite, status: "declined" }).success,
     ).toBe(true)
-    expect(
-      ListOrganizationInvitesResponseSchema.safeParse({ items: [emailInvite] }).success,
-    ).toBe(true)
+    expect(ListOrganizationInvitesResponseSchema.safeParse({ items: [emailInvite] }).success).toBe(
+      true,
+    )
     expect(MAX_ORG_INVITES_PER_ORG).toBe(50)
   })
 
@@ -906,7 +904,8 @@ describe("event collaborators: the coordinator tier and the invitee inbox (DECIS
       }).success,
     ).toBe(true)
     expect(
-      SetMemberRoleRequestSchema.safeParse({ id: UUID, userId: UUID2, role: "coordinator" }).success,
+      SetMemberRoleRequestSchema.safeParse({ id: UUID, userId: UUID2, role: "coordinator" })
+        .success,
     ).toBe(true)
     expect(
       SetMemberRoleRequestSchema.safeParse({ id: UUID, userId: UUID2, role: "organizer" }).success,
@@ -929,10 +928,14 @@ describe("event collaborators: the coordinator tier and the invitee inbox (DECIS
         email: "ada@example.org",
       }).success,
     ).toBe(true)
-    expect((PendingEventTeamInviteDTOSchema.parse({
-      ...pendingInvite,
-      email: "ada@example.org",
-    }) as Record<string, unknown>).email).toBeUndefined()
+    expect(
+      (
+        PendingEventTeamInviteDTOSchema.parse({
+          ...pendingInvite,
+          email: "ada@example.org",
+        }) as Record<string, unknown>
+      ).email,
+    ).toBeUndefined()
   })
 
   it("keeps the invited event a lean ref: no roster counters, no capabilities", () => {
@@ -1032,7 +1035,11 @@ describe("organization affiliation, events and the invite inbox (DECISIONS §34)
       when: "upcoming",
     })
     expect(
-      ListOrganizationEventsRequestSchema.parse({ slug: "reach-out-la", when: "past", limit: "10" }),
+      ListOrganizationEventsRequestSchema.parse({
+        slug: "reach-out-la",
+        when: "past",
+        limit: "10",
+      }),
     ).toEqual({ slug: "reach-out-la", when: "past", limit: 10 })
     expect(
       ListOrganizationEventsRequestSchema.safeParse({ slug: "reach-out-la", limit: 51 }).success,
@@ -1163,8 +1170,9 @@ describe("hours on the host read models (DECISIONS §39)", () => {
     const overflow = Array.from({ length: MAX_PORTFOLIO_TOP_VOLUNTEERS + 1 }, (_row, i) =>
       volunteer(i + 1),
     )
-    expect(HostedEventsAnalyticsResponseSchema.safeParse(analytics({ topVolunteers: overflow }))
-      .success).toBe(false)
+    expect(
+      HostedEventsAnalyticsResponseSchema.safeParse(analytics({ topVolunteers: overflow })).success,
+    ).toBe(false)
     expect(
       HostedEventsAnalyticsResponseSchema.safeParse(analytics({ totalHours: -1 })).success,
     ).toBe(false)
@@ -1175,13 +1183,17 @@ describe("hours on the host read models (DECISIONS §39)", () => {
 
   it("defaults EventInsights.topVolunteers to [] and caps it", () => {
     expect(GetEventInsightsResponseSchema.parse(insights()).topVolunteers).toEqual([])
-    expect(GetEventInsightsResponseSchema.parse(insights({ topVolunteers: [volunteer(1)] })).topVolunteers)
-      .toHaveLength(1)
+    expect(
+      GetEventInsightsResponseSchema.parse(insights({ topVolunteers: [volunteer(1)] }))
+        .topVolunteers,
+    ).toHaveLength(1)
     expect(MAX_INSIGHTS_TOP_VOLUNTEERS).toBe(5)
     const overflow = Array.from({ length: MAX_INSIGHTS_TOP_VOLUNTEERS + 1 }, (_row, i) =>
       volunteer(i + 1),
     )
-    expect(GetEventInsightsResponseSchema.safeParse(insights({ topVolunteers: overflow })).success).toBe(false)
+    expect(
+      GetEventInsightsResponseSchema.safeParse(insights({ topVolunteers: overflow })).success,
+    ).toBe(false)
   })
 
   it("keeps the org hours stats optional so a new org never reads zero", () => {

@@ -33,7 +33,7 @@ published the real one. Never merge a consumer PR that pins a snapshot.
 
 ## When the version check fails
 
-`scripts/check-version.mjs` (run in CI and before every publish) refuses a version the registry
+`scripts/check-version.mjs` (run on every PR and before every publish) refuses a version the registry
 already holds from a commit `main` never released, and prints the next free version. That is the one
 case where you set `package.json`'s version by hand, together with the matching `CHANGELOG.md`
 heading.

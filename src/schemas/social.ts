@@ -10,7 +10,6 @@ import {
 } from "./entities.js"
 import { EMAIL_OTP_CODE_LENGTH, UserDTOSchema, SupportedLocaleSchema } from "./auth.js"
 
-
 export { PersonDTOSchema } from "./entities.js"
 export type { PersonDTO } from "./entities.js"
 
@@ -66,7 +65,6 @@ export type ProfileEventsRequest = z.infer<typeof ProfileEventsRequestSchema>
 export const ProfileEventsResponseSchema = pageResponse(CleanupDTOSchema)
 export type ProfileEventsResponse = z.infer<typeof ProfileEventsResponseSchema>
 
-
 const HANDLE_MIN_LENGTH = 3
 export const HANDLE_MAX_LENGTH = 20
 export const HANDLE_REGEX = new RegExp(`^[a-zA-Z0-9_]{${HANDLE_MIN_LENGTH},${HANDLE_MAX_LENGTH}}$`)
@@ -103,7 +101,6 @@ export const HandleAvailableResponseSchema = z.object({
   reason: z.enum(["taken", "invalid", "reserved"]).nullable().optional(),
 })
 export type HandleAvailableResponse = z.infer<typeof HandleAvailableResponseSchema>
-
 
 /**
  * GET /users/follow-suggestions: people to follow for the signed-in viewer, ranked nearby-first with
@@ -150,7 +147,6 @@ export const MentionSearchRequestSchema = z
   .strict()
 export type MentionSearchRequest = z.infer<typeof MentionSearchRequestSchema>
 
-
 export const UpdateSettingsRequestSchema = z
   .object({
     allowDirectMessages: z.boolean().optional(),
@@ -170,7 +166,6 @@ export const UpdateSettingsResponseSchema = z.object({
 })
 export type UpdateSettingsResponse = z.infer<typeof UpdateSettingsResponseSchema>
 
-
 export const DeleteAccountRequestSchema = z
   .object({
     emailOtp: z.string().regex(new RegExp(`^\\d{${EMAIL_OTP_CODE_LENGTH}}$`)),
@@ -183,10 +178,9 @@ export type DeleteAccountResponse = z.infer<typeof DeleteAccountResponseSchema>
 
 export const RequestDataExportResponseSchema = z.object({
   ok: z.literal(true),
-  email: z.string().email().nullable().optional(),
+  email: z.email().nullable().optional(),
 })
 export type RequestDataExportResponse = z.infer<typeof RequestDataExportResponseSchema>
-
 
 export const BlockUserResponseSchema = z.object({
   blocked: z.boolean(),
@@ -199,4 +193,3 @@ export const ListBlocksResponseSchema = z.object({
   nextCursor: z.string().nullable().optional(),
 })
 export type ListBlocksResponse = z.infer<typeof ListBlocksResponseSchema>
-

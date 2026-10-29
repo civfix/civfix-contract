@@ -26,7 +26,9 @@ describe("SocialLinksSchema", () => {
   })
 
   it("rejects full URLs, @-prefixes, and injection schemes (no open-redirect/XSS surface)", () => {
-    expect(SocialLinksSchema.safeParse({ instagram: "https://instagram.com/x" }).success).toBe(false)
+    expect(SocialLinksSchema.safeParse({ instagram: "https://instagram.com/x" }).success).toBe(
+      false,
+    )
     expect(SocialLinksSchema.safeParse({ instagram: "@jane" }).success).toBe(false)
     expect(SocialLinksSchema.safeParse({ instagram: "javascript:alert(1)" }).success).toBe(false)
     expect(SocialLinksSchema.safeParse({ x: "a b" }).success).toBe(false)
@@ -68,7 +70,9 @@ describe("profile schemas carry socialLinks", () => {
       socialLinks: { instagram: "jane" },
     })
     expect(ok.socialLinks?.instagram).toBe("jane")
-    expect(UpdateProfileRequestSchema.parse({ handle: "janedoe", displayName: "Jane" }).socialLinks).toBeUndefined()
+    expect(
+      UpdateProfileRequestSchema.parse({ handle: "janedoe", displayName: "Jane" }).socialLinks,
+    ).toBeUndefined()
   })
 
   it("UserProfileDTO parses with and without socialLinks", () => {
@@ -83,8 +87,8 @@ describe("profile schemas carry socialLinks", () => {
       stats: { reports: 0, cleanups: 0 },
     }
     expect(UserProfileDTOSchema.parse(base).socialLinks).toBeUndefined()
-    expect(
-      UserProfileDTOSchema.parse({ ...base, socialLinks: { x: "jane" } }).socialLinks?.x,
-    ).toBe("jane")
+    expect(UserProfileDTOSchema.parse({ ...base, socialLinks: { x: "jane" } }).socialLinks?.x).toBe(
+      "jane",
+    )
   })
 })

@@ -2,7 +2,6 @@ import { z } from "zod"
 import { EventQuestionKindSchema, IdSchema, ISODateSchema } from "../common.js"
 import { SortOrderInputSchema } from "../internal-fields.js"
 
-
 export { EventQuestionKindSchema } from "../common.js"
 export type { EventQuestionKind } from "../common.js"
 

@@ -82,7 +82,12 @@ export const AdminDevQueueSchema = z
     owner: z.enum(["api", "worker"]),
     schedule: z.string().nullable(),
     counts: z
-      .object({ created: CountSchema, retry: CountSchema, active: CountSchema, failed: CountSchema })
+      .object({
+        created: CountSchema,
+        retry: CountSchema,
+        active: CountSchema,
+        failed: CountSchema,
+      })
       .strict(),
     failedLast24h: CountSchema,
     oldestPendingSeconds: CountSchema,
@@ -92,7 +97,9 @@ export const AdminDevQueueSchema = z
   .strict()
 export type AdminDevQueue = z.infer<typeof AdminDevQueueSchema>
 
-export const AdminDevJobsResponseSchema = z.object({ queues: z.array(AdminDevQueueSchema) }).strict()
+export const AdminDevJobsResponseSchema = z
+  .object({ queues: z.array(AdminDevQueueSchema) })
+  .strict()
 export type AdminDevJobsResponse = z.infer<typeof AdminDevJobsResponseSchema>
 
 export const AdminDevRunJobResponseSchema = z.object({ enqueued: z.boolean() }).strict()
@@ -102,7 +109,7 @@ export type AdminDevRunJobResponse = z.infer<typeof AdminDevRunJobResponseSchema
 export const DEV_TEST_PUSH_TITLE_MAX_LENGTH = 80
 export const DEV_TEST_PUSH_BODY_MAX_LENGTH = 200
 
-const TestAccountEmailSchema = z.string().trim().email().max(EMAIL_MAX_LENGTH)
+const TestAccountEmailSchema = z.string().trim().check(z.email()).max(EMAIL_MAX_LENGTH)
 
 export const AdminDevSetForceUpdateRequestSchema = z
   .object({ email: TestAccountEmailSchema, enabled: z.boolean() })
@@ -139,7 +146,9 @@ export type AdminDevTestEmailRequest = z.infer<typeof AdminDevTestEmailRequestSc
 export const AdminDevTestEmailResponseSchema = z.object({ to: z.string() }).strict()
 export type AdminDevTestEmailResponse = z.infer<typeof AdminDevTestEmailResponseSchema>
 
-export const AdminDevResetFirstRunRequestSchema = z.object({ email: TestAccountEmailSchema }).strict()
+export const AdminDevResetFirstRunRequestSchema = z
+  .object({ email: TestAccountEmailSchema })
+  .strict()
 export type AdminDevResetFirstRunRequest = z.infer<typeof AdminDevResetFirstRunRequestSchema>
 
 export const AdminDevResetFirstRunResponseSchema = z.object({ userId: IdSchema }).strict()

@@ -153,7 +153,7 @@ the Zod runtime) and a drift test asserts the two stay byte-for-byte identical.
 
 Refined DTOs / responses:
 
-- `UserDTO.email`: `z.string().email().nullable().optional()`. Account email for display. Nullable for
+- `UserDTO.email`: `z.email().nullable().optional()`. Account email for display. Nullable for
   accounts without one (Apple private relay omitted) and optional for backward compatibility.
   `SessionResponse` / `SessionCheckResponse` continue to compose over `UserDTO` unchanged.
 - `SessionCheckResponse.enabledProviders`: `z.array(OAuthProviderSchema).optional()`, so the web can
@@ -2246,7 +2246,7 @@ this release does not attempt them; each needs its own coordinated PR:
   plus product and counsel wording.
 - Light-scheme category pin contrast: five fills sit under 3:1 on light paper (a design-token
   decision).
-- One timestamp schema: responses mix `z.string()`, `z.string().datetime()` and `ISODateSchema`; move
+- One timestamp schema: responses mix `z.string()`, `z.iso.datetime()` and `ISODateSchema`; move
   them together once the backend is confirmed to always emit ISO.
 - Atomic operator writes asked for by admin (H-03 verify-and-send, H-06 save contacts and extras in one
   request): new endpoints, backend first.
@@ -2338,6 +2338,27 @@ tests assert accepted values rather than zod's text. The explicit annotations ar
 
 Every consumer adopts it in one delivery set: civfix-backend (`services/api`, `services/media-worker`,
 `packages/seams`, with its own `zod` moved to `^4.6.6`), civfix-app and civfix-admin.
+
+## 63. String formats are zod 4's top-level schemas, and their behavior is pinned (0.65.0)
+
+The string formats are written as zod 4's own schemas: `z.email()`, `z.url()`, `z.iso.datetime()` and
+`z.iso.date()`, not the deprecated `z.string().email()` methods, and lint's `no-deprecated` keeps it
+that way. Each top-level schema runs the same check, with the same default pattern, as the method it
+replaces, so nothing a client sends or receives changes. Where a transform has to run before the
+format check, the check is attached in place with `.check(z.email())` (or `z.url()`), because
+`z.email().trim()` would check the format before trimming: `HostEventEmailSchema` trims and lowercases
+first, and `HttpsUrlSchema` trims first. `z.url()` still accepts any protocol (`javascript:` and
+`mailto:` included) and trims surrounding whitespace; only `HttpsUrlSchema` requires `https://`.
+`__tests__/string-formats.test.ts` pins what each format accepts, how it normalizes and the issue
+clients receive.
+
+`z.ZodType` replaces `z.ZodTypeAny` in the client's generics. The default of `EndpointDef`'s type
+parameters is therefore a schema whose output is `unknown` rather than `any`; every registry entry's
+request and response types are unchanged.
+
+Every consumer adopts it in one delivery set, because a minor needs a range edit on 0.x:
+civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
+civfix-admin.
 
 ## 65. Runtime flags are a fixed registry in the contract, and the developer console's shapes (0.67.0)
 

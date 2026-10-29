@@ -34,7 +34,12 @@ import { hostBroadcastEndpoints } from "./endpoints/host/broadcasts.js"
 import { hostAnalyticsEndpoints } from "./endpoints/host/analytics.js"
 
 export type { EndpointAuth, EndpointDef, HttpMethod } from "./endpoints/def.js"
-export { adminInboxEndpoints, adminReportChatEndpoints, adminUserHoursEndpoints, hostAdminEndpoints }
+export {
+  adminInboxEndpoints,
+  adminReportChatEndpoints,
+  adminUserHoursEndpoints,
+  hostAdminEndpoints,
+}
 
 export const coreEndpoints: typeof systemEndpoints &
   typeof authEndpoints &
@@ -121,7 +126,7 @@ export const endpoints: typeof coreEndpoints &
 export type Endpoints = typeof endpoints
 export type EndpointName = keyof Endpoints
 
-export type RequestOf<N extends EndpointName> = Endpoints[N]["request"] extends z.ZodTypeAny
+export type RequestOf<N extends EndpointName> = Endpoints[N]["request"] extends z.ZodType
   ? z.infer<Endpoints[N]["request"]>
   : never
 
