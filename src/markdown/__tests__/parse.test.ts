@@ -12,9 +12,7 @@ import {
 import type { MarkdownInline, MarkdownNode } from "../ast.js"
 
 function text(nodes: readonly MarkdownInline[]): string {
-  return nodes
-    .map((node) => (node.type === "text" ? node.value : text(node.children)))
-    .join("")
+  return nodes.map((node) => (node.type === "text" ? node.value : text(node.children))).join("")
 }
 
 function first(nodes: MarkdownNode[]): MarkdownNode {
@@ -101,12 +99,12 @@ describe("parseMarkdownSubset inline", () => {
   })
 
   it("leaves unmatched delimiters literal", () => {
-    expect(text((first(parseMarkdownSubset("**not closed")) as { children: MarkdownInline[] }).children)).toBe(
-      "**not closed",
-    )
-    expect(text((first(parseMarkdownSubset("a * b _ c")) as { children: MarkdownInline[] }).children)).toBe(
-      "a * b _ c",
-    )
+    expect(
+      text((first(parseMarkdownSubset("**not closed")) as { children: MarkdownInline[] }).children),
+    ).toBe("**not closed")
+    expect(
+      text((first(parseMarkdownSubset("a * b _ c")) as { children: MarkdownInline[] }).children),
+    ).toBe("a * b _ c")
   })
 
   it("honours backslash escapes", () => {
@@ -160,7 +158,7 @@ describe("parseMarkdownSubset inline", () => {
       expect(json).not.toContain('"href":"javascript')
       expect(json).not.toContain('"href":"data')
       for (const node of nodes) {
-        expect(node.type === "paragraph" || node.type === "list").toBe(true)
+        expect(["paragraph", "list"]).toContain(node.type)
       }
     }
   })

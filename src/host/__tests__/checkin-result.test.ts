@@ -35,7 +35,13 @@ describe("checkinResultRender", () => {
   it("offers UNDO only where a seat was actually checked in", () => {
     expect(checkinResultRender("checked_in", true).undoable).toBe(true)
     expect(checkinResultRender("already", true).undoable).toBe(true)
-    for (const outcome of ["cancelled", "wrong_event", "unknown_token", "waitlisted", "no_show"] as const) {
+    for (const outcome of [
+      "cancelled",
+      "wrong_event",
+      "unknown_token",
+      "waitlisted",
+      "no_show",
+    ] as const) {
       expect(checkinResultRender(outcome, true).undoable, outcome).toBe(false)
     }
   })

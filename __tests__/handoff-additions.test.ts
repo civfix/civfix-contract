@@ -14,7 +14,10 @@ import {
   UserSubListQuerySchema,
 } from "../src/schemas/admin/users.js"
 import { FlagEventRequestSchema } from "../src/schemas/admin/events.js"
-import { FlagReportRequestSchema, SetReportVerdictResponseSchema } from "../src/schemas/admin/reports.js"
+import {
+  FlagReportRequestSchema,
+  SetReportVerdictResponseSchema,
+} from "../src/schemas/admin/reports.js"
 import { ModerationItemDTOSchema } from "../src/schemas/admin/moderation.js"
 import { DiscoveryContactSchema } from "../src/schemas/admin/discovery.js"
 import { AnalyticsKpiKey, AnalyticsKpiSchema } from "../src/schemas/admin/analytics.js"
@@ -51,8 +54,12 @@ describe("MailAttachmentSchema url", () => {
   })
 
   it("parses a url and rejects a non-url", () => {
-    expect(MailAttachmentSchema.safeParse({ ...attachment, url: attachment.key }).success).toBe(true)
-    expect(MailAttachmentSchema.safeParse({ ...attachment, url: "inbound/a.pdf" }).success).toBe(false)
+    expect(MailAttachmentSchema.safeParse({ ...attachment, url: attachment.key }).success).toBe(
+      true,
+    )
+    expect(MailAttachmentSchema.safeParse({ ...attachment, url: "inbound/a.pdf" }).success).toBe(
+      false,
+    )
   })
 })
 
@@ -88,7 +95,9 @@ describe("UserMessageItemDTOSchema removedBy", () => {
     for (const removedBy of ["author", "operator", null]) {
       expect(UserMessageItemDTOSchema.safeParse({ ...message, removedBy }).success).toBe(true)
     }
-    expect(UserMessageItemDTOSchema.safeParse({ ...message, removedBy: "system" }).success).toBe(false)
+    expect(UserMessageItemDTOSchema.safeParse({ ...message, removedBy: "system" }).success).toBe(
+      false,
+    )
   })
 })
 
@@ -184,7 +193,10 @@ describe("AnalyticsKpiSchema key and unit", () => {
   })
 
   it("parses a known key, an unknown future key and each unit", () => {
-    expect(AnalyticsKpiSchema.safeParse({ ...kpi, key: AnalyticsKpiKey.resolved, unit: "percent" }).success).toBe(true)
+    expect(
+      AnalyticsKpiSchema.safeParse({ ...kpi, key: AnalyticsKpiKey.resolved, unit: "percent" })
+        .success,
+    ).toBe(true)
     expect(AnalyticsKpiSchema.safeParse({ ...kpi, key: "a_later_kpi" }).success).toBe(true)
     for (const unit of ["count", "percent", "hours"]) {
       expect(AnalyticsKpiSchema.safeParse({ ...kpi, unit }).success).toBe(true)
@@ -218,7 +230,9 @@ describe("HomeSummaryResponseSchema degraded", () => {
   })
 
   it("parses a list of degraded sections", () => {
-    expect(HomeSummaryResponseSchema.parse({ ...summary, degraded: ["mail"] }).degraded).toEqual(["mail"])
+    expect(HomeSummaryResponseSchema.parse({ ...summary, degraded: ["mail"] }).degraded).toEqual([
+      "mail",
+    ])
     expect(HomeSummaryResponseSchema.safeParse({ ...summary, degraded: [1] }).success).toBe(false)
   })
 })
@@ -234,7 +248,8 @@ describe("CreateWalkupRegistrationRequestSchema", () => {
 
   it("rejects idempotencyKey", () => {
     expect(
-      CreateWalkupRegistrationRequestSchema.safeParse({ ...walkup, idempotencyKey: "a".repeat(16) }).success,
+      CreateWalkupRegistrationRequestSchema.safeParse({ ...walkup, idempotencyKey: "a".repeat(16) })
+        .success,
     ).toBe(false)
   })
 })

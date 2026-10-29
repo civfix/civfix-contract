@@ -20,20 +20,23 @@ import {
   SocialLinksSchema,
 } from "../entities.js"
 
-
 export {
   HttpsUrlSchema,
   OrganizationDTOSchema,
   OrganizationRefDTOSchema,
   OrganizationMemberDTOSchema,
 } from "../entities.js"
+export type { OrganizationDTO, OrganizationRefDTO, OrganizationMemberDTO } from "../entities.js"
+export {
+  OrganizationMemberRoleSchema,
+  OrgVerificationKindSchema,
+  OrgVerificationStatusSchema,
+} from "../common.js"
 export type {
-  OrganizationDTO,
-  OrganizationRefDTO,
-  OrganizationMemberDTO,
-} from "../entities.js"
-export { OrganizationMemberRoleSchema, OrgVerificationKindSchema, OrgVerificationStatusSchema } from "../common.js"
-export type { OrganizationMemberRole, OrgVerificationKind, OrgVerificationStatus } from "../common.js"
+  OrganizationMemberRole,
+  OrgVerificationKind,
+  OrgVerificationStatus,
+} from "../common.js"
 
 export const MAX_ORG_NAME = 120
 export const MAX_ORG_DESCRIPTION = 2000
@@ -92,9 +95,13 @@ export const ListOrganizationEventsRequestSchema = PaginationQuerySchema.extend(
 export type ListOrganizationEventsRequest = z.infer<typeof ListOrganizationEventsRequestSchema>
 
 const ListOrganizationEventsResponseObjectSchema = pageResponse(CleanupDTOSchema)
-export type ListOrganizationEventsResponse = z.infer<typeof ListOrganizationEventsResponseObjectSchema>
-export const ListOrganizationEventsResponseSchema: z.ZodType<ListOrganizationEventsResponse, unknown> =
-  ListOrganizationEventsResponseObjectSchema
+export type ListOrganizationEventsResponse = z.infer<
+  typeof ListOrganizationEventsResponseObjectSchema
+>
+export const ListOrganizationEventsResponseSchema: z.ZodType<
+  ListOrganizationEventsResponse,
+  unknown
+> = ListOrganizationEventsResponseObjectSchema
 
 export const UpdateOrganizationRequestSchema = z
   .object({
@@ -118,9 +125,13 @@ export const ListOrganizationMembersRequestSchema = PaginationQuerySchema.extend
 export type ListOrganizationMembersRequest = z.infer<typeof ListOrganizationMembersRequestSchema>
 
 const ListOrganizationMembersResponseObjectSchema = pageResponse(OrganizationMemberDTOSchema)
-export type ListOrganizationMembersResponse = z.infer<typeof ListOrganizationMembersResponseObjectSchema>
-export const ListOrganizationMembersResponseSchema: z.ZodType<ListOrganizationMembersResponse, unknown> =
-  ListOrganizationMembersResponseObjectSchema
+export type ListOrganizationMembersResponse = z.infer<
+  typeof ListOrganizationMembersResponseObjectSchema
+>
+export const ListOrganizationMembersResponseSchema: z.ZodType<
+  ListOrganizationMembersResponse,
+  unknown
+> = ListOrganizationMembersResponseObjectSchema
 
 export const OrganizationInviteRoleSchema = z.enum(["admin", "member"])
 export type OrganizationInviteRole = z.infer<typeof OrganizationInviteRoleSchema>
@@ -173,9 +184,13 @@ const InviteOrganizationMemberResponseObjectSchema = z.object({
   // The pending invite record when the identifier did not resolve to an existing member.
   invite: OrganizationInviteDTOSchema.nullable().optional(),
 })
-export type InviteOrganizationMemberResponse = z.infer<typeof InviteOrganizationMemberResponseObjectSchema>
-export const InviteOrganizationMemberResponseSchema: z.ZodType<InviteOrganizationMemberResponse, unknown> =
-  InviteOrganizationMemberResponseObjectSchema
+export type InviteOrganizationMemberResponse = z.infer<
+  typeof InviteOrganizationMemberResponseObjectSchema
+>
+export const InviteOrganizationMemberResponseSchema: z.ZodType<
+  InviteOrganizationMemberResponse,
+  unknown
+> = InviteOrganizationMemberResponseObjectSchema
 
 export const ListOrganizationInvitesRequestSchema = z.object({ id: IdSchema }).strict()
 export type ListOrganizationInvitesRequest = z.infer<typeof ListOrganizationInvitesRequestSchema>
@@ -183,9 +198,13 @@ export type ListOrganizationInvitesRequest = z.infer<typeof ListOrganizationInvi
 const ListOrganizationInvitesResponseObjectSchema = z.object({
   items: z.array(OrganizationInviteDTOSchema),
 })
-export type ListOrganizationInvitesResponse = z.infer<typeof ListOrganizationInvitesResponseObjectSchema>
-export const ListOrganizationInvitesResponseSchema: z.ZodType<ListOrganizationInvitesResponse, unknown> =
-  ListOrganizationInvitesResponseObjectSchema
+export type ListOrganizationInvitesResponse = z.infer<
+  typeof ListOrganizationInvitesResponseObjectSchema
+>
+export const ListOrganizationInvitesResponseSchema: z.ZodType<
+  ListOrganizationInvitesResponse,
+  unknown
+> = ListOrganizationInvitesResponseObjectSchema
 
 export const RevokeOrganizationInviteRequestSchema = z
   .object({ id: IdSchema, inviteId: IdSchema })
@@ -193,8 +212,10 @@ export const RevokeOrganizationInviteRequestSchema = z
 export type RevokeOrganizationInviteRequest = z.infer<typeof RevokeOrganizationInviteRequestSchema>
 
 export type RevokeOrganizationInviteResponse = z.infer<typeof OkResponseSchema>
-export const RevokeOrganizationInviteResponseSchema: z.ZodType<RevokeOrganizationInviteResponse, unknown> =
-  OkResponseSchema
+export const RevokeOrganizationInviteResponseSchema: z.ZodType<
+  RevokeOrganizationInviteResponse,
+  unknown
+> = OkResponseSchema
 
 export const ACCEPT_ORG_INVITE_TOKEN_MIN = 20
 export const ACCEPT_ORG_INVITE_TOKEN_MAX = 128
@@ -216,9 +237,13 @@ const AcceptOrganizationInviteResponseObjectSchema = z.object({
   organization: OrganizationDTOSchema,
   role: OrganizationMemberRoleSchema,
 })
-export type AcceptOrganizationInviteResponse = z.infer<typeof AcceptOrganizationInviteResponseObjectSchema>
-export const AcceptOrganizationInviteResponseSchema: z.ZodType<AcceptOrganizationInviteResponse, unknown> =
-  AcceptOrganizationInviteResponseObjectSchema
+export type AcceptOrganizationInviteResponse = z.infer<
+  typeof AcceptOrganizationInviteResponseObjectSchema
+>
+export const AcceptOrganizationInviteResponseSchema: z.ZodType<
+  AcceptOrganizationInviteResponse,
+  unknown
+> = AcceptOrganizationInviteResponseObjectSchema
 
 /**
  * The invitee's view of a pending org invite (DECISIONS §34). No `email` field: the reader already
@@ -303,7 +328,10 @@ export const ApplyOrganizationVerificationRequestSchema = z
       .regex(/^\d{2}-?\d{7}$/)
       .nullable()
       .optional(),
-    documents: z.array(OrgVerificationDocumentSchema).max(MAX_ORG_VERIFICATION_DOCUMENTS).default([]),
+    documents: z
+      .array(OrgVerificationDocumentSchema)
+      .max(MAX_ORG_VERIFICATION_DOCUMENTS)
+      .default([]),
     note: z.string().max(MAX_ORG_VERIFICATION_NOTE).nullable().optional(),
   })
   .strict()

@@ -3,7 +3,7 @@ import { def } from "./def.js"
 import { GetLegalVersionsResponseSchema } from "../../schemas/legal.js"
 import { AppConfigResponseSchema } from "../../schemas/app-config.js"
 
-const HealthzResponseSchema = z.object({ ok: z.literal(true) }).passthrough()
+const HealthzResponseSchema = z.looseObject({ ok: z.literal(true) })
 
 export const systemEndpoints = {
   health: def({

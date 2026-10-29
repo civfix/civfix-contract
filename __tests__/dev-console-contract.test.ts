@@ -41,13 +41,13 @@ const registry = endpoints as Record<
   | undefined
 >
 
-function accepts(schema: z.ZodTypeAny, input: unknown): unknown {
+function accepts(schema: z.ZodType, input: unknown): unknown {
   const r = schema.safeParse(input)
   expect(r.success, JSON.stringify(input)).toBe(true)
   return r.data
 }
 
-function rejects(schema: z.ZodTypeAny, input: unknown): void {
+function rejects(schema: z.ZodType, input: unknown): void {
   expect(schema.safeParse(input).success, JSON.stringify(input)).toBe(false)
 }
 
@@ -183,6 +183,7 @@ describe("runtimeFlagValueSchema", () => {
   })
 
   it("T10: an unknown key takes no value at all", () => {
+    expect.hasAssertions()
     const s = runtimeFlagValueSchema("not_a_flag")
     for (const bad of [true, "x", null]) rejects(s, bad)
   })
@@ -225,7 +226,9 @@ describe("runtime flag admin schemas", () => {
   }
 
   it("T12: parses the flag list and rejects a bad source, value or operator", () => {
-    expect(accepts(AdminListRuntimeFlagsResponseSchema, { flags: [A, B] })).toEqual({ flags: [A, B] })
+    expect(accepts(AdminListRuntimeFlagsResponseSchema, { flags: [A, B] })).toEqual({
+      flags: [A, B],
+    })
     rejects(RuntimeFlagStateDTOSchema, { ...A, fallbackSource: "override" })
     rejects(RuntimeFlagStateDTOSchema, { ...A, value: 3 })
     rejects(RuntimeFlagStateDTOSchema, { ...A, updatedBy: { id: UUID } })
@@ -295,6 +298,7 @@ describe("developer overview", () => {
   })
 
   it("T15: rejects an unknown environment or seam mode, a capitalized seam and a missing API field", () => {
+    expect.hasAssertions()
     rejects(AdminDevOverviewResponseSchema, { ...full, environment: "production" })
     rejects(AdminDevOverviewResponseSchema, {
       ...full,
@@ -354,7 +358,10 @@ describe("developer jobs", () => {
 describe("developer test tools", () => {
   it("T18: force update takes a trimmed valid email and a boolean, nothing else", () => {
     expect(
-      accepts(AdminDevSetForceUpdateRequestSchema, { email: "  tester1@civfix.org ", enabled: true }),
+      accepts(AdminDevSetForceUpdateRequestSchema, {
+        email: "  tester1@civfix.org ",
+        enabled: true,
+      }),
     ).toEqual({ email: "tester1@civfix.org", enabled: true })
     for (const bad of [
       { email: "not-an-email", enabled: true },
@@ -368,7 +375,9 @@ describe("developer test tools", () => {
   it("T19: both force update endpoints answer with the account list", () => {
     const one = { accounts: [{ userId: UUID, email: "tester1@civfix.org", expiresAt: T }] }
     expect(accepts(AdminDevForceUpdateListResponseSchema, one)).toEqual(one)
-    expect(accepts(AdminDevForceUpdateListResponseSchema, { accounts: [] })).toEqual({ accounts: [] })
+    expect(accepts(AdminDevForceUpdateListResponseSchema, { accounts: [] })).toEqual({
+      accounts: [],
+    })
     expect(registry.adminDevListForceUpdate?.response).toBe(AdminDevForceUpdateListResponseSchema)
     expect(registry.adminDevSetForceUpdate?.response).toBe(AdminDevForceUpdateListResponseSchema)
     rejects(AdminDevForceUpdateListResponseSchema, {
@@ -452,7 +461,15 @@ describe("developer console endpoints", () => {
         false,
         AdminDevOverviewResponseSchema,
       ],
-      ["adminDevJobs", "GET", "/admin/dev/jobs", null, "required", false, AdminDevJobsResponseSchema],
+      [
+        "adminDevJobs",
+        "GET",
+        "/admin/dev/jobs",
+        null,
+        "required",
+        false,
+        AdminDevJobsResponseSchema,
+      ],
       [
         "adminDevRunJob",
         "POST",
@@ -511,7 +528,10 @@ describe("developer console endpoints", () => {
     for (const [name, method, path, request, auth, csrf, response] of expected) {
       const e = registry[name]
       expect(e, name).toBeDefined()
-      expect({ method: e!.method, path: e!.path, auth: e!.auth, csrf: e!.csrf, version: e!.version }, name).toEqual({
+      expect(
+        { method: e!.method, path: e!.path, auth: e!.auth, csrf: e!.csrf, version: e!.version },
+        name,
+      ).toEqual({
         method,
         path,
         auth,
@@ -527,9 +547,30 @@ describe("developer console endpoints", () => {
 describe("developer console client", () => {
   it("T26: fills the flag key and job name into the path and sends the flag value", async () => {
     const calls: Array<{ url: string; init: RequestInit }> = []
-    const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+    // Each call answers with a body its response schema accepts, so the client logs no mismatch warning.
+    const bodies: Record<string, unknown> = {
+      "/v1/admin/dev/flags/announcement_text": {
+        key: "announcement_text",
+        value: null,
+        override: null,
+        fallback: null,
+        fallbackSource: "default",
+        updatedAt: null,
+        updatedBy: null,
+      },
+      "/v1/admin/dev/jobs/inbound.sweep/run": { enqueued: true },
+      "/v1/app/config": {
+        minAppVersion: { ios: null, android: null },
+        storeUrl: { ios: null, android: PLAY },
+        announcement: null,
+      },
+    }
+    const fetchImpl = vi.fn(async (url: string | URL, init?: RequestInit) => {
       calls.push({ url: String(url), init: init ?? {} })
-      return new Response("{}", { status: 200, headers: { "content-type": "application/json" } })
+      return new Response(JSON.stringify(bodies[new URL(url).pathname]), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })
     }) as unknown as typeof fetch
     const client = createApiClient({
       baseURL: "https://api.civfix.test",

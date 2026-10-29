@@ -15,7 +15,6 @@ import { ChatMessageDTOSchema } from "../src/schemas/entities.js"
 import { UserDTOSchema } from "../src/schemas/auth.js"
 import { endpoints } from "../src/client/endpoints.js"
 
-
 const ID = "123e4567-e89b-12d3-a456-426614174000"
 const ID2 = "223e4567-e89b-12d3-a456-426614174000"
 
@@ -45,8 +44,12 @@ describe("search result DTO is minimal (no PII)", () => {
 
   it("requires a non-null handle (only handled users are searchable)", () => {
     expect(
-      UserSearchResultDTOSchema.safeParse({ id: ID, handle: null, displayName: "Jane", avatar: null })
-        .success,
+      UserSearchResultDTOSchema.safeParse({
+        id: ID,
+        handle: null,
+        displayName: "Jane",
+        avatar: null,
+      }).success,
     ).toBe(false)
   })
 })

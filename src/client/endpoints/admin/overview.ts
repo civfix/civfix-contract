@@ -1,6 +1,9 @@
 import { def } from "../def.js"
 import { HomeSummaryResponseSchema, HomeMapResponseSchema } from "../../../schemas/admin/home.js"
-import { ActivityListQuerySchema, ActivityListResponseSchema } from "../../../schemas/admin/activity.js"
+import {
+  ActivityListQuerySchema,
+  ActivityListResponseSchema,
+} from "../../../schemas/admin/activity.js"
 import { AuditListQuerySchema, AuditListResponseSchema } from "../../../schemas/admin/audit.js"
 import { SystemHealthResponseSchema } from "../../../schemas/admin/system.js"
 

@@ -20,7 +20,6 @@ import {
 } from "../entities.js"
 import { EventQuestionDTOSchema } from "./questions.js"
 
-
 export {
   EventPageDTOSchema,
   EventPageBlockSchema,
@@ -28,12 +27,7 @@ export {
   EventPageSeoSchema,
   MAX_EVENT_PAGE_BLOCKS,
 } from "../entities.js"
-export type {
-  EventPageDTO,
-  EventPageBlock,
-  EventPageTheme,
-  EventPageSeo,
-} from "../entities.js"
+export type { EventPageDTO, EventPageBlock, EventPageTheme, EventPageSeo } from "../entities.js"
 export { EventPageStatusSchema, EventPageBlockKindSchema, ThemeAccentSchema } from "../common.js"
 export type { EventPageStatus, EventPageBlockKind, ThemeAccent } from "../common.js"
 

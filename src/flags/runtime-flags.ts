@@ -40,7 +40,8 @@ export const RUNTIME_FLAGS = [
   {
     key: "host_messaging_kill_switch",
     label: "Host messaging kill switch",
-    description: "Stops every message organizers send to their guests, including ones already sending.",
+    description:
+      "Stops every message organizers send to their guests, including ones already sending.",
     type: "boolean",
     default: false,
     envFallback: "HOST_MESSAGING_KILL_SWITCH",
@@ -130,7 +131,7 @@ function valueSchema(flag: RuntimeFlagDef): z.ZodType<RuntimeFlagValue, unknown>
     case "semver":
       return z.string().trim().regex(SEMVER_RE).nullable()
     case "url":
-      return z.string().trim().url().startsWith(flag.urlPrefix).nullable()
+      return z.string().trim().check(z.url()).startsWith(flag.urlPrefix).nullable()
     case "text":
       return z.string().trim().min(1).max(flag.maxLength).nullable()
     case "choice":

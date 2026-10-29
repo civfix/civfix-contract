@@ -7,7 +7,6 @@ import {
 } from "../common.js"
 import { CleanupStatusSchema, LeaderboardEntryDTOSchema } from "../entities.js"
 
-
 export const MAX_INSIGHTS_TREND_DAYS = 400
 export const MAX_INSIGHTS_TICKET_TYPES = 50
 export const MAX_INSIGHTS_BROADCASTS = 50

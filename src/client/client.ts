@@ -17,31 +17,31 @@ export type MaybeAsync<T> = T | Promise<T>
 export interface CreateApiClientOptions {
   baseURL: string
   /** Returns auth headers (e.g. { Authorization: "Bearer ..." }) for required/optional endpoints. */
-  getAuthHeader?: () => MaybeAsync<HeaderInit | undefined>
+  getAuthHeader?: (() => MaybeAsync<HeaderInit | undefined>) | undefined
   /** Returns the CSRF token value injected as `x-csrf-token` for csrf endpoints. */
-  getCsrfToken?: () => MaybeAsync<string | undefined>
+  getCsrfToken?: (() => MaybeAsync<string | undefined>) | undefined
   /** Injected fetch. Defaults to globalThis.fetch (works in browser, RN, and Node 22). */
-  fetchImpl?: typeof fetch
+  fetchImpl?: typeof fetch | undefined
   /** Called whenever a 401 is observed, before the AppError is thrown. */
-  onUnauthorized?: () => void
+  onUnauthorized?: (() => void) | undefined
   /** Default headers merged into every request. */
-  defaultHeaders?: HeaderInit
+  defaultHeaders?: HeaderInit | undefined
 }
 
 /** Per-call options for the low-level request method. */
 export interface RequestArgs {
-  params?: Record<string, string | number>
-  query?: Record<string, unknown>
+  params?: Record<string, string | number> | undefined
+  query?: Record<string, unknown> | undefined
   /**
    * Input keys to exclude from the serialized query because they were already consumed as PATH params.
    * Prevents a path-param key (e.g. `cleanupId` for /cleanups/:id/messages) from being duplicated into
    * the query string. Only meaningful alongside `query`.
    */
-  queryOmitKeys?: ReadonlySet<string>
+  queryOmitKeys?: ReadonlySet<string> | undefined
   body?: unknown
-  signal?: AbortSignal
+  signal?: AbortSignal | undefined
   /** Extra headers for this call only. */
-  headers?: HeaderInit
+  headers?: HeaderInit | undefined
 }
 
 const CSRF_HEADER = "x-csrf-token"
@@ -50,7 +50,7 @@ const CSRF_HEADER = "x-csrf-token"
 export function fillPath(path: string, params?: Record<string, string | number>): string {
   return path.replace(/:([A-Za-z0-9_]+)/g, (_m, name: string) => {
     const value = params?.[name]
-    if (value === undefined || value === null) {
+    if (value == null) {
       throw new AppError(ErrorCode.VALIDATION, `Missing path param ":${name}" for ${path}`)
     }
     return encodeURIComponent(String(value))
@@ -64,7 +64,10 @@ export function fillPath(path: string, params?: Record<string, string | number>)
  * `?cleanupId=...`). Conventions: arrays repeat the key; nested objects (bbox, near, ...) are
  * JSON-encoded so they survive the query string; scalars are stringified.
  */
-export function buildQuery(query?: Record<string, unknown>, omitKeys?: ReadonlySet<string>): string {
+export function buildQuery(
+  query?: Record<string, unknown>,
+  omitKeys?: ReadonlySet<string>,
+): string {
   if (!query) return ""
   const sp = new URLSearchParams()
   for (const [key, value] of Object.entries(query)) {
@@ -74,8 +77,18 @@ export function buildQuery(query?: Record<string, unknown>, omitKeys?: ReadonlyS
       for (const v of value) sp.append(key, String(v))
     } else if (typeof value === "object") {
       sp.append(key, JSON.stringify(value))
-    } else {
+    } else if (
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean" ||
+      typeof value === "bigint"
+    ) {
       sp.append(key, String(value))
+    } else {
+      throw new AppError(
+        ErrorCode.VALIDATION,
+        `Query param "${key}" is a ${typeof value}, which has no query form`,
+      )
     }
   }
   const qs = sp.toString()
@@ -130,7 +143,7 @@ export async function parseError(res: Response, requestId?: string): Promise<App
  */
 const endpointNames: WeakMap<object, string> = new WeakMap()
 for (const name of Object.keys(endpoints) as EndpointName[]) {
-  endpointNames.set(endpoints[name] as unknown as object, name)
+  endpointNames.set(endpoints[name], name)
 }
 
 /** Endpoint names already warned about, so a mismatching server logs once instead of per call. */
@@ -146,14 +159,14 @@ const warnedEndpoints = new Set<string>()
  * testing.
  */
 export function parseResponse<Res>(
-  endpoint: EndpointDef<z.ZodTypeAny | null, z.ZodTypeAny>,
+  endpoint: EndpointDef<z.ZodType | null, z.ZodType>,
   data: unknown,
 ): Res {
   // No body (204, or an unparsable/empty payload): nothing to validate.
   if (data === undefined) return data as Res
   const parsed = endpoint.response.safeParse(data)
   if (parsed.success) return parsed.data as Res
-  const name = endpointNames.get(endpoint as unknown as object) ?? `${endpoint.method} ${endpoint.path}`
+  const name = endpointNames.get(endpoint) ?? `${endpoint.method} ${endpoint.path}`
   if (!warnedEndpoints.has(name)) {
     warnedEndpoints.add(name)
     console.warn(
@@ -177,7 +190,7 @@ type Extra = Omit<RequestArgs, "body" | "query" | "params">
 
 /** Typed method surface generated from the endpoint registry. */
 export type ApiMethods = {
-  [N in EndpointName]: Endpoints[N]["request"] extends z.ZodTypeAny
+  [N in EndpointName]: Endpoints[N]["request"] extends z.ZodType
     ? // Endpoint has a typed request (query for GET, body otherwise). Path params, if any, are
       // read from the request object by name, so the single typed input is enough.
       (input: RequestOf<N>, extra?: Extra) => Promise<ResponseOf<N>>
@@ -190,10 +203,7 @@ export type ApiMethods = {
 
 export interface ApiClient extends ApiMethods {
   /** Low-level escape hatch: call any endpoint descriptor with explicit params/query/body. */
-  request<Res>(
-    endpoint: EndpointDef<z.ZodTypeAny | null, z.ZodTypeAny>,
-    args?: RequestArgs,
-  ): Promise<Res>
+  request<Res>(endpoint: EndpointDef<z.ZodType | null, z.ZodType>, args?: RequestArgs): Promise<Res>
 }
 
 /**
@@ -210,7 +220,7 @@ export function createApiClient(opts: CreateApiClientOptions): ApiClient {
   }
 
   async function request<Res>(
-    endpoint: EndpointDef<z.ZodTypeAny | null, z.ZodTypeAny>,
+    endpoint: EndpointDef<z.ZodType | null, z.ZodType>,
     args: RequestArgs = {},
   ): Promise<Res> {
     const url =
@@ -273,7 +283,7 @@ export function createApiClient(opts: CreateApiClientOptions): ApiClient {
   const client = { request } as ApiClient
 
   for (const name of Object.keys(endpoints) as EndpointName[]) {
-    const endpoint = endpoints[name] as EndpointDef<z.ZodTypeAny | null, z.ZodTypeAny>
+    const endpoint = endpoints[name] as EndpointDef<z.ZodType | null, z.ZodType>
     const hasInput = endpoint.request !== null
     const isQuery = endpoint.method === "GET"
     const pathHasParams = /:[A-Za-z0-9_]+/.test(endpoint.path)
@@ -284,7 +294,7 @@ export function createApiClient(opts: CreateApiClientOptions): ApiClient {
         // is the optional per-call extra.
         if (pathHasParams) {
           const params = firstArg as Record<string, string | number> | undefined
-          const extra = (maybeExtra ?? {}) as RequestArgs
+          const extra = maybeExtra ?? {}
           return request(endpoint, { ...extra, params })
         }
         const extra = (firstArg ?? {}) as RequestArgs
@@ -292,7 +302,7 @@ export function createApiClient(opts: CreateApiClientOptions): ApiClient {
       }
 
       const input = firstArg
-      const extra = (maybeExtra ?? {}) as RequestArgs
+      const extra = maybeExtra ?? {}
       // For GET requests the input is the typed query; for others it is the JSON body. Declared
       // path params are pulled from the input object by name (and the keys they consumed are reported
       // so they can be excluded from the GET query rather than duplicated).

@@ -33,21 +33,21 @@ export const PostComposeInputSchema = z
   .superRefine((v, ctx) => {
     if (v.kind === "quote" && !v.repostOfId) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: "A quote post requires repostOfId (the quoted post).",
         path: ["repostOfId"],
       })
     }
     if (v.kind === "reply" && !v.replyToId) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: "A reply requires replyToId (the parent post).",
         path: ["replyToId"],
       })
     }
     if (v.kind === "repost" && v.organizationId) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: "A repost cannot be attributed to an organization.",
         path: ["organizationId"],
       })
@@ -57,7 +57,7 @@ export const PostComposeInputSchema = z
     const hasMedia = v.mediaUploadIds.length > 0
     if (!hasBody && !hasAttachment && !hasMedia) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: "A post must have a body, an attached event/report, or media.",
         path: ["body"],
       })
@@ -109,7 +109,7 @@ export const FEED_SCORE_CURSOR_PRECISION = 6
 
 export const FeedScoreCursorSchema = z
   .object({
-    score: z.number().finite().nonnegative(),
+    score: z.number().nonnegative(),
     postId: IdSchema,
   })
   .strict()

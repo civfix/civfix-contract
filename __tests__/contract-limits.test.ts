@@ -81,8 +81,12 @@ describe("exported contract limits are the schema boundaries", () => {
     expect(HostEventEmailSchema.safeParse(email(EMAIL_MAX_LENGTH)).success).toBe(true)
     expect(HostEventEmailSchema.safeParse(email(EMAIL_MAX_LENGTH + 1)).success).toBe(false)
     const invite = (identifier: string) =>
-      InviteOrganizationMemberRequestSchema.safeParse({ id: ID, identifierKind: "email", identifier, role: "member" })
-        .success
+      InviteOrganizationMemberRequestSchema.safeParse({
+        id: ID,
+        identifierKind: "email",
+        identifier,
+        role: "member",
+      }).success
     expect(invite(email(EMAIL_MAX_LENGTH))).toBe(true)
     expect(invite(email(EMAIL_MAX_LENGTH + 1))).toBe(false)
     const guest = (value: string) =>
@@ -157,17 +161,36 @@ describe("exported contract limits are the schema boundaries", () => {
 
   it("poll bounds bound CreatePollRequest and VotePollRequest", () => {
     const poll = (question: string, options: string[]) =>
-      CreatePollRequestSchema.safeParse({ roomKind: "group", roomId: ID, question, options }).success
+      CreatePollRequestSchema.safeParse({ roomKind: "group", roomId: ID, question, options })
+        .success
     const two = ["a", "b"]
-    expect([POLL_QUESTION_MAX, POLL_OPTION_MAX, POLL_MIN_OPTIONS, POLL_MAX_OPTIONS]).toEqual([300, 100, 2, 10])
+    expect([POLL_QUESTION_MAX, POLL_OPTION_MAX, POLL_MIN_OPTIONS, POLL_MAX_OPTIONS]).toEqual([
+      300, 100, 2, 10,
+    ])
     expect(poll("q".repeat(POLL_QUESTION_MAX), two)).toBe(true)
     expect(poll("q".repeat(POLL_QUESTION_MAX + 1), two)).toBe(false)
     expect(poll("q", ["o".repeat(POLL_OPTION_MAX), "b"])).toBe(true)
     expect(poll("q", ["o".repeat(POLL_OPTION_MAX + 1), "b"])).toBe(false)
-    expect(poll("q", Array.from({ length: POLL_MIN_OPTIONS - 1 }, () => "a"))).toBe(false)
-    expect(poll("q", Array.from({ length: POLL_MAX_OPTIONS }, () => "a"))).toBe(true)
-    expect(poll("q", Array.from({ length: POLL_MAX_OPTIONS + 1 }, () => "a"))).toBe(false)
-    const vote = (optionIdxs: number[]) => VotePollRequestSchema.safeParse({ messageId: ID, optionIdxs }).success
+    expect(
+      poll(
+        "q",
+        Array.from({ length: POLL_MIN_OPTIONS - 1 }, () => "a"),
+      ),
+    ).toBe(false)
+    expect(
+      poll(
+        "q",
+        Array.from({ length: POLL_MAX_OPTIONS }, () => "a"),
+      ),
+    ).toBe(true)
+    expect(
+      poll(
+        "q",
+        Array.from({ length: POLL_MAX_OPTIONS + 1 }, () => "a"),
+      ),
+    ).toBe(false)
+    const vote = (optionIdxs: number[]) =>
+      VotePollRequestSchema.safeParse({ messageId: ID, optionIdxs }).success
     expect(vote([POLL_MAX_OPTIONS - 1])).toBe(true)
     expect(vote([POLL_MAX_OPTIONS])).toBe(false)
   })
@@ -176,10 +199,13 @@ describe("exported contract limits are the schema boundaries", () => {
     expect([CHAT_GROUP_NAME_MAX, CHAT_GROUP_DESCRIPTION_MAX]).toEqual([80, 500])
     const create = (name: string, description: string) =>
       CreateChatGroupRequestSchema.safeParse({ name, description }).success
-    expect(create("n".repeat(CHAT_GROUP_NAME_MAX), "d".repeat(CHAT_GROUP_DESCRIPTION_MAX))).toBe(true)
+    expect(create("n".repeat(CHAT_GROUP_NAME_MAX), "d".repeat(CHAT_GROUP_DESCRIPTION_MAX))).toBe(
+      true,
+    )
     expect(create("n".repeat(CHAT_GROUP_NAME_MAX + 1), "")).toBe(false)
     expect(create("n", "d".repeat(CHAT_GROUP_DESCRIPTION_MAX + 1))).toBe(false)
-    const update = (name: string) => UpdateChatGroupRequestSchema.safeParse({ id: ID, name }).success
+    const update = (name: string) =>
+      UpdateChatGroupRequestSchema.safeParse({ id: ID, name }).success
     expect(update("n".repeat(CHAT_GROUP_NAME_MAX))).toBe(true)
     expect(update("n".repeat(CHAT_GROUP_NAME_MAX + 1))).toBe(false)
   })
@@ -196,20 +222,29 @@ describe("exported contract limits are the schema boundaries", () => {
         mediaUploadIds: [],
         ...fields,
       }).success
-    expect([MAX_REPORT_TITLE_LENGTH, MAX_REPORT_DESCRIPTION_LENGTH, MAX_REPORT_MEDIA]).toEqual([120, 2000, 5])
+    expect([MAX_REPORT_TITLE_LENGTH, MAX_REPORT_DESCRIPTION_LENGTH, MAX_REPORT_MEDIA]).toEqual([
+      120, 2000, 5,
+    ])
     expect(report({})).toBe(true)
     expect(report({ title: "t".repeat(MAX_REPORT_TITLE_LENGTH) })).toBe(true)
     expect(report({ title: "t".repeat(MAX_REPORT_TITLE_LENGTH + 1) })).toBe(false)
     expect(report({ description: "d".repeat(MAX_REPORT_DESCRIPTION_LENGTH) })).toBe(true)
     expect(report({ description: "d".repeat(MAX_REPORT_DESCRIPTION_LENGTH + 1) })).toBe(false)
-    expect(report({ mediaUploadIds: Array.from({ length: MAX_REPORT_MEDIA }, () => ID) })).toBe(true)
-    expect(report({ mediaUploadIds: Array.from({ length: MAX_REPORT_MEDIA + 1 }, () => ID) })).toBe(false)
+    expect(report({ mediaUploadIds: Array.from({ length: MAX_REPORT_MEDIA }, () => ID) })).toBe(
+      true,
+    )
+    expect(report({ mediaUploadIds: Array.from({ length: MAX_REPORT_MEDIA + 1 }, () => ID) })).toBe(
+      false,
+    )
   })
 
   it("event caps bound create, update, cancel and the resources request", () => {
-    expect([MAX_EVENT_TITLE, MAX_EVENT_DESCRIPTION, MAX_EVENT_CANCEL_REASON, MAX_EVENT_RESOURCES_MESSAGE]).toEqual([
-      120, 2000, 500, 2000,
-    ])
+    expect([
+      MAX_EVENT_TITLE,
+      MAX_EVENT_DESCRIPTION,
+      MAX_EVENT_CANCEL_REASON,
+      MAX_EVENT_RESOURCES_MESSAGE,
+    ]).toEqual([120, 2000, 500, 2000])
     const update = (fields: Record<string, unknown>) =>
       UpdateCleanupRequestSchema.safeParse({ id: ID, ...fields }).success
     expect(update({ title: "t".repeat(MAX_EVENT_TITLE) })).toBe(true)
@@ -217,7 +252,8 @@ describe("exported contract limits are the schema boundaries", () => {
     expect(update({ description: "d".repeat(MAX_EVENT_DESCRIPTION) })).toBe(true)
     expect(update({ description: "d".repeat(MAX_EVENT_DESCRIPTION + 1) })).toBe(false)
     expect(CreateCleanupRequestSchema.shape.title.maxLength).toBe(MAX_EVENT_TITLE)
-    const cancel = (reason: string) => CancelCleanupRequestSchema.safeParse({ id: ID, reason }).success
+    const cancel = (reason: string) =>
+      CancelCleanupRequestSchema.safeParse({ id: ID, reason }).success
     expect(cancel("r".repeat(MAX_EVENT_CANCEL_REASON))).toBe(true)
     expect(cancel("r".repeat(MAX_EVENT_CANCEL_REASON + 1))).toBe(false)
     const resources = (message: string) =>
@@ -227,37 +263,80 @@ describe("exported contract limits are the schema boundaries", () => {
   })
 
   it("EVENT_PAGE_BLOCK_LIMITS bound the page block fields", () => {
-    const block = (value: Record<string, unknown>) => EventPageBlockSchema.safeParse({ id: "b1", ...value }).success
+    const block = (value: Record<string, unknown>) =>
+      EventPageBlockSchema.safeParse({ id: "b1", ...value }).success
     const L = EVENT_PAGE_BLOCK_LIMITS
     const text = (n: number) => "x".repeat(n)
-    expect(block({ kind: "hero", headline: text(L.heroHeadline), subhead: text(L.heroSubhead) })).toBe(true)
+    expect(
+      block({ kind: "hero", headline: text(L.heroHeadline), subhead: text(L.heroSubhead) }),
+    ).toBe(true)
     expect(block({ kind: "hero", headline: text(L.heroHeadline + 1) })).toBe(false)
     expect(block({ kind: "hero", subhead: text(L.heroSubhead + 1) })).toBe(false)
     expect(block({ kind: "location", title: text(L.title), note: text(L.text) })).toBe(true)
     expect(block({ kind: "location", title: text(L.title + 1) })).toBe(false)
     expect(block({ kind: "location", note: text(L.text + 1) })).toBe(false)
-    const agendaItem = { time: text(L.agendaTime), title: text(L.agendaItemTitle), description: text(L.rowDescription) }
-    expect(block({ kind: "agenda", items: Array.from({ length: L.agendaItems }, () => agendaItem) })).toBe(true)
-    expect(block({ kind: "agenda", items: Array.from({ length: L.agendaItems + 1 }, () => agendaItem) })).toBe(false)
-    expect(block({ kind: "agenda", items: [{ ...agendaItem, time: text(L.agendaTime + 1) }] })).toBe(false)
-    expect(block({ kind: "agenda", items: [{ ...agendaItem, title: text(L.agendaItemTitle + 1) }] })).toBe(false)
-    expect(block({ kind: "agenda", items: [{ ...agendaItem, description: text(L.rowDescription + 1) }] })).toBe(false)
-    const hostEntry = { name: text(L.entryName), role: text(L.hostRole), bio: text(L.rowDescription) }
-    expect(block({ kind: "hosts", entries: Array.from({ length: L.hostEntries }, () => hostEntry) })).toBe(true)
-    expect(block({ kind: "hosts", entries: Array.from({ length: L.hostEntries + 1 }, () => hostEntry) })).toBe(false)
-    expect(block({ kind: "hosts", entries: [{ ...hostEntry, name: text(L.entryName + 1) }] })).toBe(false)
-    expect(block({ kind: "hosts", entries: [{ ...hostEntry, role: text(L.hostRole + 1) }] })).toBe(false)
-    expect(block({ kind: "hosts", entries: [{ ...hostEntry, bio: text(L.rowDescription + 1) }] })).toBe(false)
-    const faq = { question: text(L.faqQuestion), answer: text(L.text) }
-    expect(block({ kind: "faq", items: Array.from({ length: L.faqItems }, () => faq) })).toBe(true)
-    expect(block({ kind: "faq", items: Array.from({ length: L.faqItems + 1 }, () => faq) })).toBe(false)
-    expect(block({ kind: "faq", items: [{ ...faq, question: text(L.faqQuestion + 1) }] })).toBe(false)
-    expect(block({ kind: "faq", items: [{ ...faq, answer: text(L.text + 1) }] })).toBe(false)
-    const sponsor = { name: text(L.entryName) }
-    expect(block({ kind: "sponsors", entries: Array.from({ length: L.sponsorEntries }, () => sponsor) })).toBe(true)
-    expect(block({ kind: "sponsors", entries: Array.from({ length: L.sponsorEntries + 1 }, () => sponsor) })).toBe(
+    const agendaItem = {
+      time: text(L.agendaTime),
+      title: text(L.agendaItemTitle),
+      description: text(L.rowDescription),
+    }
+    expect(
+      block({ kind: "agenda", items: Array.from({ length: L.agendaItems }, () => agendaItem) }),
+    ).toBe(true)
+    expect(
+      block({ kind: "agenda", items: Array.from({ length: L.agendaItems + 1 }, () => agendaItem) }),
+    ).toBe(false)
+    expect(
+      block({ kind: "agenda", items: [{ ...agendaItem, time: text(L.agendaTime + 1) }] }),
+    ).toBe(false)
+    expect(
+      block({ kind: "agenda", items: [{ ...agendaItem, title: text(L.agendaItemTitle + 1) }] }),
+    ).toBe(false)
+    expect(
+      block({
+        kind: "agenda",
+        items: [{ ...agendaItem, description: text(L.rowDescription + 1) }],
+      }),
+    ).toBe(false)
+    const hostEntry = {
+      name: text(L.entryName),
+      role: text(L.hostRole),
+      bio: text(L.rowDescription),
+    }
+    expect(
+      block({ kind: "hosts", entries: Array.from({ length: L.hostEntries }, () => hostEntry) }),
+    ).toBe(true)
+    expect(
+      block({ kind: "hosts", entries: Array.from({ length: L.hostEntries + 1 }, () => hostEntry) }),
+    ).toBe(false)
+    expect(block({ kind: "hosts", entries: [{ ...hostEntry, name: text(L.entryName + 1) }] })).toBe(
       false,
     )
+    expect(block({ kind: "hosts", entries: [{ ...hostEntry, role: text(L.hostRole + 1) }] })).toBe(
+      false,
+    )
+    expect(
+      block({ kind: "hosts", entries: [{ ...hostEntry, bio: text(L.rowDescription + 1) }] }),
+    ).toBe(false)
+    const faq = { question: text(L.faqQuestion), answer: text(L.text) }
+    expect(block({ kind: "faq", items: Array.from({ length: L.faqItems }, () => faq) })).toBe(true)
+    expect(block({ kind: "faq", items: Array.from({ length: L.faqItems + 1 }, () => faq) })).toBe(
+      false,
+    )
+    expect(block({ kind: "faq", items: [{ ...faq, question: text(L.faqQuestion + 1) }] })).toBe(
+      false,
+    )
+    expect(block({ kind: "faq", items: [{ ...faq, answer: text(L.text + 1) }] })).toBe(false)
+    const sponsor = { name: text(L.entryName) }
+    expect(
+      block({ kind: "sponsors", entries: Array.from({ length: L.sponsorEntries }, () => sponsor) }),
+    ).toBe(true)
+    expect(
+      block({
+        kind: "sponsors",
+        entries: Array.from({ length: L.sponsorEntries + 1 }, () => sponsor),
+      }),
+    ).toBe(false)
     expect(block({ kind: "donate", blurb: text(L.text + 1) })).toBe(false)
     expect(block({ kind: "registration", note: text(L.text + 1) })).toBe(false)
     expect(block({ kind: "contact", body: text(L.text + 1) })).toBe(false)
@@ -265,7 +344,8 @@ describe("exported contract limits are the schema boundaries", () => {
 
   it("MAX_ORG_VERIFICATION_NOTE caps the verification note", () => {
     const submit = (note: string) =>
-      ApplyOrganizationVerificationRequestSchema.safeParse({ id: ID, kind: "community", note }).success
+      ApplyOrganizationVerificationRequestSchema.safeParse({ id: ID, kind: "community", note })
+        .success
     expect(MAX_ORG_VERIFICATION_NOTE).toBe(1000)
     expect(submit("n".repeat(MAX_ORG_VERIFICATION_NOTE))).toBe(true)
     expect(submit("n".repeat(MAX_ORG_VERIFICATION_NOTE + 1))).toBe(false)
@@ -288,7 +368,8 @@ describe("exported contract limits are the schema boundaries", () => {
   })
 
   it("MAX_LEADERBOARD_OFFSET caps the leaderboard offset", () => {
-    const board = (offset: number) => LeaderboardQuerySchema.safeParse({ geoid: "06037", offset }).success
+    const board = (offset: number) =>
+      LeaderboardQuerySchema.safeParse({ geoid: "06037", offset }).success
     expect(MAX_LEADERBOARD_OFFSET).toBe(500)
     expect(board(MAX_LEADERBOARD_OFFSET)).toBe(true)
     expect(board(MAX_LEADERBOARD_OFFSET + 1)).toBe(false)
@@ -306,27 +387,40 @@ describe("exported contract limits are the schema boundaries", () => {
 describe("WsErrorCode", () => {
   it("names the socket-only codes the server sends", () => {
     expect(Object.values(WsErrorCode).sort()).toEqual(
-      ["BAD_FRAME", "BLOCKED", "channel_read_only", "reply_deleted_target", "reply_wrong_room"].sort(),
+      [
+        "BAD_FRAME",
+        "BLOCKED",
+        "channel_read_only",
+        "reply_deleted_target",
+        "reply_wrong_room",
+      ].sort(),
     )
   })
 
   it("keeps the error frame open to any string code, known or not", () => {
     for (const code of [...Object.values(WsErrorCode), "FORBIDDEN", "some_future_code", ""]) {
-      const parsed = WsServerMessageSchema.safeParse({ type: "error", code, message: "no", cleanupId: ID2 })
+      const parsed = WsServerMessageSchema.safeParse({
+        type: "error",
+        code,
+        message: "no",
+        cleanupId: ID2,
+      })
       expect(parsed.success, code).toBe(true)
       if (parsed.success && parsed.data.type === "error") expect(parsed.data.code).toBe(code)
     }
-    expect(WsServerMessageSchema.safeParse({ type: "error", code: 7, message: "no" }).success).toBe(false)
+    expect(WsServerMessageSchema.safeParse({ type: "error", code: 7, message: "no" }).success).toBe(
+      false,
+    )
   })
 })
 
 describe("turnstile actions", () => {
   it("are the action strings the backend verifies, exported from both the root and /host", () => {
-    expect([GUEST_RSVP_TURNSTILE_ACTION, ANON_REPORT_TURNSTILE_ACTION, HOME_TURF_TURNSTILE_ACTION]).toEqual([
-      "guest-rsvp",
-      "anon-report",
-      "home-turf",
-    ])
+    expect([
+      GUEST_RSVP_TURNSTILE_ACTION,
+      ANON_REPORT_TURNSTILE_ACTION,
+      HOME_TURF_TURNSTILE_ACTION,
+    ]).toEqual(["guest-rsvp", "anon-report", "home-turf"])
     expect(host.ANON_REPORT_TURNSTILE_ACTION).toBe(ANON_REPORT_TURNSTILE_ACTION)
     expect(host.HOME_TURF_TURNSTILE_ACTION).toBe(HOME_TURF_TURNSTILE_ACTION)
   })
@@ -341,7 +435,8 @@ describe("SupportedLocaleSchema", () => {
 
 describe("guest registration refusal reasons", () => {
   it("names the field and the reasons the backend refuses a guest registration with", async () => {
-    const { GUEST_REGISTRATION_ERROR_FIELD, GuestRegistrationRefusalReason } = await import("../src/index.js")
+    const { GUEST_REGISTRATION_ERROR_FIELD, GuestRegistrationRefusalReason } =
+      await import("../src/index.js")
     expect(GUEST_REGISTRATION_ERROR_FIELD).toBe("registration")
     expect(Object.values(GuestRegistrationRefusalReason).sort()).toEqual([
       "access_code_invalid",
@@ -359,10 +454,19 @@ describe("guest registration refusal reasons", () => {
 
 describe("content report details", () => {
   it("caps the free-text detail at CONTENT_REPORT_DETAILS_MAX", async () => {
-    const { CONTENT_REPORT_DETAILS_MAX, ReportContentRequestSchema } = await import("../src/index.js")
+    const { CONTENT_REPORT_DETAILS_MAX, ReportContentRequestSchema } =
+      await import("../src/index.js")
     expect(CONTENT_REPORT_DETAILS_MAX).toBe(1000)
-    const base = { subjectType: "post", subjectId: "00000000-0000-4000-8000-000000000001", reason: "spam" }
-    expect(ReportContentRequestSchema.safeParse({ ...base, details: "a".repeat(1000) }).success).toBe(true)
-    expect(ReportContentRequestSchema.safeParse({ ...base, details: "a".repeat(1001) }).success).toBe(false)
+    const base = {
+      subjectType: "post",
+      subjectId: "00000000-0000-4000-8000-000000000001",
+      reason: "spam",
+    }
+    expect(
+      ReportContentRequestSchema.safeParse({ ...base, details: "a".repeat(1000) }).success,
+    ).toBe(true)
+    expect(
+      ReportContentRequestSchema.safeParse({ ...base, details: "a".repeat(1001) }).success,
+    ).toBe(false)
   })
 })

@@ -48,7 +48,7 @@ export const GovClaimDTOSchema = z
     method: GovMethodSchema,
     status: GovClaimStatusSchema,
     age: z.string(),
-    contactEmail: z.string().email(),
+    contactEmail: z.email(),
     verified: z.array(GovVerificationCheckSchema),
     pending: z.array(GovVerificationCheckSchema),
     checks: GovChecksSchema,

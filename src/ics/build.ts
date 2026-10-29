@@ -13,21 +13,22 @@ export type IcsStatus = "CONFIRMED" | "TENTATIVE" | "CANCELLED"
 export interface IcsEventInput {
   uid: string
   title: string
-  description?: string
+  description?: string | undefined
   startsAt: string
-  endsAt?: string
-  timezone?: string
-  location?: string
-  url?: string
-  status?: IcsStatus
-  sequence?: number
-  organizer?: { name?: string; email?: string }
-  dtstamp?: string
+  endsAt?: string | undefined
+  timezone?: string | undefined
+  location?: string | undefined
+  url?: string | undefined
+  status?: IcsStatus | undefined
+  sequence?: number | undefined
+  organizer?: { name?: string | undefined; email?: string | undefined } | undefined
+  dtstamp?: string | undefined
 }
 
 function assertInstant(label: string, value: string): number {
   const ms = Date.parse(value)
-  if (!Number.isFinite(ms)) throw new RangeError(`buildIcs expects ${label} to be an ISO 8601 instant`)
+  if (!Number.isFinite(ms))
+    throw new RangeError(`buildIcs expects ${label} to be an ISO 8601 instant`)
   return ms
 }
 
@@ -44,14 +45,16 @@ function utcStamp(ms: number): string {
 }
 
 function escapeText(value: string): string {
-  return value
-    // eslint-disable-next-line no-control-regex -- ICS text must not carry control characters
-    .replace(/[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f]/gu, "")
-    .replace(/\\/gu, "\\\\")
-    .replace(/;/gu, "\\;")
-    .replace(/,/gu, "\\,")
-    .replace(/\r\n?/gu, "\n")
-    .replace(/\n/gu, "\\n")
+  return (
+    value
+      // eslint-disable-next-line no-control-regex -- ICS text must not carry control characters
+      .replace(/[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f]/gu, "")
+      .replace(/\\/gu, "\\\\")
+      .replace(/;/gu, "\\;")
+      .replace(/,/gu, "\\,")
+      .replace(/\r\n?/gu, "\n")
+      .replace(/\n/gu, "\\n")
+  )
 }
 
 function escapeParam(value: string): string {

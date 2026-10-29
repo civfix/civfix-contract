@@ -229,12 +229,16 @@ describe("arrivalsCurve", () => {
     expect(defaults.rows[0]?.offsetMinutes).toBe(-120)
     expect(defaults.rows[23]?.offsetMinutes).toBe(225)
     const ignored = arrivalsCurve([], { bucketMinutes: 0, fromMinutes: 1.5, toMinutes: Number.NaN })
-    expect(ignored.rows.map((r) => r.offsetMinutes)).toEqual(defaults.rows.map((r) => r.offsetMinutes))
+    expect(ignored.rows.map((r) => r.offsetMinutes)).toEqual(
+      defaults.rows.map((r) => r.offsetMinutes),
+    )
     expect(arrivalsCurve([], { bucketMinutes: -15 }).rows).toHaveLength(24)
     expect(arrivalsCurve([], { bucketMinutes: 7.5 }).rows).toHaveLength(24)
-    expect(arrivalsCurve([], { fromMinutes: -60, toMinutes: 0, bucketMinutes: 30 }).rows.map((r) => r.offsetMinutes)).toEqual([
-      -60, -30,
-    ])
+    expect(
+      arrivalsCurve([], { fromMinutes: -60, toMinutes: 0, bucketMinutes: 30 }).rows.map(
+        (r) => r.offsetMinutes,
+      ),
+    ).toEqual([-60, -30])
   })
 })
 
@@ -320,7 +324,6 @@ describe("seriesClosure cumulative view", () => {
   })
 })
 
-
 describe("complementary suppression across the daily, cumulative and total views", () => {
   const range = { from: "2026-05-01", to: "2026-05-03" }
   const points = [
@@ -367,7 +370,6 @@ describe("complementary suppression across the daily, cumulative and total views
     expect(cumulative.total).toBe(18)
   })
 })
-
 
 const K = 5
 const DAY0 = Date.UTC(2026, 4, 1)
@@ -438,7 +440,8 @@ function feasibleValues(values: readonly number[], k = K): Map<number, Set<numbe
 function prefixCuts(values: readonly number[], k = K): number[] {
   const published = publishedOf(values, k)
   const cuts = published.cumulative.flatMap((value, index) => (value === null ? [] : [index]))
-  if (published.cumulativeTotal !== null || published.dailyTotal !== null) cuts.push(values.length - 1)
+  if (published.cumulativeTotal !== null || published.dailyTotal !== null)
+    cuts.push(values.length - 1)
   return [...new Set(cuts)].sort((a, b) => a - b)
 }
 
@@ -526,7 +529,6 @@ describe("bounded inference: a hidden cell never narrows below the day rule", ()
     }
   })
 })
-
 
 function breakdownPublished(values: readonly number[], k = K) {
   const panel = breakdown(
