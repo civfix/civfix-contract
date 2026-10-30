@@ -2,7 +2,12 @@ import { z } from "zod"
 import { IdSchema, ISODateSchema, BBoxSchema, LatLngFields, LatLngSchema } from "./common.js"
 import { OkResponseSchema } from "./internal-fields.js"
 import type { GeoSuggestion } from "../geocode.js"
-import { AddressPrecisionSchema, EventKindSchema } from "./entities.js"
+import {
+  AddressPrecisionSchema,
+  EventKindSchema,
+  HTTP_URL_MAX_LENGTH,
+  HttpUrlSchema,
+} from "./entities.js"
 
 export const TileInfoResponseSchema = z.object({
   pmtilesUrl: z.string(),
@@ -112,7 +117,7 @@ export const SuggestContactRequestSchema = z
   .object({
     geoid: z.string().min(1),
     email: z.email().optional(),
-    formUrl: z.url().optional(),
+    formUrl: HttpUrlSchema.max(HTTP_URL_MAX_LENGTH).optional(),
     note: z.string().max(2000).optional(),
   })
   .strict()

@@ -43,6 +43,14 @@ export const HttpsUrlSchema = z
   .max(HTTPS_URL_MAX_LENGTH)
   .startsWith("https://")
 
+export const HTTP_URL_MAX_LENGTH = 2048
+
+// http as well as https: some city reporting forms are still served over plain http (DECISIONS §64).
+export const HttpUrlSchema = z
+  .string()
+  .trim()
+  .check(z.url({ protocol: /^https?$/ }))
+
 export const AvatarPairSchema = z.tuple([z.string(), z.string()]).nullable().optional()
 
 const OrganizationRefDTOObjectSchema = z.object({
