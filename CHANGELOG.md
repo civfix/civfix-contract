@@ -1,5 +1,11 @@
 # @civfix/contract
 
+## 0.66.0
+
+### Minor Changes
+
+- Link fields accept only http and https (DECISIONS §64). The new `HttpUrlSchema` trims, then accepts `http:` and `https:` links only, and rejects `javascript:`, `data:`, `file:`, `vbscript:`, `blob:` and scheme-relative `//host` links; it is exported with `HTTP_URL_MAX_LENGTH` (2048). `SuggestContactRequest.formUrl` and the `formUrl` of `PatchJurisdictionRequest`, `SaveContactsRequest` and `SaveDraftRequest` use it capped at 2048 characters, with their optional and nullable behavior unchanged. `JurisdictionDirectoryDTO.form` and `MailAttachment.url` use it with no length cap; no server sends anything else there.
+
 ## 0.65.0
 
 ### Minor Changes
