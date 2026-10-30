@@ -34,7 +34,6 @@ import { EventConsentInputSchema, RegisterOutcomeSchema } from "./host/registrat
 import { PageSlugSchema } from "./host/pages.js"
 import { EventTeamRoleSchema } from "./host/team.js"
 
-
 export { CleanupDTOSchema, CleanupTypeSchema, CleanupStatusSchema } from "./entities.js"
 export type { CleanupDTO, CleanupType, CleanupStatus } from "./entities.js"
 export { EventKindSchema, EVENT_KIND_VALUES, EVENT_KIND_LABELS } from "./entities.js"
@@ -271,7 +270,6 @@ export const RemoveMemberResponseSchema = z.object({
   going: z.number().int().nonnegative(),
 })
 export type RemoveMemberResponse = z.infer<typeof RemoveMemberResponseSchema>
-
 
 export const GuestContactChannelSchema = z.enum(["email", "sms"])
 export type GuestContactChannel = z.infer<typeof GuestContactChannelSchema>

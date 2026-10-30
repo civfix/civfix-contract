@@ -36,8 +36,16 @@ export const FORWARD_TEMPLATE_VARIABLES: readonly ForwardTemplateVariable[] = [
     description: "The report category label (e.g. Trash, Graffiti, Hazard).",
   },
   { token: "{status}", label: "Status", description: "The report's current status label." },
-  { token: "{place}", label: "Place", description: "The human-readable place / neighborhood name." },
-  { token: "{address}", label: "Address", description: "The street address of the report location." },
+  {
+    token: "{place}",
+    label: "Place",
+    description: "The human-readable place / neighborhood name.",
+  },
+  {
+    token: "{address}",
+    label: "Address",
+    description: "The street address of the report location.",
+  },
   {
     token: "{coordinates}",
     label: "Coordinates",
@@ -78,7 +86,8 @@ export const FORWARD_TEMPLATE_VARIABLES: readonly ForwardTemplateVariable[] = [
   {
     token: "{photoLinks}",
     label: "Photo links",
-    description: "One line per photo or video, numbered by kind (e.g. - Photo 1: <link>), or (none).",
+    description:
+      "One line per photo or video, numbered by kind (e.g. - Photo 1: <link>), or (none).",
   },
   {
     token: "{photoCount}",
@@ -155,24 +164,37 @@ interface ScanStep {
 function scanDoubleBraces(template: string, start: number, nameStart: number): ScanStep {
   const n = template.length
   let close = nameStart
-  while (close < n && close - nameStart < MAX_TOKEN_NAME && template[close] !== "}" && template[close] !== "{") {
+  while (
+    close < n &&
+    close - nameStart < MAX_TOKEN_NAME &&
+    template[close] !== "}" &&
+    template[close] !== "{"
+  ) {
     close += 1
   }
   while (close < n && template[close] === "}") close += 1
-  return { issue: { kind: "double_braces", token: template.slice(start, close), index: start }, next: close }
+  return {
+    issue: { kind: "double_braces", token: template.slice(start, close), index: start },
+    next: close,
+  }
 }
 
 function scanSingleToken(template: string, start: number, nameStart: number): ScanStep {
   const n = template.length
   let end = nameStart
-  while (end < n && end - nameStart < MAX_TOKEN_NAME && isNameChar(template[end] as string)) end += 1
+  while (end < n && end - nameStart < MAX_TOKEN_NAME && isNameChar(template[end] as string))
+    end += 1
   if (end === nameStart || end >= n || template[end] !== "}") return { next: nameStart }
   const token = template.slice(start, end + 1)
-  if (!KNOWN_TOKENS.has(token)) return { issue: { kind: "unknown_token", token, index: start }, next: end + 1 }
+  if (!KNOWN_TOKENS.has(token))
+    return { issue: { kind: "unknown_token", token, index: start }, next: end + 1 }
   if (template[end + 1] !== "}") return { next: end + 1 }
   let extra = end + 1
   while (extra < n && template[extra] === "}") extra += 1
-  return { issue: { kind: "stray_brace", token: template.slice(start, extra), index: start }, next: extra }
+  return {
+    issue: { kind: "stray_brace", token: template.slice(start, extra), index: start },
+    next: extra,
+  }
 }
 
 export function forwardTemplateIssues(template: string): ForwardTemplateIssue[] {
@@ -188,7 +210,9 @@ export function forwardTemplateIssues(template: string): ForwardTemplateIssue[] 
     let nameStart = i
     while (nameStart < n && template[nameStart] === "{") nameStart += 1
     const step =
-      nameStart - i >= 2 ? scanDoubleBraces(template, i, nameStart) : scanSingleToken(template, i, nameStart)
+      nameStart - i >= 2
+        ? scanDoubleBraces(template, i, nameStart)
+        : scanSingleToken(template, i, nameStart)
     if (step.issue !== undefined) issues.push(step.issue)
     i = step.next
   }
@@ -266,7 +290,9 @@ export const SetForwardTemplateDefaultRequestSchema = z
     bodyTemplate: ForwardTemplateBodySchema.nullable(),
   })
   .strict()
-export type SetForwardTemplateDefaultRequest = z.infer<typeof SetForwardTemplateDefaultRequestSchema>
+export type SetForwardTemplateDefaultRequest = z.infer<
+  typeof SetForwardTemplateDefaultRequestSchema
+>
 
 export const PreviewForwardTemplateRequestSchema = z
   .object({

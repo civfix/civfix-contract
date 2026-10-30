@@ -42,12 +42,19 @@ const type = (over: Partial<TicketTypeDTO> = {}): TicketTypeDTO => ({
   ...over,
 })
 
-const shownFor = (questions: readonly EventQuestionDTO[], answers: AnswerMap, ticketTypeId: string | null = null) =>
-  visibleQuestions(questions, ticketTypeId, answers)
+const shownFor = (
+  questions: readonly EventQuestionDTO[],
+  answers: AnswerMap,
+  ticketTypeId: string | null = null,
+) => visibleQuestions(questions, ticketTypeId, answers)
 
 describe("visibleQuestions", () => {
   it("drops archived definitions", () => {
-    const list = visibleQuestions([q({ id: "a", archivedAt: "2026-01-01T00:00:00.000Z" })], null, {})
+    const list = visibleQuestions(
+      [q({ id: "a", archivedAt: "2026-01-01T00:00:00.000Z" })],
+      null,
+      {},
+    )
     expect(list).toHaveLength(0)
   })
 
@@ -69,7 +76,11 @@ describe("visibleQuestions", () => {
   })
 
   it("orders by sortOrder rather than by array position", () => {
-    const list = visibleQuestions([q({ id: "b", sortOrder: 2 }), q({ id: "a", sortOrder: 1 })], null, {})
+    const list = visibleQuestions(
+      [q({ id: "b", sortOrder: 2 }), q({ id: "a", sortOrder: 1 })],
+      null,
+      {},
+    )
     expect(list.map((x) => x.id)).toEqual(["a", "b"])
   })
 
@@ -79,7 +90,10 @@ describe("visibleQuestions", () => {
       q({ id: "dep", sortOrder: 1, showIf: { questionId: "gate", equals: true } }),
     ]
     expect(visibleQuestions(questions, null, { gate: false }).map((x) => x.id)).toEqual(["gate"])
-    expect(visibleQuestions(questions, null, { gate: true }).map((x) => x.id)).toEqual(["gate", "dep"])
+    expect(visibleQuestions(questions, null, { gate: true }).map((x) => x.id)).toEqual([
+      "gate",
+      "dep",
+    ])
   })
 
   it("shows an UNCHECKED-box dependent only once the gate holds an answer", () => {
@@ -98,7 +112,10 @@ describe("visibleQuestions", () => {
       q({ id: "dep", showIf: { questionId: "forB", equals: "yes" } }),
     ]
     expect(visibleQuestions(questions, "tA", { forB: "yes" }).map((x) => x.id)).toEqual([])
-    expect(visibleQuestions(questions, "tB", { forB: "yes" }).map((x) => x.id)).toEqual(["forB", "dep"])
+    expect(visibleQuestions(questions, "tB", { forB: "yes" }).map((x) => x.id)).toEqual([
+      "forB",
+      "dep",
+    ])
   })
 })
 
@@ -110,7 +127,8 @@ describe("showIf (single level, by contract)", () => {
   })
 
   it("matches a string answer, a checkbox boolean, and a multi-select membership", () => {
-    const dep = (equals: string | boolean) => q({ id: "dep", showIf: { questionId: "gate", equals } })
+    const dep = (equals: string | boolean) =>
+      q({ id: "dep", showIf: { questionId: "gate", equals } })
     expect(questionVisible(dep("yes"), { gate: "yes" }, known)).toBe(true)
     expect(questionVisible(dep("yes"), { gate: "no" }, known)).toBe(false)
     expect(questionVisible(dep(true), { gate: true }, known)).toBe(true)
@@ -170,7 +188,9 @@ describe("validation + payload", () => {
     ]
     const complete = { shared: "x", forA: "a" }
     expect(missingRequired(shownFor(questions, complete, "tA"), complete)).toEqual([])
-    expect(missingRequired(shownFor(questions, { shared: "x" }, "tA"), { shared: "x" })).toEqual(["forA"])
+    expect(missingRequired(shownFor(questions, { shared: "x" }, "tA"), { shared: "x" })).toEqual([
+      "forA",
+    ])
     const stale = { shared: "x", forA: "a", forB: "stale" }
     expect(answerPayload(shownFor(questions, stale, "tA"), stale)).toEqual([
       { questionId: "shared", value: "x" },
@@ -185,7 +205,10 @@ describe("validation + payload", () => {
   })
 
   it("sends only visible, answered questions", () => {
-    const questions = [q({ id: "q1" }), q({ id: "q2", showIf: { questionId: "q1", equals: "yes" } })]
+    const questions = [
+      q({ id: "q1" }),
+      q({ id: "q2", showIf: { questionId: "q1", equals: "yes" } }),
+    ]
     const yes = { q1: "yes", q2: "detail" }
     expect(answerPayload(shownFor(questions, yes), yes)).toEqual([
       { questionId: "q1", value: "yes" },
@@ -196,7 +219,10 @@ describe("validation + payload", () => {
   })
 
   it("sends nothing for a blank answer, required or not", () => {
-    const shown = [q({ id: "box", kind: "consent", required: true }), q({ id: "pick", kind: "multi_select" })]
+    const shown = [
+      q({ id: "box", kind: "consent", required: true }),
+      q({ id: "pick", kind: "multi_select" }),
+    ]
     expect(answerPayload(shown, { box: false, pick: [] })).toEqual([])
   })
 })
@@ -217,7 +243,10 @@ describe("party size", () => {
 
 describe("ticket type selection", () => {
   it("orders by the host's sort order", () => {
-    const ordered = sortedTicketTypes([type({ id: "b", sortOrder: 2 }), type({ id: "a", sortOrder: 1 })])
+    const ordered = sortedTicketTypes([
+      type({ id: "b", sortOrder: 2 }),
+      type({ id: "a", sortOrder: 1 }),
+    ])
     expect(ordered.map((t) => t.id)).toEqual(["a", "b"])
   })
 
@@ -237,10 +266,16 @@ describe("ticket type selection", () => {
 
   it("preselects the first type that is actually open", () => {
     expect(
-      defaultTicketTypeId([type({ id: "sold", sortOrder: 0, soldOut: true }), type({ id: "open", sortOrder: 1 })]),
+      defaultTicketTypeId([
+        type({ id: "sold", sortOrder: 0, soldOut: true }),
+        type({ id: "open", sortOrder: 1 }),
+      ]),
     ).toBe("open")
     expect(
-      defaultTicketTypeId([type({ id: "t2", sortOrder: 1 }), type({ id: "t1", sortOrder: 0, soldOut: true })]),
+      defaultTicketTypeId([
+        type({ id: "t2", sortOrder: 1 }),
+        type({ id: "t1", sortOrder: 0, soldOut: true }),
+      ]),
     ).toBe("t2")
   })
 

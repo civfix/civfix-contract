@@ -16,7 +16,10 @@ import {
   RemoveEventRegistrationResponseSchema,
   SetEventRegistrationNoteResponseSchema,
 } from "../host/registrations.js"
-import { DeclineMyEventInviteResponseSchema, RevokeEventTeamInviteResponseSchema } from "../host/team.js"
+import {
+  DeclineMyEventInviteResponseSchema,
+  RevokeEventTeamInviteResponseSchema,
+} from "../host/team.js"
 import { DeleteEventTicketTypeResponseSchema } from "../host/tickets.js"
 import { LeaveEventWaitlistResponseSchema } from "../host/waitlist.js"
 

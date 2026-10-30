@@ -94,7 +94,8 @@ export type GeoSuggestionDTO = z.infer<typeof GeoSuggestionSchema>
 // fails typecheck the moment the two drift in either direction.
 type _GeoSuggestionMatchesWire = ExpectTrue<SameType<GeoSuggestionDTO, GeoSuggestion>>
 // Identity rather than mutual assignability, which would miss an optional field added on one side only.
-type SameType<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false
+type SameType<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false
 type ExpectTrue<T extends true> = T
 
 export const SuggestPlacesResponseSchema = z.object({

@@ -64,7 +64,9 @@ function expected(standing: HostStanding): HostCapability[] {
 
 describe("hostCapabilities", () => {
   it("covers the whole eventRole x orgRole matrix", () => {
-    const combos = EVENT_ROLES.flatMap((eventRole) => ORG_ROLES.map((orgRole) => ({ eventRole, orgRole })))
+    const combos = EVENT_ROLES.flatMap((eventRole) =>
+      ORG_ROLES.map((orgRole) => ({ eventRole, orgRole })),
+    )
     expect(combos).toHaveLength(EVENT_ROLES.length * ORG_ROLES.length)
     for (const standing of combos) {
       expect(sorted(hostCapabilities(standing))).toEqual(expected(standing))
@@ -164,9 +166,9 @@ describe("hostCapabilities", () => {
     expect(hostCapabilities({ eventRole: null, orgRole: "owner" }).has("manage_org_members")).toBe(
       true,
     )
-    expect(hostCapabilities({ eventRole: "organizer", orgRole: null }).has("manage_org_members")).toBe(
-      false,
-    )
+    expect(
+      hostCapabilities({ eventRole: "organizer", orgRole: null }).has("manage_org_members"),
+    ).toBe(false)
   })
 
   it("adds org standing on top of event standing", () => {

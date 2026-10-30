@@ -1,11 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest"
 
-import {
-  parseLatLng,
-  photonSuggest,
-  mapboxSuggest,
-  suggestAddresses,
-} from "../src/geocode.js"
+import { parseLatLng, photonSuggest, mapboxSuggest, suggestAddresses } from "../src/geocode.js"
 import type { SuggestOptions } from "../src/geocode.js"
 
 /**
@@ -19,18 +14,26 @@ afterEach(() => {
 })
 
 /** A Photon FeatureCollection Response for the fetch stub. */
-function photonResponse(features: Array<{ lat: number; lng: number; props?: Record<string, unknown> }>): Response {
+function photonResponse(
+  features: Array<{ lat: number; lng: number; props?: Record<string, unknown> }>,
+): Response {
   const body = {
     features: features.map((f) => ({
       geometry: { coordinates: [f.lng, f.lat] },
       properties: f.props ?? {},
     })),
   }
-  return new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } })
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  })
 }
 
 function jsonResponse(body: unknown): Response {
-  return new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } })
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  })
 }
 
 /** A Mapbox Geocoding v6 FeatureCollection Response (raw feature shape). */
@@ -39,6 +42,23 @@ function mapboxResponse(features: unknown[]): Response {
     status: 200,
     headers: { "Content-Type": "application/json" },
   })
+}
+
+const MAPBOX_HOST = "api.mapbox.com"
+const PHOTON_HOST = "photon.komoot.io"
+
+/** A fetch stub that answers by exact hostname and fails any request to a host it was not given. */
+function routeByHost(routes: Record<string, () => Response>) {
+  return vi.fn(async (url: string | URL) => {
+    const { hostname } = new URL(url)
+    const reply = routes[hostname]
+    if (!reply) throw new Error(`unexpected request to ${hostname}`)
+    return reply()
+  })
+}
+
+function requestedHosts(fetchMock: ReturnType<typeof routeByHost>): string[] {
+  return fetchMock.mock.calls.map(([url]) => new URL(url).hostname)
 }
 
 describe("parseLatLng", () => {
@@ -67,12 +87,18 @@ describe("photonSuggest", () => {
       vi.fn(async (url: string | URL) => {
         calledUrl = String(url)
         return photonResponse([
-          { lat: 34.1184, lng: -118.3004, props: { name: "Griffith Observatory", city: "Los Angeles", state: "California" } },
+          {
+            lat: 34.1184,
+            lng: -118.3004,
+            props: { name: "Griffith Observatory", city: "Los Angeles", state: "California" },
+          },
         ])
       }),
     )
 
-    const out = await photonSuggest("Griffith Observatory", { proximity: { lat: 34.05, lng: -118.24 } })
+    const out = await photonSuggest("Griffith Observatory", {
+      proximity: { lat: 34.05, lng: -118.24 },
+    })
     expect(out[0]).toMatchObject({ label: "Griffith Observatory", source: "photon" })
     expect(out[0]?.secondary).toContain("Los Angeles")
     const params = new URL(calledUrl).searchParams
@@ -138,7 +164,11 @@ describe("photonSuggest", () => {
   it("builds a street label when the feature has no name", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => photonResponse([{ lat: 1, lng: 2, props: { housenumber: "123", street: "Main St", city: "Springfield" } }])),
+      vi.fn(async () =>
+        photonResponse([
+          { lat: 1, lng: 2, props: { housenumber: "123", street: "Main St", city: "Springfield" } },
+        ]),
+      ),
     )
     const out = await photonSuggest("123 Main St")
     expect(out[0]?.label).toBe("123 Main St")
@@ -153,7 +183,10 @@ describe("photonSuggest", () => {
   })
 
   it("throws on an HTTP error", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => new Response("nope", { status: 503 })))
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("nope", { status: 503 })),
+    )
     await expect(photonSuggest("anywhere")).rejects.toThrow()
   })
 
@@ -163,19 +196,42 @@ describe("photonSuggest", () => {
       { geometry: { coordinates: [-118.2] }, properties: { name: "One coordinate" } },
       { geometry: { coordinates: ["-118.2", "34.0"] }, properties: { name: "String coordinates" } },
       { properties: { name: "No geometry" } },
-      { geometry: { coordinates: [-118.2, 34.0] }, properties: { name: 42, city: "Los Angeles", osm_id: {} } },
+      {
+        geometry: { coordinates: [-118.2, 34.0] },
+        properties: { name: 42, city: "Los Angeles", osm_id: {} },
+      },
       { geometry: { coordinates: [-118.3, 34.1, 120] }, properties: null },
     ]
-    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ features })))
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ features })),
+    )
     expect(await photonSuggest("anywhere")).toEqual([
-      { id: "photon:34,-118.2", label: "Los Angeles", secondary: undefined, lat: 34, lng: -118.2, source: "photon" },
-      { id: "photon:34.1,-118.3", label: "Unknown place", secondary: undefined, lat: 34.1, lng: -118.3, source: "photon" },
+      {
+        id: "photon:34,-118.2",
+        label: "Los Angeles",
+        secondary: undefined,
+        lat: 34,
+        lng: -118.2,
+        source: "photon",
+      },
+      {
+        id: "photon:34.1,-118.3",
+        label: "Unknown place",
+        secondary: undefined,
+        lat: 34.1,
+        lng: -118.3,
+        source: "photon",
+      },
     ])
   })
 
   it("resolves no suggestions for a body that is not a feature collection", async () => {
     for (const body of [null, [], {}, { features: "none" }, "text"]) {
-      vi.stubGlobal("fetch", vi.fn(async () => jsonResponse(body)))
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () => jsonResponse(body)),
+      )
       expect(await photonSuggest("anywhere")).toEqual([])
     }
   })
@@ -227,7 +283,10 @@ describe("mapboxSuggest", () => {
   })
 
   it("throws on HTTP error", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => new Response("nope", { status: 401 })))
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("nope", { status: 401 })),
+    )
     await expect(mapboxSuggest("x", { mapboxToken: "pk.test" })).rejects.toThrow()
   })
 
@@ -237,8 +296,14 @@ describe("mapboxSuggest", () => {
       vi.fn(async () =>
         mapboxResponse([
           { geometry: { coordinates: [-118.2] }, properties: { name: "One coordinate" } },
-          { geometry: { coordinates: [-118.2, 34.0] }, properties: { name: null, context: { place: "Los Angeles" } } },
-          { geometry: { coordinates: [-118.25, 34.05] }, properties: { name: "Main St", context: null } },
+          {
+            geometry: { coordinates: [-118.2, 34.0] },
+            properties: { name: null, context: { place: "Los Angeles" } },
+          },
+          {
+            geometry: { coordinates: [-118.25, 34.05] },
+            properties: { name: "Main St", context: null },
+          },
         ]),
       ),
     )
@@ -248,7 +313,10 @@ describe("mapboxSuggest", () => {
       ["Main St", undefined],
     ])
 
-    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ type: "FeatureCollection" })))
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ type: "FeatureCollection" })),
+    )
     expect(await mapboxSuggest("main st", { mapboxToken: "pk.test" })).toEqual([])
   })
 
@@ -283,7 +351,9 @@ describe("suggestAddresses", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () =>
-        mapboxResponse([{ geometry: { coordinates: [-118.2, 34.0] }, properties: { name: "Echo Park" } }]),
+        mapboxResponse([
+          { geometry: { coordinates: [-118.2, 34.0] }, properties: { name: "Echo Park" } },
+        ]),
       ),
     )
     const out = await suggestAddresses("echo park", { mapboxToken: "pk.test" })
@@ -291,29 +361,27 @@ describe("suggestAddresses", () => {
   })
 
   it("falls back to Photon when Mapbox throws (HTTP error)", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (url: string | URL) =>
-        String(url).includes("mapbox.com")
-          ? new Response("err", { status: 500 })
-          : photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
-      ),
-    )
+    const fetchMock = routeByHost({
+      [MAPBOX_HOST]: () => new Response("err", { status: 500 }),
+      [PHOTON_HOST]: () =>
+        photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
+    })
+    vi.stubGlobal("fetch", fetchMock)
     const out = await suggestAddresses("echo park", { mapboxToken: "pk.test" })
     expect(out[0]?.source).toBe("photon")
+    expect(requestedHosts(fetchMock)).toEqual([MAPBOX_HOST, PHOTON_HOST])
   })
 
   it("falls back to Photon when Mapbox returns empty", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (url: string | URL) =>
-        String(url).includes("mapbox.com")
-          ? mapboxResponse([])
-          : photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
-      ),
-    )
+    const fetchMock = routeByHost({
+      [MAPBOX_HOST]: () => mapboxResponse([]),
+      [PHOTON_HOST]: () =>
+        photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
+    })
+    vi.stubGlobal("fetch", fetchMock)
     const out = await suggestAddresses("echo park", { mapboxToken: "pk.test" })
     expect(out[0]?.source).toBe("photon")
+    expect(requestedHosts(fetchMock)).toEqual([MAPBOX_HOST, PHOTON_HOST])
   })
 
   // An aborted (stale) keystroke must not RESOLVE [] and clobber the newer query's results.
@@ -347,7 +415,10 @@ type OnError = NonNullable<SuggestOptions["onError"]>
 
 describe("suggestAddresses onError", () => {
   it("reports a Photon outage while still resolving []", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => new Response("down", { status: 503 })))
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("down", { status: 503 })),
+    )
     const onError = vi.fn<OnError>()
     await expect(suggestAddresses("echo park", { onError })).resolves.toEqual([])
     expect(onError).toHaveBeenCalledTimes(1)
@@ -356,17 +427,16 @@ describe("suggestAddresses onError", () => {
   })
 
   it("reports a Mapbox failure it falls back past, then the Photon result wins", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (url: string | URL) =>
-        String(url).includes("mapbox.com")
-          ? new Response("err", { status: 500 })
-          : photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
-      ),
-    )
+    const fetchMock = routeByHost({
+      [MAPBOX_HOST]: () => new Response("err", { status: 500 }),
+      [PHOTON_HOST]: () =>
+        photonResponse([{ lat: 34.0, lng: -118.2, props: { name: "Echo Park" } }]),
+    })
+    vi.stubGlobal("fetch", fetchMock)
     const onError = vi.fn<OnError>()
     const out = await suggestAddresses("echo park", { mapboxToken: "pk.test", onError })
     expect(out[0]?.source).toBe("photon")
+    expect(requestedHosts(fetchMock)).toEqual([MAPBOX_HOST, PHOTON_HOST])
     expect(onError.mock.calls.map((call) => call[1])).toEqual(["mapbox"])
   })
 

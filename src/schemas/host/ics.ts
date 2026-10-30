@@ -1,7 +1,6 @@
 import { z } from "zod"
 import { IdSchema } from "../common.js"
 
-
 export const GetEventIcsRequestSchema = z.object({ id: IdSchema }).strict()
 export type GetEventIcsRequest = z.infer<typeof GetEventIcsRequestSchema>
 

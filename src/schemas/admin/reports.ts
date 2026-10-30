@@ -20,7 +20,9 @@ import { AdminFilingDTOSchema, AdminReportFilingRouteSchema } from "./filings.js
  */
 
 /** A reporter reference. Anonymous reports have no account id and therefore no profile destination. */
-export const ReportReporterSchema = AdminActorRefSchema.extend({ id: z.string().nullable() }).strict()
+export const ReportReporterSchema = AdminActorRefSchema.extend({
+  id: z.string().nullable(),
+}).strict()
 export type ReportReporter = z.infer<typeof ReportReporterSchema>
 
 /** A report-detail timeline entry (who did what, when, with an icon kind). */
