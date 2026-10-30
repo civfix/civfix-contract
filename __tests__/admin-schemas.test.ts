@@ -316,31 +316,52 @@ describe("jurisdictions schemas", () => {
     expect(SaveContactsRequestSchema.safeParse({ geoid: "0644000", bogus: 1 }).success).toBe(false)
   })
 
+  const directoryRow = {
+    geoid: "0644000",
+    org: "City of Waynesboro",
+    dept: "Public Works",
+    email: "pw@waynesboro.gov",
+    form: null,
+    method: "email",
+    status: "verified",
+    coverage: "All categories",
+    lastRouted: "3d ago",
+    layer: "place",
+    population: 22630,
+    reportsWaiting: 8,
+    perCategoryCounts: { trash: 5, hazard: 3 },
+    contacts: [{ category: "trash", email: "pw@waynesboro.gov" }],
+    flaggedAt: null,
+    handle: "waynesboro",
+    oldestReportAt: "2026-06-01T12:00:00.000Z",
+    forwardSubjectTemplate: null,
+    forwardBodyTemplate: null,
+  }
+
   it("validates a JurisdictionDirectoryDTO row", () => {
-    const row = {
-      geoid: "0644000",
-      org: "City of Waynesboro",
-      dept: "Public Works",
-      email: "pw@waynesboro.gov",
-      form: null,
-      method: "email",
-      status: "verified",
-      coverage: "All categories",
-      lastRouted: "3d ago",
-      layer: "place",
-      population: 22630,
-      reportsWaiting: 8,
-      perCategoryCounts: { trash: 5, hazard: 3 },
-      contacts: [{ category: "trash", email: "pw@waynesboro.gov" }],
-      flaggedAt: null,
-      handle: "waynesboro",
-      oldestReportAt: "2026-06-01T12:00:00.000Z",
-      forwardSubjectTemplate: null,
-      forwardBodyTemplate: null,
+    expect(JurisdictionDirectoryDTOSchema.safeParse(directoryRow).success).toBe(true)
+    expect(
+      JurisdictionDirectoryDTOSchema.safeParse({ ...directoryRow, method: "fax" }).success,
+    ).toBe(false)
+    expect(
+      JurisdictionDirectoryDTOSchema.safeParse({ ...directoryRow, handle: null }).success,
+    ).toBe(true)
+  })
+
+  it("T23: accepts a null, https or http form link", () => {
+    for (const form of [null, "https://lacity.gov/report", "http://lacity.gov/report"]) {
+      expect(JurisdictionDirectoryDTOSchema.safeParse({ ...directoryRow, form }).success).toBe(true)
     }
-    expect(JurisdictionDirectoryDTOSchema.safeParse(row).success).toBe(true)
-    expect(JurisdictionDirectoryDTOSchema.safeParse({ ...row, method: "fax" }).success).toBe(false)
-    expect(JurisdictionDirectoryDTOSchema.safeParse({ ...row, handle: null }).success).toBe(true)
+  })
+
+  it("T24: rejects a javascript: form link", () => {
+    const result = JurisdictionDirectoryDTOSchema.safeParse({
+      ...directoryRow,
+      form: "javascript:alert(1)",
+    })
+    expect(result.error?.issues).toMatchObject([
+      { code: "invalid_format", format: "url", path: ["form"] },
+    ])
   })
 
   it("PatchJurisdictionRequest normalizes + validates the @handle", () => {

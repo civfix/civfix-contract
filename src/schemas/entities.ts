@@ -43,6 +43,12 @@ export const HttpsUrlSchema = z
   .max(HTTPS_URL_MAX_LENGTH)
   .startsWith("https://")
 
+export const HTTP_URL_MAX_LENGTH = 2048
+
+export const HttpUrlSchema = z.string().transform((): string => {
+  throw new Error("not implemented")
+})
+
 export const AvatarPairSchema = z.tuple([z.string(), z.string()]).nullable().optional()
 
 const OrganizationRefDTOObjectSchema = z.object({
