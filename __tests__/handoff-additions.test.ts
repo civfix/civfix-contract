@@ -49,17 +49,22 @@ describe("ADMIN_REPORT_STATUS_BUCKETS", () => {
 describe("MailAttachmentSchema url", () => {
   const attachment = { key: "https://r2.example/a.pdf?sig=1", filename: "a.pdf", size: 10 }
 
-  it("still parses a payload without url", () => {
+  it("T25: still parses a payload without url, and one with a presigned url", () => {
     expect(MailAttachmentSchema.safeParse(attachment).success).toBe(true)
-  })
-
-  it("parses a url and rejects a non-url", () => {
     expect(MailAttachmentSchema.safeParse({ ...attachment, url: attachment.key }).success).toBe(
       true,
     )
-    expect(MailAttachmentSchema.safeParse({ ...attachment, url: "inbound/a.pdf" }).success).toBe(
-      false,
-    )
+  })
+
+  it("T26: has no length cap", () => {
+    const url = "https://r2.example/a.pdf?sig=" + "x".repeat(4000)
+    expect(MailAttachmentSchema.safeParse({ ...attachment, url }).success).toBe(true)
+  })
+
+  it.each(["javascript:alert(1)", "inbound/a.pdf"])("T27: rejects %j", (url) => {
+    expect(MailAttachmentSchema.safeParse({ ...attachment, url }).error?.issues).toMatchObject([
+      { code: "invalid_format", format: "url", path: ["url"] },
+    ])
   })
 })
 

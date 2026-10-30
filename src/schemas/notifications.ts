@@ -168,13 +168,19 @@ export type NotificationSettingsDTO = z.infer<typeof NotificationSettingsDTOSche
 
 export const UpdateNotificationSettingsRequestSchema = z
   .object({
-    categories: z.object(perCategory(NotificationCategorySettingSchema.partial().optional())).strict(),
+    categories: z
+      .object(perCategory(NotificationCategorySettingSchema.partial().optional()))
+      .strict(),
   })
   .strict()
   .superRefine(({ categories }, ctx) => {
     const patches = Object.entries(categories).filter(([, patch]) => patch !== undefined)
     if (patches.length === 0) {
-      ctx.addIssue({ code: "custom", path: ["categories"], message: "Change at least one category" })
+      ctx.addIssue({
+        code: "custom",
+        path: ["categories"],
+        message: "Change at least one category",
+      })
     }
     for (const [category, patch] of patches) {
       if (Object.keys(patch ?? {}).length === 0) {
@@ -186,7 +192,9 @@ export const UpdateNotificationSettingsRequestSchema = z
       }
     }
   })
-export type UpdateNotificationSettingsRequest = z.infer<typeof UpdateNotificationSettingsRequestSchema>
+export type UpdateNotificationSettingsRequest = z.infer<
+  typeof UpdateNotificationSettingsRequestSchema
+>
 
 export const NotificationUnreadResponseSchema = z.object({
   hasUnread: z.boolean(),
@@ -203,13 +211,17 @@ export const UnsubscribeNotificationEmailRequestSchema = z
     token: UnsubscribeTokenSchema,
   })
   .strict()
-export type UnsubscribeNotificationEmailRequest = z.infer<typeof UnsubscribeNotificationEmailRequestSchema>
+export type UnsubscribeNotificationEmailRequest = z.infer<
+  typeof UnsubscribeNotificationEmailRequestSchema
+>
 
 export const UnsubscribeNotificationEmailResponseSchema = z.object({
   ok: z.literal(true),
   category: NotificationCategorySchema.nullable(),
 })
-export type UnsubscribeNotificationEmailResponse = z.infer<typeof UnsubscribeNotificationEmailResponseSchema>
+export type UnsubscribeNotificationEmailResponse = z.infer<
+  typeof UnsubscribeNotificationEmailResponseSchema
+>
 
 export const OpenUnsubscribeNotificationEmailRequestSchema = z
   .object({

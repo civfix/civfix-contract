@@ -1,16 +1,22 @@
 # @civfix/contract
 
-## 0.66.0
+## 0.67.0
 
 ### Minor Changes
 
-- Notification settings, the notification center and direct push data (DECISIONS §64). All additive: the registry goes from 341 to 349 entries, none of them admin.
+- Notification settings, the notification center and direct push data (DECISIONS §65). All additive: the registry goes from 341 to 349 entries, none of them admin.
 
   - Eleven notification categories: `NotificationCategorySchema`, `NotificationCategorySettingSchema` (`{ enabled, push, email }`, strict), `NOTIFICATION_SECTIONS` (five sections whose ids are the Android channel ids) and `NOTIFICATION_CATEGORY_DEFAULTS`.
   - New endpoints: `getNotificationSettings` (`GET /notifications/settings`) and `updateNotificationSettings` (`PATCH /notifications/settings`, a strict patch) answering `NotificationSettingsDTO`; `getNotificationUnread` (`GET /notifications/unread`); `markAllNotificationsRead` (`POST /notifications/read-all`); `dismissNotification` (`DELETE /notifications/:id`); `getPushWebConfig` (`GET /push/web-config`); and the public one-click pair `unsubscribeNotificationEmail` (`POST /notifications/email-unsubscribe`) and `openUnsubscribeNotificationEmail` (`GET`, a 302).
   - `PushMessageDataSchema`, the data every push carries (`kind: "notification"` or `"clear"`), with `encodePushMessageData` / `decodePushMessageData` for FCM's flat string map; decoding returns `null` on a malformed map and never throws.
   - `NotificationTypeSchema` appends `chat_mention`.
   - The prefs endpoints and `NotificationPrefsDTO` are unchanged.
+
+## 0.66.0
+
+### Minor Changes
+
+- Link fields accept only http and https (DECISIONS §64). The new `HttpUrlSchema` trims, then accepts `http:` and `https:` links only, and rejects `javascript:`, `data:`, `file:`, `vbscript:`, `blob:` and scheme-relative `//host` links; it is exported with `HTTP_URL_MAX_LENGTH` (2048). `SuggestContactRequest.formUrl` and the `formUrl` of `PatchJurisdictionRequest`, `SaveContactsRequest` and `SaveDraftRequest` use it capped at 2048 characters, with their optional and nullable behavior unchanged. `JurisdictionDirectoryDTO.form` and `MailAttachment.url` use it with no length cap; no server sends anything else there.
 
 ## 0.65.0
 

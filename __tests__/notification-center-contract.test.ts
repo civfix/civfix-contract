@@ -66,9 +66,13 @@ describe("notification categories", () => {
     const flat: string[] = NOTIFICATION_SECTIONS.flatMap((s) => [...s.categories])
     expect(flat).toHaveLength(11)
     for (const c of NotificationCategorySchema.options) {
-      expect(flat.filter((x) => x === c), c).toHaveLength(1)
+      expect(
+        flat.filter((x) => x === c),
+        c,
+      ).toHaveLength(1)
     }
-    for (const c of flat) expect(NotificationCategorySchema.options as readonly string[]).toContain(c)
+    for (const c of flat)
+      expect(NotificationCategorySchema.options as readonly string[]).toContain(c)
   })
 
   it("T4: NOTIFICATION_CATEGORY_DEFAULTS holds D1's defaults", () => {
@@ -125,7 +129,9 @@ describe("notification settings schemas", () => {
     const dto = { categories: NOTIFICATION_CATEGORY_DEFAULTS, emailAvailable: false }
     expect(NotificationSettingsDTOSchema.safeParse(dto).success).toBe(true)
     for (const c of CATEGORIES) {
-      const categories = Object.fromEntries(Object.entries(NOTIFICATION_CATEGORY_DEFAULTS).filter(([k]) => k !== c))
+      const categories = Object.fromEntries(
+        Object.entries(NOTIFICATION_CATEGORY_DEFAULTS).filter(([k]) => k !== c),
+      )
       fails(NotificationSettingsDTOSchema, { categories, emailAvailable: false })
     }
     fails(NotificationSettingsDTOSchema, { categories: NOTIFICATION_CATEGORY_DEFAULTS })
@@ -141,6 +147,7 @@ describe("notification settings schemas", () => {
   })
 
   it("T9: UpdateNotificationSettingsRequestSchema rejects empty, unknown and non-boolean input", () => {
+    expect.hasAssertions()
     for (const body of [
       {},
       { categories: {} },
@@ -162,22 +169,32 @@ describe("notification settings schemas", () => {
   })
 
   it("T11: PushWebConfigResponseSchema is { vapidPublicKey: string | null }", () => {
-    expect(PushWebConfigResponseSchema.safeParse({ vapidPublicKey: "BExampleKey" }).success).toBe(true)
+    expect(PushWebConfigResponseSchema.safeParse({ vapidPublicKey: "BExampleKey" }).success).toBe(
+      true,
+    )
     expect(PushWebConfigResponseSchema.safeParse({ vapidPublicKey: null }).success).toBe(true)
     fails(PushWebConfigResponseSchema, {})
   })
 
   it("T12: UnsubscribeNotificationEmailRequestSchema bounds token like UnsubscribeTokenSchema", () => {
-    expect(UnsubscribeNotificationEmailRequestSchema.safeParse({ token: TOK(20) }).success).toBe(true)
-    expect(UnsubscribeNotificationEmailRequestSchema.safeParse({ token: TOK(512) }).success).toBe(true)
+    expect(UnsubscribeNotificationEmailRequestSchema.safeParse({ token: TOK(20) }).success).toBe(
+      true,
+    )
+    expect(UnsubscribeNotificationEmailRequestSchema.safeParse({ token: TOK(512) }).success).toBe(
+      true,
+    )
     fails(UnsubscribeNotificationEmailRequestSchema, { token: TOK(19) })
     fails(UnsubscribeNotificationEmailRequestSchema, { token: TOK(513) })
     fails(UnsubscribeNotificationEmailRequestSchema, { token: TOK(20), extra: 1 })
   })
 
   it("T13: OpenUnsubscribeNotificationEmailRequestSchema bounds t like UnsubscribeTokenSchema", () => {
-    expect(OpenUnsubscribeNotificationEmailRequestSchema.safeParse({ t: TOK(20) }).success).toBe(true)
-    expect(OpenUnsubscribeNotificationEmailRequestSchema.safeParse({ t: TOK(512) }).success).toBe(true)
+    expect(OpenUnsubscribeNotificationEmailRequestSchema.safeParse({ t: TOK(20) }).success).toBe(
+      true,
+    )
+    expect(OpenUnsubscribeNotificationEmailRequestSchema.safeParse({ t: TOK(512) }).success).toBe(
+      true,
+    )
     fails(OpenUnsubscribeNotificationEmailRequestSchema, { t: TOK(19) })
     fails(OpenUnsubscribeNotificationEmailRequestSchema, { t: TOK(513) })
     fails(OpenUnsubscribeNotificationEmailRequestSchema, {})
@@ -278,7 +295,7 @@ describe("PushMessageData", () => {
     })
   })
 
-  it("T20: encodes clear ids as JSON and all as \"true\"", () => {
+  it('T20: encodes clear ids as JSON and all as "true"', () => {
     expect(encodePushMessageData({ kind: "clear", ids: [U1, U2] })).toStrictEqual({
       kind: "clear",
       ids: JSON.stringify([U1, U2]),
@@ -360,7 +377,14 @@ describe("NotificationTypeSchema", () => {
 describe("notification center endpoints", () => {
   it("T24: registers the eight endpoints with D5's method, path, auth, csrf and schemas", () => {
     const expected = {
-      getNotificationSettings: ["GET", "/notifications/settings", "required", false, null, NotificationSettingsDTOSchema],
+      getNotificationSettings: [
+        "GET",
+        "/notifications/settings",
+        "required",
+        false,
+        null,
+        NotificationSettingsDTOSchema,
+      ],
       updateNotificationSettings: [
         "PATCH",
         "/notifications/settings",
@@ -369,10 +393,38 @@ describe("notification center endpoints", () => {
         UpdateNotificationSettingsRequestSchema,
         NotificationSettingsDTOSchema,
       ],
-      getNotificationUnread: ["GET", "/notifications/unread", "required", false, null, NotificationUnreadResponseSchema],
-      markAllNotificationsRead: ["POST", "/notifications/read-all", "required", true, null, OkResponseSchema],
-      dismissNotification: ["DELETE", "/notifications/:id", "required", true, null, OkResponseSchema],
-      getPushWebConfig: ["GET", "/push/web-config", "required", false, null, PushWebConfigResponseSchema],
+      getNotificationUnread: [
+        "GET",
+        "/notifications/unread",
+        "required",
+        false,
+        null,
+        NotificationUnreadResponseSchema,
+      ],
+      markAllNotificationsRead: [
+        "POST",
+        "/notifications/read-all",
+        "required",
+        true,
+        null,
+        OkResponseSchema,
+      ],
+      dismissNotification: [
+        "DELETE",
+        "/notifications/:id",
+        "required",
+        true,
+        null,
+        OkResponseSchema,
+      ],
+      getPushWebConfig: [
+        "GET",
+        "/push/web-config",
+        "required",
+        false,
+        null,
+        PushWebConfigResponseSchema,
+      ],
       unsubscribeNotificationEmail: [
         "POST",
         "/notifications/email-unsubscribe",
