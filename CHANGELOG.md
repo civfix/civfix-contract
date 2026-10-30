@@ -1,5 +1,11 @@
 # @civfix/contract
 
+## 0.66.0
+
+### Minor Changes
+
+- Schemas typed by name now name their input as well as their output (DECISIONS §64). The 108 schemas annotated `z.ZodType<Output, unknown>` to stay under the TS7056 declaration cap are now `z.ZodType<Output, OutputInput>`, with each input type exported next to its output (`OrganizationRefDTOInput`, `CleanupDTOInput`, `EventInsightsInput`, and so on). No endpoint's response input is `unknown` any more (117 were), so `z.input` of a response, as the backend uses to type route replies, is the real shape. Runtime behavior is unchanged, and so is every exported output type and every endpoint's inferred request and response type. The emitted `.d.ts` grows from 2.58 MB to 4.19 MB.
+
 ## 0.65.0
 
 ### Minor Changes

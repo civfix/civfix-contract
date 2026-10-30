@@ -2359,3 +2359,37 @@ request and response types are unchanged.
 Every consumer adopts it in one delivery set, because a minor needs a range edit on 0.x:
 civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
 civfix-admin.
+
+## 64. A schema typed by name names its input as well as its output (0.66.0)
+
+Since 0.39.0 the large DTO and response schemas carry an explicit `z.ZodType` annotation, because a
+named type stops the declaration emitter from inlining a whole object structure into every schema and
+endpoint that uses it, and without that the `endpoints` declaration crossed TypeScript's serializer
+cap (TS7056) and the `.d.ts` build failed. Those annotations named only the output, as
+`z.ZodType<Output, unknown>`, so the input became `unknown`, and `unknown` spread to every response
+containing one of those schemas: 117 of the 341 endpoints had a response input of `unknown`. The
+backend types each route's reply as `z.input` of the endpoint's `response` (`EndpointReply<N>`), so for
+those routes the compiler checked nothing about what the handler sends.
+
+Every such annotation now names both types, with the input exported next to the output as
+`<Output>Input`:
+
+```ts
+export type OrganizationRefDTO = z.infer<typeof OrganizationRefDTOObjectSchema>
+export type OrganizationRefDTOInput = z.input<typeof OrganizationRefDTOObjectSchema>
+export const OrganizationRefDTOSchema: z.ZodType<OrganizationRefDTO, OrganizationRefDTOInput> =
+  OrganizationRefDTOObjectSchema
+```
+
+A schema that needs a named type for TS7056 follows the same form: the underlying schema in its own
+const, both aliases taken from it, and never `unknown` as the input. The named input keeps the
+declaration under the cap the same way the named output does. The emitted `.d.ts` grows from 2.58 MB
+to 4.19 MB, which only the type checker reads. `__tests__/endpoint-input-types.test.ts` fails
+typecheck if any endpoint's response input, or the input of a request that is a schema, is `unknown`
+(`request: null`, an endpoint without a request body, has no input to check). Runtime behavior and
+every exported output type are unchanged.
+
+Every consumer adopts it in one delivery set, because a minor needs a range edit on 0.x:
+civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
+civfix-admin. The backend's test-only response check stays: it still covers the bodies a
+fast-json-stringify schema emits.

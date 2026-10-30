@@ -9,5 +9,6 @@ const GetEventIcsResponseObjectSchema = z.object({
   filename: z.string(),
 })
 export type GetEventIcsResponse = z.infer<typeof GetEventIcsResponseObjectSchema>
-export const GetEventIcsResponseSchema: z.ZodType<GetEventIcsResponse, unknown> =
+export type GetEventIcsResponseInput = z.input<typeof GetEventIcsResponseObjectSchema>
+export const GetEventIcsResponseSchema: z.ZodType<GetEventIcsResponse, GetEventIcsResponseInput> =
   GetEventIcsResponseObjectSchema
