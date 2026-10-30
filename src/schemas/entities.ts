@@ -43,6 +43,14 @@ export const HttpsUrlSchema = z
   .max(HTTPS_URL_MAX_LENGTH)
   .startsWith("https://")
 
+export const HTTP_URL_MAX_LENGTH = 2048
+
+// http as well as https: some city reporting forms are still served over plain http (DECISIONS §64).
+export const HttpUrlSchema = z
+  .string()
+  .trim()
+  .check(z.url({ protocol: /^https?$/ }))
+
 export const AvatarPairSchema = z.tuple([z.string(), z.string()]).nullable().optional()
 
 const OrganizationRefDTOObjectSchema = z.object({
@@ -323,7 +331,7 @@ export const ReportDTOSchema = z.object({
   confirmedByMe: z.boolean().default(false),
   fixedCount: z.number().int().nonnegative().default(0),
   fixedByMe: z.boolean().default(false),
-  // Null until the report is filed with the city (DECISIONS §64); optional so an older server still parses.
+  // Null until the report is filed with the city (DECISIONS §65); optional so an older server still parses.
   filing: ReportFilingDTOSchema.nullable().optional(),
 })
 export type ReportDTO = z.infer<typeof ReportDTOSchema>

@@ -4,7 +4,7 @@ import { isSafeHttpsUrl, unsafeHostReason } from "../../markdown/safe-url.js"
 
 /**
  * City filing: an approved report is filed with its jurisdiction by email, by a portal script or by an
- * operator, through the route saved for its (geoid, category). See DECISIONS §64.
+ * operator, through the route saved for its (geoid, category). See DECISIONS §65.
  */
 
 export const FILING_NOTE_MAX = 500
@@ -92,10 +92,9 @@ const StatusSenderDomainSchema = z
   .string()
   .trim()
   .toLowerCase()
-  .refine(
-    (d) => unsafeHostReason(d) === null && d.includes(".") && d.length <= HOSTNAME_MAX,
-    { message: "Sender domain must be a hostname such as lacity.org." },
-  )
+  .refine((d) => unsafeHostReason(d) === null && d.includes(".") && d.length <= HOSTNAME_MAX, {
+    message: "Sender domain must be a hostname such as lacity.org.",
+  })
 
 const StatusSenderDomainsSchema = z
   .array(StatusSenderDomainSchema)
@@ -287,7 +286,11 @@ export const RecordManualFilingRequestSchema = z
   .object({
     id: z.string(),
     caseId: z.string().regex(FILING_CASE_ID_PATTERN),
-    caseUrl: z.string().trim().refine((url) => isSafeHttpsUrl(url), { message: "Case URL must be an https URL." }).optional(),
+    caseUrl: z
+      .string()
+      .trim()
+      .refine((url) => isSafeHttpsUrl(url), { message: "Case URL must be an https URL." })
+      .optional(),
     note: FilingNoteSchema,
   })
   .strict()
@@ -323,10 +326,9 @@ export const SaveFilingRoutesRequestSchema = z
     routes: z
       .array(FilingRouteInputSchema)
       .max(FILING_ROUTES_MAX)
-      .refine(
-        (routes) => new Set(routes.map((r) => r.category)).size === routes.length,
-        { message: "Each category may have one route, and the jurisdiction one default." },
-      ),
+      .refine((routes) => new Set(routes.map((r) => r.category)).size === routes.length, {
+        message: "Each category may have one route, and the jurisdiction one default.",
+      }),
   })
   .strict()
 export type SaveFilingRoutesRequest = z.infer<typeof SaveFilingRoutesRequestSchema>
