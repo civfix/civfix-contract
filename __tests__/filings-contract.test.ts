@@ -199,7 +199,9 @@ describe("FilingRouteInput formUrl", () => {
   })
 
   it("T2: a portal route with an http formUrl fails", () => {
-    expect(passes(FilingRouteInputSchema, { ...portal, formUrl: "http://myla311.lacity.gov/s/" })).toBe(false)
+    expect(
+      passes(FilingRouteInputSchema, { ...portal, formUrl: "http://myla311.lacity.gov/s/" }),
+    ).toBe(false)
   })
 
   it("T3: a portal formUrl on an IP literal fails, however it is spelled", () => {
@@ -214,19 +216,30 @@ describe("FilingRouteInput formUrl", () => {
   })
 
   it("T4: a portal formUrl on localhost, a .localhost subdomain, .local or .internal fails", () => {
-    for (const formUrl of ["https://localhost/", "https://foo.localhost/", "https://x.local/", "https://x.internal/"]) {
+    for (const formUrl of [
+      "https://localhost/",
+      "https://foo.localhost/",
+      "https://x.local/",
+      "https://x.internal/",
+    ]) {
       expect(passes(FilingRouteInputSchema, { ...portal, formUrl }), formUrl).toBe(false)
     }
   })
 
   it("T5: a portal formUrl on civfix.org, civfix.dev or a subdomain fails", () => {
-    for (const formUrl of ["https://civfix.org/a", "https://api.civfix.dev/", "https://CIVFIX.ORG/"]) {
+    for (const formUrl of [
+      "https://civfix.org/a",
+      "https://api.civfix.dev/",
+      "https://CIVFIX.ORG/",
+    ]) {
       expect(passes(FilingRouteInputSchema, { ...portal, formUrl }), formUrl).toBe(false)
     }
   })
 
   it("T6: a portal formUrl on notcivfix.org passes", () => {
-    expect(passes(FilingRouteInputSchema, { ...portal, formUrl: "https://notcivfix.org/" })).toBe(true)
+    expect(passes(FilingRouteInputSchema, { ...portal, formUrl: "https://notcivfix.org/" })).toBe(
+      true,
+    )
   })
 
   it("T7: a portal formUrl with userinfo, punycode or a trailing dot fails", () => {
@@ -249,7 +262,11 @@ describe("FilingRouteInput formUrl", () => {
   })
 
   it("T38: a portal formUrl on a .localhost subdomain fails; a public host containing localhost passes", () => {
-    for (const formUrl of ["https://foo.localhost/", "https://a.b.localhost/", "https://FOO.LOCALHOST/"]) {
+    for (const formUrl of [
+      "https://foo.localhost/",
+      "https://a.b.localhost/",
+      "https://FOO.LOCALHOST/",
+    ]) {
       expect(passes(FilingRouteInputSchema, { ...portal, formUrl }), formUrl).toBe(false)
     }
     for (const formUrl of ["https://notlocalhost.com/", "https://localhost.lacity.gov/"]) {
@@ -282,7 +299,11 @@ describe("FilingRouteInput shape", () => {
   it("T12: an email or manual route with a non-null formUrl fails", () => {
     for (const channel of ["email", "manual"]) {
       expect(
-        passes(FilingRouteInputSchema, { ...emailDefault, channel, formUrl: "https://myla311.lacity.gov/s/" }),
+        passes(FilingRouteInputSchema, {
+          ...emailDefault,
+          channel,
+          formUrl: "https://myla311.lacity.gov/s/",
+        }),
         channel,
       ).toBe(false)
     }
@@ -290,7 +311,8 @@ describe("FilingRouteInput shape", () => {
 
   it("T13: a sender domain is trimmed and lowercased", () => {
     expect(
-      FilingRouteInputSchema.parse({ ...emailDefault, statusSenderDomains: [" LACity.org "] }).statusSenderDomains,
+      FilingRouteInputSchema.parse({ ...emailDefault, statusSenderDomains: [" LACity.org "] })
+        .statusSenderDomains,
     ).toEqual(["lacity.org"])
   })
 
@@ -314,8 +336,12 @@ describe("FilingRouteInput shape", () => {
   })
 
   it("T15: a requestTypeHint of 201 characters fails; of 200 passes", () => {
-    expect(passes(FilingRouteInputSchema, { ...portal, requestTypeHint: "a".repeat(201) })).toBe(false)
-    expect(passes(FilingRouteInputSchema, { ...portal, requestTypeHint: "a".repeat(200) })).toBe(true)
+    expect(passes(FilingRouteInputSchema, { ...portal, requestTypeHint: "a".repeat(201) })).toBe(
+      false,
+    )
+    expect(passes(FilingRouteInputSchema, { ...portal, requestTypeHint: "a".repeat(200) })).toBe(
+      true,
+    )
   })
 })
 
@@ -323,15 +349,24 @@ describe("SaveFilingRoutesRequest", () => {
   const distinct = [...ReportCategorySchema.options, null].map(routeFor)
 
   it("T16: 9 routes, a repeated category, a repeated default or no geoid fails", () => {
-    expect(passes(SaveFilingRoutesRequestSchema, { geoid: "0644000", routes: [...distinct, routeFor("trash")] })).toBe(
-      false,
-    )
     expect(
-      passes(SaveFilingRoutesRequestSchema, { geoid: "0644000", routes: [routeFor("graffiti"), routeFor("graffiti")] }),
+      passes(SaveFilingRoutesRequestSchema, {
+        geoid: "0644000",
+        routes: [...distinct, routeFor("trash")],
+      }),
     ).toBe(false)
-    expect(passes(SaveFilingRoutesRequestSchema, { geoid: "0644000", routes: [routeFor(null), routeFor(null)] })).toBe(
-      false,
-    )
+    expect(
+      passes(SaveFilingRoutesRequestSchema, {
+        geoid: "0644000",
+        routes: [routeFor("graffiti"), routeFor("graffiti")],
+      }),
+    ).toBe(false)
+    expect(
+      passes(SaveFilingRoutesRequestSchema, {
+        geoid: "0644000",
+        routes: [routeFor(null), routeFor(null)],
+      }),
+    ).toBe(false)
     expect(passes(SaveFilingRoutesRequestSchema, { routes: [] })).toBe(false)
   })
 
@@ -357,10 +392,17 @@ describe("RecordManualFilingRequest", () => {
 
   it("T20: caseUrl must be a safe https URL of at most 2048 characters, and is optional", () => {
     const base = { id: "f1", caseId: "1-2345678901" }
-    expect(passes(RecordManualFilingRequestSchema, { ...base, caseUrl: "http://x.gov/1" })).toBe(false)
-    expect(passes(RecordManualFilingRequestSchema, { ...base, caseUrl: urlOfLength(PORTAL_BASE, 2049) })).toBe(false)
+    expect(passes(RecordManualFilingRequestSchema, { ...base, caseUrl: "http://x.gov/1" })).toBe(
+      false,
+    )
     expect(
-      passes(RecordManualFilingRequestSchema, { ...base, caseUrl: "https://myla311.lacity.gov/s/case/1" }),
+      passes(RecordManualFilingRequestSchema, { ...base, caseUrl: urlOfLength(PORTAL_BASE, 2049) }),
+    ).toBe(false)
+    expect(
+      passes(RecordManualFilingRequestSchema, {
+        ...base,
+        caseUrl: "https://myla311.lacity.gov/s/case/1",
+      }),
     ).toBe(true)
     expect(passes(RecordManualFilingRequestSchema, base)).toBe(true)
   })
@@ -368,7 +410,9 @@ describe("RecordManualFilingRequest", () => {
 
 describe("filing request notes and required fields", () => {
   it("T21: a note of 501 characters fails; of 500 passes", () => {
-    const bodies: Array<[{ safeParse: (v: unknown) => { success: boolean } }, Record<string, unknown>]> = [
+    const bodies: Array<
+      [{ safeParse: (v: unknown) => { success: boolean } }, Record<string, unknown>]
+    > = [
       [FileReportRequestSchema, { id: UUID }],
       [CancelFilingRequestSchema, { id: "f1" }],
       [RecordManualFilingRequestSchema, { id: "f1", caseId: "1-2345678901" }],
@@ -392,7 +436,9 @@ describe("filing request notes and required fields", () => {
   })
 
   it("T23: every new request schema rejects an unknown key", () => {
-    const valid: Array<[string, { safeParse: (v: unknown) => { success: boolean } }, Record<string, unknown>]> = [
+    const valid: Array<
+      [string, { safeParse: (v: unknown) => { success: boolean } }, Record<string, unknown>]
+    > = [
       ["fileReport", FileReportRequestSchema, { id: UUID }],
       ["listFilings", ListFilingsRequestSchema, { group: "needs_human" }],
       ["getFiling", GetFilingRequestSchema, { id: "f1" }],
@@ -413,7 +459,9 @@ describe("filing request notes and required fields", () => {
 
 describe("filing DTOs and responses", () => {
   it("T29: every new DTO and response schema rejects an unknown key", () => {
-    const valid: Array<[string, { safeParse: (v: unknown) => { success: boolean } }, Record<string, unknown>]> = [
+    const valid: Array<
+      [string, { safeParse: (v: unknown) => { success: boolean } }, Record<string, unknown>]
+    > = [
       ["FilingEvidenceDTO", FilingEvidenceDTOSchema, evidence],
       ["AdminFilingDTO", AdminFilingDTOSchema, filing],
       ["FilingRouteDTO", FilingRouteDTOSchema, routeDto],
@@ -421,7 +469,11 @@ describe("filing DTOs and responses", () => {
       ["ReportFilingDTO", ReportFilingDTOSchema, reportFiling],
       ["FileReportResponse", FileReportResponseSchema, { filing }],
       ["ListFilingsResponse", ListFilingsResponseSchema, listPage([filing])],
-      ["GetFilingResponse", GetFilingResponseSchema, { filing: { ...filing, evidence: [evidence] } }],
+      [
+        "GetFilingResponse",
+        GetFilingResponseSchema,
+        { filing: { ...filing, evidence: [evidence] } },
+      ],
       ["RetryFilingResponse", RetryFilingResponseSchema, { filing }],
       ["CancelFilingResponse", CancelFilingResponseSchema, { filing }],
       ["RecordManualFilingResponse", RecordManualFilingResponseSchema, { filing }],
@@ -435,15 +487,20 @@ describe("filing DTOs and responses", () => {
       expect(passes(schema, { ...payload, extra: 1 }), name).toBe(false)
     }
 
-    expect(passes(FilingRouteDTOSchema, { ...routeDto, health: { ...health, extra: 1 } }), "health").toBe(false)
-    expect(passes(ListFilingsResponseSchema, { ...listPage([filing]), counts: { ...counts, extra: 1 } }), "counts").toBe(
-      false,
-    )
+    expect(
+      passes(FilingRouteDTOSchema, { ...routeDto, health: { ...health, extra: 1 } }),
+      "health",
+    ).toBe(false)
+    expect(
+      passes(ListFilingsResponseSchema, { ...listPage([filing]), counts: { ...counts, extra: 1 } }),
+      "counts",
+    ).toBe(false)
     const filingRoute = { channel: "portal", target: "myla311.lacity.gov" }
     expect(passes(AdminReportDTOSchema, { ...adminReport, filingRoute }), "filingRoute").toBe(true)
-    expect(passes(AdminReportDTOSchema, { ...adminReport, filingRoute: { ...filingRoute, extra: 1 } }), "filingRoute").toBe(
-      false,
-    )
+    expect(
+      passes(AdminReportDTOSchema, { ...adminReport, filingRoute: { ...filingRoute, extra: 1 } }),
+      "filingRoute",
+    ).toBe(false)
   })
 
   it("T24: an all-null filing without evidence is a valid AdminFilingDTO and fileReport response, but not a getFiling one", () => {
@@ -459,12 +516,17 @@ describe("resident and admin report fields", () => {
       baseReport(),
       { ...baseReport(), filing: null },
       { ...baseReport(), filing: reportFiling },
-      { ...baseReport(), filing: { ...reportFiling, jurisdictionName: null, caseId: null, caseUrl: null } },
+      {
+        ...baseReport(),
+        filing: { ...reportFiling, jurisdictionName: null, caseId: null, caseUrl: null },
+      },
     ]
     for (const report of cases) {
       const parsed = ReportDTOSchema.safeParse(report)
       expect(parsed.success, JSON.stringify(report.filing)).toBe(true)
-      expect(parsed.data && "filing" in parsed.data ? parsed.data.filing : undefined).toEqual(report.filing)
+      expect(parsed.data && "filing" in parsed.data ? parsed.data.filing : undefined).toEqual(
+        report.filing,
+      )
     }
   })
 
@@ -472,17 +534,25 @@ describe("resident and admin report fields", () => {
     expect(passes(AdminReportDTOSchema, adminReport)).toBe(true)
     expect(HomeSummaryResponseSchema.parse(homeSummary)).toMatchObject({ filingsNeedsHuman: 0 })
     expect(
-      passes(AdminReportDTOSchema, { ...adminReport, filing: null, filingRoute: { channel: "manual", target: null } }),
+      passes(AdminReportDTOSchema, {
+        ...adminReport,
+        filing: null,
+        filingRoute: { channel: "manual", target: null },
+      }),
     ).toBe(true)
     expect(passes(AdminReportDTOSchema, { ...adminReport, filingRoute: null })).toBe(true)
   })
 
   it("T34: filingsNeedsHuman is a non-negative integer", () => {
     expect(passes(HomeSummaryResponseSchema, { ...homeSummary, filingsNeedsHuman: -1 })).toBe(false)
-    expect(passes(HomeSummaryResponseSchema, { ...homeSummary, filingsNeedsHuman: 1.5 })).toBe(false)
-    expect(HomeSummaryResponseSchema.parse({ ...homeSummary, filingsNeedsHuman: 3 })).toMatchObject({
-      filingsNeedsHuman: 3,
-    })
+    expect(passes(HomeSummaryResponseSchema, { ...homeSummary, filingsNeedsHuman: 1.5 })).toBe(
+      false,
+    )
+    expect(HomeSummaryResponseSchema.parse({ ...homeSummary, filingsNeedsHuman: 3 })).toMatchObject(
+      {
+        filingsNeedsHuman: 3,
+      },
+    )
   })
 })
 
@@ -545,7 +615,9 @@ describe("filing enums, list and limits", () => {
     expect(passes(ListFilingsRequestSchema, { group: "running" })).toBe(false)
     const fifty = Array.from({ length: 50 }, (_, i) => ({ ...filing, id: `f${i}` }))
     expect(passes(ListFilingsResponseSchema, listPage(fifty))).toBe(true)
-    expect(passes(ListFilingsResponseSchema, listPage([...fifty, { ...filing, id: "f50" }]))).toBe(false)
+    expect(passes(ListFilingsResponseSchema, listPage([...fifty, { ...filing, id: "f50" }]))).toBe(
+      false,
+    )
     expect(passes(ListFilingsResponseSchema, { items: fifty, nextCursor: null })).toBe(false)
   })
 
@@ -555,9 +627,15 @@ describe("filing enums, list and limits", () => {
     const d254 = "a".repeat(250) + ".gov"
     expect(d253).toHaveLength(253)
     expect(d254).toHaveLength(254)
-    expect(passes(FilingRouteInputSchema, { ...emailDefault, statusSenderDomains: five })).toBe(true)
-    expect(passes(FilingRouteInputSchema, { ...emailDefault, statusSenderDomains: [d253] })).toBe(true)
-    expect(passes(FilingRouteInputSchema, { ...emailDefault, statusSenderDomains: [d254] })).toBe(false)
+    expect(passes(FilingRouteInputSchema, { ...emailDefault, statusSenderDomains: five })).toBe(
+      true,
+    )
+    expect(passes(FilingRouteInputSchema, { ...emailDefault, statusSenderDomains: [d253] })).toBe(
+      true,
+    )
+    expect(passes(FilingRouteInputSchema, { ...emailDefault, statusSenderDomains: [d254] })).toBe(
+      false,
+    )
   })
 
   it("T33: recordManualFiling requires caseId", () => {

@@ -64,11 +64,29 @@ describe("endpoint registry", () => {
   })
 
   const filingEndpoints = [
-    ["fileReport", "POST", "/admin/reports/:id/file", FileReportRequestSchema, FileReportResponseSchema],
+    [
+      "fileReport",
+      "POST",
+      "/admin/reports/:id/file",
+      FileReportRequestSchema,
+      FileReportResponseSchema,
+    ],
     ["listFilings", "GET", "/admin/filings", ListFilingsRequestSchema, ListFilingsResponseSchema],
     ["getFiling", "GET", "/admin/filings/:id", GetFilingRequestSchema, GetFilingResponseSchema],
-    ["retryFiling", "POST", "/admin/filings/:id/retry", RetryFilingRequestSchema, RetryFilingResponseSchema],
-    ["cancelFiling", "POST", "/admin/filings/:id/cancel", CancelFilingRequestSchema, CancelFilingResponseSchema],
+    [
+      "retryFiling",
+      "POST",
+      "/admin/filings/:id/retry",
+      RetryFilingRequestSchema,
+      RetryFilingResponseSchema,
+    ],
+    [
+      "cancelFiling",
+      "POST",
+      "/admin/filings/:id/cancel",
+      CancelFilingRequestSchema,
+      CancelFilingResponseSchema,
+    ],
     [
       "recordManualFiling",
       "POST",

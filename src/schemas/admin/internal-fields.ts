@@ -5,11 +5,12 @@
  */
 import { z } from "zod"
 import { ReportCategorySchema } from "../common.js"
+import { HTTP_URL_MAX_LENGTH, HttpUrlSchema } from "../entities.js"
 
 export const RoutingContactFields = {
   contacts: z.partialRecord(ReportCategorySchema, z.email().nullable()).optional(),
   defaultEmails: z.array(z.email()).optional(),
-  formUrl: z.url().nullable().optional(),
+  formUrl: HttpUrlSchema.max(HTTP_URL_MAX_LENGTH).nullable().optional(),
 } as const
 
 export const AdminMediaRefSchema = z

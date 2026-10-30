@@ -1173,7 +1173,7 @@ verification, which is evidence-backed and does scale. So `VerificationStatus`, 
 verification is untouched (`OrgVerificationStatus`/`Kind`, `OrganizationRefDTO.verified`, the admin
 verification queue), and so is `reportVerified`, which is a
 different claim about a different thing (this reporter's reports may be auto-forwarded to the city;
-**amended in 0.66.0 (§64):** auto-forward is retired, so no report reaches a city before an operator
+**amended in 0.67.0 (§65):** auto-forward is retired, so no report reaches a city before an operator
 approves it).
 
 These removals are NOT additive, and that is a deliberate exception to §11 rather than an oversight.
@@ -1748,7 +1748,7 @@ stored default (`setForwardTemplateDefault`) -> the built-in `DEFAULT_FORWARD_SU
 `DEFAULT_FORWARD_BODY_TEMPLATE`. The built-in default is a template string, not code, so an editor can
 prefill it and "reset to default" means exactly that. The backend appends the photo list and the operator
 note as structured blocks when the body does not use `{photoLinks}` / `{operatorNote}`, so a templated
-packet can never arrive with attachments it does not mention. **Amended in 0.66.0 (§64):** the photo
+packet can never arrive with attachments it does not mention. **Amended in 0.67.0 (§65):** the photo
 block lists only the ready media that were not attached to the email (photos past the send budget, and
 videos), and nothing is appended when every item was attached; `routeReport` attaches nothing, so its
 block is unchanged. The built-in `DEFAULT_FORWARD_BODY_TEMPLATE` no longer carries the "Photo/Video
@@ -2354,8 +2354,9 @@ that way. Each top-level schema runs the same check, with the same default patte
 replaces, so nothing a client sends or receives changes. Where a transform has to run before the
 format check, the check is attached in place with `.check(z.email())` (or `z.url()`), because
 `z.email().trim()` would check the format before trimming: `HostEventEmailSchema` trims and lowercases
-first, and `HttpsUrlSchema` trims first. `z.url()` still accepts any protocol (`javascript:` and
-`mailto:` included) and trims surrounding whitespace; only `HttpsUrlSchema` requires `https://`.
+first, and `HttpsUrlSchema` trims first. `z.url()` alone accepts any protocol (`javascript:` and
+`mailto:` included), so no field uses it bare: link fields use `HttpUrlSchema` (http and https only,
+§64) or `HttpsUrlSchema` (`https://` only).
 `__tests__/string-formats.test.ts` pins what each format accepts, how it normalizes and the issue
 clients receive.
 
@@ -2367,7 +2368,41 @@ Every consumer adopts it in one delivery set, because a minor needs a range edit
 civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
 civfix-admin.
 
-## 64. City filing: an approved report is filed with its city through a saved route, and residents see it (0.66.0)
+## 64. Link fields accept only http and https (0.66.0)
+
+`z.url()` only checks that `new URL()` parses the string, and `javascript:alert(1)`,
+`data:text/html,...`, `file:///etc/passwd` and `vbscript:` all parse. The contract's link fields are
+rendered as `href`s in the operator console, so a `javascript:` value there is a stored XSS. The rule
+lives in the contract, the one definition both sides share, so a new route that takes a link is
+covered without remembering a backend helper.
+
+`HttpUrlSchema` is `z.string().trim().check(z.url({ protocol: /^https?$/ }))`: it trims, then accepts
+`http:` and `https:` only (case-insensitive), and rejects every other scheme, scheme-relative `//host`
+and a link without a hostname (`http:foo`). Every link field in `src/` is either `HttpUrlSchema` or
+`HttpsUrlSchema`; none is a bare `z.url()`. The four fields:
+
+- `SuggestContactRequest.formUrl` (public) and `RoutingContactFields.formUrl` (operator; spread into
+  `PatchJurisdictionRequest`, `SaveContactsRequest` and `SaveDraftRequest`) are
+  `HttpUrlSchema.max(HTTP_URL_MAX_LENGTH)` (2048 characters, measured after the trim), with their
+  modifiers unchanged: the public one is optional, the operator one optional and nullable, so `null`
+  still clears it.
+- `JurisdictionDirectoryDTO.form` and `MailAttachment.url` are `HttpUrlSchema` with no length cap:
+  a presigned link can be long, and a response is not an input to bound.
+
+**http stays allowed.** Some city reporting forms are still served over plain http, and the backend's
+own checks accept http. A field that must be https keeps `HttpsUrlSchema`.
+
+**The two response fields can tighten.** §16 keeps response schemas from tightening because a new
+client must still parse an old server's body. No server emits anything else in these two fields: the
+backend has refused a non-http(s) `formUrl` at its persist boundary since 2026-07-24, and attachment
+links are always presigned http(s) URLs the server builds. The backend keeps those checks as defense
+in depth.
+
+Every consumer adopts it in one delivery set, because a minor needs a range edit on 0.x:
+civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
+civfix-admin.
+
+## 65. City filing: an approved report is filed with its city through a saved route, and residents see it (0.67.0)
 
 **Approve files the report; nothing skips approval.** An operator's Approve verdict (`setReportVerdict`
 with `approved`) creates a filing for the report in the same request; its response stays `{ ok: true }`.
@@ -2463,7 +2498,7 @@ string the server validated; a client opens it only when it is https.
 defaulting to 0), and `setReportVerdict`, `routeReport`, `ReportStatus`, `ReportCategory` and the admin
 status machine keep their shapes. Requests carry their path parameters as fields and are `.strict()`;
 the new DTOs and responses are `.strict()` like the other admin DTOs. Because `AdminReportDTO` and
-`HomeSummaryResponse` are strict, an admin build older than 0.66.0 logs a response parse warning and
+`HomeSummaryResponse` are strict, an admin build older than 0.67.0 logs a response parse warning and
 falls back to the raw body once the backend sends the new fields. That is expected and harmless.
 `FilingEvidenceDTO.url` is a signed GET that expires after 15 minutes, so clients refetch the filing
 instead of caching it. The limits are exported (`FILING_NOTE_MAX`, `FILING_REQUEST_TYPE_HINT_MAX`,

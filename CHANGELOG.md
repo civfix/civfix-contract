@@ -1,15 +1,21 @@
 # @civfix/contract
 
+## 0.67.0
+
+### Minor Changes
+
+- City filing (DECISIONS §65). All additive: the registry goes from 341 to 351 entries, all ten of them admin.
+
+  - New `src/schemas/admin/filings.ts`: the enums `FilingChannel`, `FilingStatus`, `FilingMethod`, `FilingGroup`, `FilingEvidenceKind` and `FilingReason`; `AdminFilingDTO`, `FilingEvidenceDTO` (its `url` expires after 15 minutes), `FilingRouteInput` (validated: a portal route's `formUrl` is a public https URL outside civfix, `statusSenderDomains` is 0-5 distinct lowercased hostnames), `FilingRouteDTO`, `FilingSettingsDTO`, and the limits `FILING_NOTE_MAX`, `FILING_REQUEST_TYPE_HINT_MAX`, `FILING_SENDER_DOMAINS_MAX`, `FILING_ROUTES_MAX`, `FILING_LIST_PAGE_MAX` and `FILING_CASE_ID_PATTERN`.
+  - New operator endpoints, each with its `…Request` / `…Response` schemas: `fileReport` (`POST /admin/reports/:id/file`), `listFilings` (`GET /admin/filings`), `getFiling` (`GET /admin/filings/:id`), `retryFiling`, `cancelFiling` and `recordManualFiling` (`POST /admin/filings/:id/retry|cancel|manual`), `getFilingSettings` and `setFilingSettings` (`GET` / `PUT /admin/filing-settings`), `listFilingRoutes` and `saveFilingRoutes` (`GET` / `PUT /admin/jurisdictions/:geoid/filing-routes`).
+  - `ReportDTO` gains `filing` (`ReportFilingDTO`, nullable and optional). `AdminReportDTO` gains `filing` and `filingRoute` (nullable and optional), and `HomeSummaryResponse` gains `filingsNeedsHuman` (default 0). Both are strict, so an admin build older than 0.67.0 logs a parse warning and uses the raw body once the backend sends them.
+  - `DEFAULT_FORWARD_BODY_TEMPLATE` drops its "Photo/Video Links" paragraph; the backend appends the links for media not attached. `{photoLinks}` and `{photoCount}` stay valid in templates.
+
 ## 0.66.0
 
 ### Minor Changes
 
-- City filing (DECISIONS §64). All additive: the registry goes from 341 to 351 entries, all ten of them admin.
-
-  - New `src/schemas/admin/filings.ts`: the enums `FilingChannel`, `FilingStatus`, `FilingMethod`, `FilingGroup`, `FilingEvidenceKind` and `FilingReason`; `AdminFilingDTO`, `FilingEvidenceDTO` (its `url` expires after 15 minutes), `FilingRouteInput` (validated: a portal route's `formUrl` is a public https URL outside civfix, `statusSenderDomains` is 0-5 distinct lowercased hostnames), `FilingRouteDTO`, `FilingSettingsDTO`, and the limits `FILING_NOTE_MAX`, `FILING_REQUEST_TYPE_HINT_MAX`, `FILING_SENDER_DOMAINS_MAX`, `FILING_ROUTES_MAX`, `FILING_LIST_PAGE_MAX` and `FILING_CASE_ID_PATTERN`.
-  - New operator endpoints, each with its `…Request` / `…Response` schemas: `fileReport` (`POST /admin/reports/:id/file`), `listFilings` (`GET /admin/filings`), `getFiling` (`GET /admin/filings/:id`), `retryFiling`, `cancelFiling` and `recordManualFiling` (`POST /admin/filings/:id/retry|cancel|manual`), `getFilingSettings` and `setFilingSettings` (`GET` / `PUT /admin/filing-settings`), `listFilingRoutes` and `saveFilingRoutes` (`GET` / `PUT /admin/jurisdictions/:geoid/filing-routes`).
-  - `ReportDTO` gains `filing` (`ReportFilingDTO`, nullable and optional). `AdminReportDTO` gains `filing` and `filingRoute` (nullable and optional), and `HomeSummaryResponse` gains `filingsNeedsHuman` (default 0). Both are strict, so an admin build older than 0.66.0 logs a parse warning and uses the raw body once the backend sends them.
-  - `DEFAULT_FORWARD_BODY_TEMPLATE` drops its "Photo/Video Links" paragraph; the backend appends the links for media not attached. `{photoLinks}` and `{photoCount}` stay valid in templates.
+- Link fields accept only http and https (DECISIONS §64). The new `HttpUrlSchema` trims, then accepts `http:` and `https:` links only, and rejects `javascript:`, `data:`, `file:`, `vbscript:`, `blob:` and scheme-relative `//host` links; it is exported with `HTTP_URL_MAX_LENGTH` (2048). `SuggestContactRequest.formUrl` and the `formUrl` of `PatchJurisdictionRequest`, `SaveContactsRequest` and `SaveDraftRequest` use it capped at 2048 characters, with their optional and nullable behavior unchanged. `JurisdictionDirectoryDTO.form` and `MailAttachment.url` use it with no length cap; no server sends anything else there.
 
 ## 0.65.0
 

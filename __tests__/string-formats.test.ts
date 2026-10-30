@@ -90,11 +90,22 @@ describe("email fields", () => {
 describe("URL fields", () => {
   const formUrl = SuggestContactRequestSchema.shape.formUrl
 
+  it.each(["https://example.com", "http://x", "https://localhost:3000/x", "https://ü.com"])(
+    "accepts %s",
+    (value) => {
+      expect(formUrl.parse(value)).toBe(value)
+    },
+  )
+
+  it("trims surrounding whitespace", () => {
+    expect(formUrl.parse(" https://example.com")).toBe("https://example.com")
+  })
+
   it.each([
-    "https://example.com",
-    "http://x",
-    "https://localhost:3000/x",
-    "https://ü.com",
+    "example.com",
+    "//example.com",
+    "https://",
+    "https://exa mple.com",
     "https:example.com",
     "ftp://x.com",
     "mailto:a@b.com",
@@ -102,20 +113,9 @@ describe("URL fields", () => {
     "javascript:alert(1)",
     "data:text/plain,hi",
     "file:///etc/passwd",
-  ])("accepts %s (any protocol)", (value) => {
-    expect(formUrl.parse(value)).toBe(value)
+  ])("rejects %s", (value) => {
+    expect(issue(formUrl, value)).toEqual(INVALID_URL)
   })
-
-  it("trims surrounding whitespace", () => {
-    expect(formUrl.parse(" https://example.com")).toBe("https://example.com")
-  })
-
-  it.each(["example.com", "//example.com", "https://", "https://exa mple.com"])(
-    "rejects %s",
-    (value) => {
-      expect(issue(formUrl, value)).toEqual(INVALID_URL)
-    },
-  )
 
   it("HttpsUrlSchema trims, caps at 500 characters and requires https://", () => {
     const base = "https://example.com/"
