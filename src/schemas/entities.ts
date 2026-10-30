@@ -54,6 +54,7 @@ const OrganizationRefDTOObjectSchema = z.object({
   verifiedKind: OrgVerificationKindSchema.nullable().optional(),
 })
 export type OrganizationRefDTO = z.infer<typeof OrganizationRefDTOObjectSchema>
+export type OrganizationRefDTOInput = never
 export const OrganizationRefDTOSchema: z.ZodType<OrganizationRefDTO, unknown> =
   OrganizationRefDTOObjectSchema
 
