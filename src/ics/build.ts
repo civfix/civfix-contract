@@ -13,16 +13,16 @@ export type IcsStatus = "CONFIRMED" | "TENTATIVE" | "CANCELLED"
 export interface IcsEventInput {
   uid: string
   title: string
-  description?: string
+  description?: string | undefined
   startsAt: string
-  endsAt?: string
-  timezone?: string
-  location?: string
-  url?: string
-  status?: IcsStatus
-  sequence?: number
-  organizer?: { name?: string; email?: string }
-  dtstamp?: string
+  endsAt?: string | undefined
+  timezone?: string | undefined
+  location?: string | undefined
+  url?: string | undefined
+  status?: IcsStatus | undefined
+  sequence?: number | undefined
+  organizer?: { name?: string | undefined; email?: string | undefined } | undefined
+  dtstamp?: string | undefined
 }
 
 function assertInstant(label: string, value: string): number {

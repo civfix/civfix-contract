@@ -301,8 +301,8 @@ describe("admin endpoint registry", () => {
 
   it("fills :id and :geoid admin path params from the typed input", async () => {
     const calls: string[] = []
-    const fetchImpl = vi.fn(async (url: string | URL | Request) => {
-      calls.push(String(url))
+    const fetchImpl = vi.fn(async (url: string) => {
+      calls.push(url)
       return jsonResponse({ ok: true })
     }) as unknown as typeof fetch
     const client = createApiClient({
@@ -325,8 +325,8 @@ describe("admin endpoint registry", () => {
 describe("createApiClient", () => {
   it("fills path params, injects auth + csrf, and returns parsed JSON", async () => {
     const calls: Array<{ url: string; init: RequestInit }> = []
-    const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
-      calls.push({ url: String(url), init: init ?? {} })
+    const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
+      calls.push({ url, init: init ?? {} })
       return jsonResponse({ ok: true })
     }) as unknown as typeof fetch
 
@@ -350,9 +350,9 @@ describe("createApiClient", () => {
 
   it("exposes confirmReport, unconfirmReport and pressingReports on the typed client", async () => {
     const calls: Array<{ url: string; method: string | undefined }> = []
-    const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
-      calls.push({ url: String(url), method: init?.method })
-      return String(url).includes("/pressing")
+    const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
+      calls.push({ url, method: init?.method })
+      return url.includes("/pressing")
         ? jsonResponse({ items: [] })
         : jsonResponse({ confirmCount: 1, confirmedByMe: init?.method === "POST" })
     }) as unknown as typeof fetch
@@ -403,8 +403,8 @@ describe("createApiClient", () => {
 
   it("encodes GET query params", async () => {
     let url = ""
-    const fetchImpl = vi.fn(async (u: string | URL | Request) => {
-      url = String(u)
+    const fetchImpl = vi.fn(async (u: string) => {
+      url = u
       return jsonResponse({ items: [], nextCursor: null })
     }) as unknown as typeof fetch
 
@@ -444,7 +444,7 @@ describe("createApiClient", () => {
   it("does not send auth header for public endpoints", async () => {
     let headers: Record<string, string> = {}
     const fetchImpl = vi.fn(async (_u: string | URL | Request, init?: RequestInit) => {
-      headers = (init?.headers as Record<string, string>) ?? {}
+      headers = (init?.headers ?? {}) as Record<string, string>
       return jsonResponse({ ok: true })
     }) as unknown as typeof fetch
 
@@ -457,8 +457,8 @@ describe("createApiClient", () => {
 
   it("targets the /v1 wire path for a versioned endpoint", async () => {
     let url = ""
-    const fetchImpl = vi.fn(async (u: string | URL | Request) => {
-      url = String(u)
+    const fetchImpl = vi.fn(async (u: string) => {
+      url = u
       return jsonResponse({ items: [], nextCursor: null })
     }) as unknown as typeof fetch
 
@@ -469,8 +469,8 @@ describe("createApiClient", () => {
 
   it("targets the bare (unversioned) path for an unversioned endpoint", async () => {
     let url = ""
-    const fetchImpl = vi.fn(async (u: string | URL | Request) => {
-      url = String(u)
+    const fetchImpl = vi.fn(async (u: string) => {
+      url = u
       return jsonResponse({ url: "https://accounts.google.com/o/oauth2/auth" })
     }) as unknown as typeof fetch
 

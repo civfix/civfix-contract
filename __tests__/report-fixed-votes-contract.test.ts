@@ -136,8 +136,8 @@ describe("markReportFixed / unmarkReportFixed registry entries", () => {
 
   it("T15: both take ReportConfirmRequestSchema and answer ReportConfirmResponseSchema", () => {
     for (const e of [endpoints.markReportFixed, endpoints.unmarkReportFixed]) {
-      expect(e?.request).toBe(ReportConfirmRequestSchema)
-      expect(e?.response).toBe(ReportConfirmResponseSchema)
+      expect(e.request).toBe(ReportConfirmRequestSchema)
+      expect(e.response).toBe(ReportConfirmResponseSchema)
     }
   })
 })
@@ -145,8 +145,8 @@ describe("markReportFixed / unmarkReportFixed registry entries", () => {
 describe("markReportFixed / unmarkReportFixed on the typed client", () => {
   it("T8: POSTs and DELETEs /v1/reports/<id>/fixed and returns the parsed four-field body", async () => {
     const calls: Array<{ url: string; method: string | undefined }> = []
-    const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
-      calls.push({ url: String(url), method: init?.method })
+    const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
+      calls.push({ url, method: init?.method })
       return jsonResponse({
         confirmCount: 2,
         confirmedByMe: false,

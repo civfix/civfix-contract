@@ -4,6 +4,7 @@ import tseslint from "typescript-eslint"
 // The @civfix/contract contract must stay framework-free: never import or re-export react / react-dom /
 // react-native (or any react-native-* lib) or @civfix/ui. @civfix/ui depends ON this package, never the
 // reverse, and the backend pins @civfix/contract and must not be able to pull React/RN or the design tokens in through it.
+/** @type {import("eslint").Linter.RulesRecord} */
 const FRAMEWORK_FREE_IMPORTS = {
   "no-restricted-imports": [
     "error",
@@ -29,8 +30,13 @@ const FRAMEWORK_FREE_IMPORTS = {
   ],
 }
 
+/** @type {import("eslint").Linter.RulesRecord} */
 const TYPED_RULES = {
-  "@typescript-eslint/no-floating-promises": "error",
+  // node:test's test() returns a promise the runner itself tracks.
+  "@typescript-eslint/no-floating-promises": [
+    "error",
+    { allowForKnownSafeCalls: [{ from: "package", package: "node:test", name: ["test", "describe", "it"] }] },
+  ],
   "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: { attributes: true } }],
   // A `default` branch is a deliberate catch-all; the rule only has to catch a switch that silently
   // falls through to undefined when a union grows.
@@ -41,6 +47,27 @@ const TYPED_RULES = {
   "@typescript-eslint/no-unsafe-call": "error",
   "@typescript-eslint/no-unsafe-member-access": "error",
   "@typescript-eslint/no-unsafe-return": "error",
+  "@typescript-eslint/no-unsafe-enum-comparison": "error",
+  "@typescript-eslint/no-unsafe-enum-assignment": "error",
+  "@typescript-eslint/no-unsafe-unary-minus": "error",
+  "@typescript-eslint/no-unsafe-declaration-merging": "error",
+  "@typescript-eslint/no-unsafe-function-type": "error",
+  "@typescript-eslint/no-unnecessary-condition": "error",
+  "@typescript-eslint/no-unnecessary-type-assertion": "error",
+  "@typescript-eslint/restrict-template-expressions": [
+    "error",
+    { allowNumber: true, allowAny: false, allowBoolean: false, allowNullish: false, allowRegExp: false, allowNever: false },
+  ],
+  "@typescript-eslint/restrict-plus-operands": "error",
+  "@typescript-eslint/prefer-nullish-coalescing": "error",
+  "@typescript-eslint/prefer-promise-reject-errors": "error",
+  "@typescript-eslint/only-throw-error": "error",
+  "@typescript-eslint/no-base-to-string": "error",
+  "@typescript-eslint/no-misused-spread": "error",
+  "@typescript-eslint/no-dynamic-delete": "error",
+  "@typescript-eslint/use-unknown-in-catch-callback-variable": "error",
+  "@typescript-eslint/no-non-null-assertion": "error",
+  "@typescript-eslint/no-deprecated": "error",
 }
 
 export default tseslint.config(
@@ -50,12 +77,15 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    linterOptions: {
+      reportUnusedDisableDirectives: "error",
+    },
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
     },
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
@@ -84,6 +114,18 @@ export default tseslint.config(
     files: ["scripts/**/*.mjs"],
     languageOptions: {
       globals: { process: "readonly", console: "readonly", URL: "readonly" },
+      parserOptions: {
+        projectService: false,
+        project: "./tsconfig.scripts.json",
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: TYPED_RULES,
+  },
+  {
+    files: ["__tests__/**", "src/**/__tests__/**", "scripts/**/*.test.mjs"],
+    rules: {
+      "@typescript-eslint/no-non-null-assertion": "off",
     },
   },
 )
