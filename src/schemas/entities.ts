@@ -45,9 +45,11 @@ export const HttpsUrlSchema = z
 
 export const HTTP_URL_MAX_LENGTH = 2048
 
-export const HttpUrlSchema = z.string().transform((): string => {
-  throw new Error("not implemented")
-})
+// http as well as https: some city reporting forms are still served over plain http (DECISIONS §64).
+export const HttpUrlSchema = z
+  .string()
+  .trim()
+  .check(z.url({ protocol: /^https?$/ }))
 
 export const AvatarPairSchema = z.tuple([z.string(), z.string()]).nullable().optional()
 
