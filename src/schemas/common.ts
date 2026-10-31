@@ -403,7 +403,8 @@ const BroadcastSegmentUnionSchema = z.discriminatedUnion("kind", [
 ])
 export type BroadcastSegment = z.infer<typeof BroadcastSegmentUnionSchema>
 
-export const BroadcastSegmentSchema: z.ZodType<BroadcastSegment, unknown> =
+export type BroadcastSegmentInput = z.input<typeof BroadcastSegmentUnionSchema>
+export const BroadcastSegmentSchema: z.ZodType<BroadcastSegment, BroadcastSegmentInput> =
   BroadcastSegmentUnionSchema
 
 export const PageViewSourceSchema = z.enum([

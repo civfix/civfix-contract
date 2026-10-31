@@ -1,16 +1,22 @@
 # @civfix/contract
 
-## 0.67.0
+## 0.68.0
 
 ### Minor Changes
 
-- Notification settings, the notification center and direct push data (DECISIONS §65). All additive: the registry goes from 341 to 349 entries, none of them admin.
+- Notification settings, the notification center and direct push data (DECISIONS §66). All additive: the registry goes from 341 to 349 entries, none of them admin.
 
   - Eleven notification categories: `NotificationCategorySchema`, `NotificationCategorySettingSchema` (`{ enabled, push, email }`, strict), `NOTIFICATION_SECTIONS` (five sections whose ids are the Android channel ids) and `NOTIFICATION_CATEGORY_DEFAULTS`.
   - New endpoints: `getNotificationSettings` (`GET /notifications/settings`) and `updateNotificationSettings` (`PATCH /notifications/settings`, a strict patch) answering `NotificationSettingsDTO`; `getNotificationUnread` (`GET /notifications/unread`); `markAllNotificationsRead` (`POST /notifications/read-all`); `dismissNotification` (`DELETE /notifications/:id`); `getPushWebConfig` (`GET /push/web-config`); and the public one-click pair `unsubscribeNotificationEmail` (`POST /notifications/email-unsubscribe`) and `openUnsubscribeNotificationEmail` (`GET`, a 302).
   - `PushMessageDataSchema`, the data every push carries (`kind: "notification"` or `"clear"`), with `encodePushMessageData` / `decodePushMessageData` for FCM's flat string map; decoding returns `null` on a malformed map and never throws.
   - `NotificationTypeSchema` appends `chat_mention`.
   - The prefs endpoints and `NotificationPrefsDTO` are unchanged.
+
+## 0.67.0
+
+### Minor Changes
+
+- Schemas typed by name now name their input as well as their output (DECISIONS §65). The 108 schemas annotated `z.ZodType<Output, unknown>` to stay under the TS7056 declaration cap are now `z.ZodType<Output, OutputInput>`, with each input type exported next to its output (`OrganizationRefDTOInput`, `CleanupDTOInput`, `EventInsightsInput`, and so on). No endpoint's response input is `unknown` any more (117 were), so `z.input` of a response, as the backend uses to type route replies, is the real shape. Runtime behavior is unchanged, and so is every exported output type and every endpoint's inferred request and response type. The emitted `.d.ts` grows from 2.58 MB to 4.19 MB.
 
 ## 0.66.0
 
