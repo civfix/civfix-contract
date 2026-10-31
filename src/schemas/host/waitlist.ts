@@ -28,8 +28,11 @@ const EventWaitlistEntryDTOObjectSchema = z.object({
   claimExpiresAt: ISODateSchema.nullable().optional(),
 })
 export type EventWaitlistEntryDTO = z.infer<typeof EventWaitlistEntryDTOObjectSchema>
-export const EventWaitlistEntryDTOSchema: z.ZodType<EventWaitlistEntryDTO, unknown> =
-  EventWaitlistEntryDTOObjectSchema
+export type EventWaitlistEntryDTOInput = z.input<typeof EventWaitlistEntryDTOObjectSchema>
+export const EventWaitlistEntryDTOSchema: z.ZodType<
+  EventWaitlistEntryDTO,
+  EventWaitlistEntryDTOInput
+> = EventWaitlistEntryDTOObjectSchema
 
 export const JoinEventWaitlistRequestSchema = z
   .object({
@@ -45,8 +48,11 @@ const JoinEventWaitlistResponseObjectSchema = z.object({
   entry: EventWaitlistEntryDTOSchema,
 })
 export type JoinEventWaitlistResponse = z.infer<typeof JoinEventWaitlistResponseObjectSchema>
-export const JoinEventWaitlistResponseSchema: z.ZodType<JoinEventWaitlistResponse, unknown> =
-  JoinEventWaitlistResponseObjectSchema
+export type JoinEventWaitlistResponseInput = z.input<typeof JoinEventWaitlistResponseObjectSchema>
+export const JoinEventWaitlistResponseSchema: z.ZodType<
+  JoinEventWaitlistResponse,
+  JoinEventWaitlistResponseInput
+> = JoinEventWaitlistResponseObjectSchema
 
 export const LeaveEventWaitlistRequestSchema = z
   .object({ id: IdSchema, ticketTypeId: IdSchema.optional() })
@@ -54,8 +60,11 @@ export const LeaveEventWaitlistRequestSchema = z
 export type LeaveEventWaitlistRequest = z.infer<typeof LeaveEventWaitlistRequestSchema>
 
 export type LeaveEventWaitlistResponse = z.infer<typeof OkResponseSchema>
-export const LeaveEventWaitlistResponseSchema: z.ZodType<LeaveEventWaitlistResponse, unknown> =
-  OkResponseSchema
+export type LeaveEventWaitlistResponseInput = z.input<typeof OkResponseSchema>
+export const LeaveEventWaitlistResponseSchema: z.ZodType<
+  LeaveEventWaitlistResponse,
+  LeaveEventWaitlistResponseInput
+> = OkResponseSchema
 
 export const ListEventWaitlistRequestSchema = PaginationQuerySchema.extend({
   id: IdSchema,
@@ -66,8 +75,11 @@ export type ListEventWaitlistRequest = z.infer<typeof ListEventWaitlistRequestSc
 
 const ListEventWaitlistResponseObjectSchema = pageResponse(EventWaitlistEntryDTOSchema)
 export type ListEventWaitlistResponse = z.infer<typeof ListEventWaitlistResponseObjectSchema>
-export const ListEventWaitlistResponseSchema: z.ZodType<ListEventWaitlistResponse, unknown> =
-  ListEventWaitlistResponseObjectSchema
+export type ListEventWaitlistResponseInput = z.input<typeof ListEventWaitlistResponseObjectSchema>
+export const ListEventWaitlistResponseSchema: z.ZodType<
+  ListEventWaitlistResponse,
+  ListEventWaitlistResponseInput
+> = ListEventWaitlistResponseObjectSchema
 
 export const WaitlistClaimOutcomeSchema = z.enum(["claimed", "expired", "not_offered", "not_found"])
 export type WaitlistClaimOutcome = z.infer<typeof WaitlistClaimOutcomeSchema>
@@ -82,8 +94,11 @@ const ClaimWaitlistOfferResponseObjectSchema = z.object({
   registrationId: IdSchema.nullable(),
 })
 export type ClaimWaitlistOfferResponse = z.infer<typeof ClaimWaitlistOfferResponseObjectSchema>
-export const ClaimWaitlistOfferResponseSchema: z.ZodType<ClaimWaitlistOfferResponse, unknown> =
-  ClaimWaitlistOfferResponseObjectSchema
+export type ClaimWaitlistOfferResponseInput = z.input<typeof ClaimWaitlistOfferResponseObjectSchema>
+export const ClaimWaitlistOfferResponseSchema: z.ZodType<
+  ClaimWaitlistOfferResponse,
+  ClaimWaitlistOfferResponseInput
+> = ClaimWaitlistOfferResponseObjectSchema
 
 export const PromoteFromWaitlistRequestSchema = z
   .object({ id: IdSchema, waitlistId: IdSchema })
@@ -94,5 +109,10 @@ const PromoteFromWaitlistResponseObjectSchema = z.object({
   entry: EventWaitlistEntryDTOSchema,
 })
 export type PromoteFromWaitlistResponse = z.infer<typeof PromoteFromWaitlistResponseObjectSchema>
-export const PromoteFromWaitlistResponseSchema: z.ZodType<PromoteFromWaitlistResponse, unknown> =
-  PromoteFromWaitlistResponseObjectSchema
+export type PromoteFromWaitlistResponseInput = z.input<
+  typeof PromoteFromWaitlistResponseObjectSchema
+>
+export const PromoteFromWaitlistResponseSchema: z.ZodType<
+  PromoteFromWaitlistResponse,
+  PromoteFromWaitlistResponseInput
+> = PromoteFromWaitlistResponseObjectSchema

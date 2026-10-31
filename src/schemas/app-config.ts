@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 /**
- * `GET /app/config`: what a phone needs before it shows anything (DECISIONS §65). Built from the public
+ * `GET /app/config`: what a phone needs before it shows anything (DECISIONS §66). Built from the public
  * runtime flags; not strict, so an older app still parses a response that gained a field.
  */
 export const AppAnnouncementLevelSchema = z.enum(["info", "warning"])

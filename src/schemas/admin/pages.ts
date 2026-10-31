@@ -31,13 +31,19 @@ const AdminEventPageListItemDTOObjectSchema = z.object({
   flaggedBy: AdminActorRefSchema.nullable().optional(),
 })
 export type AdminEventPageListItemDTO = z.infer<typeof AdminEventPageListItemDTOObjectSchema>
-export const AdminEventPageListItemDTOSchema: z.ZodType<AdminEventPageListItemDTO, unknown> =
-  AdminEventPageListItemDTOObjectSchema
+export type AdminEventPageListItemDTOInput = z.input<typeof AdminEventPageListItemDTOObjectSchema>
+export const AdminEventPageListItemDTOSchema: z.ZodType<
+  AdminEventPageListItemDTO,
+  AdminEventPageListItemDTOInput
+> = AdminEventPageListItemDTOObjectSchema
 
 const AdminEventPageListResponseObjectSchema = pageResponse(AdminEventPageListItemDTOSchema)
 export type AdminEventPageListResponse = z.infer<typeof AdminEventPageListResponseObjectSchema>
-export const AdminEventPageListResponseSchema: z.ZodType<AdminEventPageListResponse, unknown> =
-  AdminEventPageListResponseObjectSchema
+export type AdminEventPageListResponseInput = z.input<typeof AdminEventPageListResponseObjectSchema>
+export const AdminEventPageListResponseSchema: z.ZodType<
+  AdminEventPageListResponse,
+  AdminEventPageListResponseInput
+> = AdminEventPageListResponseObjectSchema
 
 export const FlagEventPageRequestSchema = z
   .object({
