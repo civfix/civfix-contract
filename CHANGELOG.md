@@ -1,14 +1,26 @@
 # @civfix/contract
 
-## 0.67.0
+## 0.68.0
 
 ### Minor Changes
 
-- Developer console, runtime flags and the app config (DECISIONS §65). All additive: the registry goes from 341 to 352 entries, 10 of them admin.
+- Developer console, runtime flags and the app config (DECISIONS §66). All additive: the registry goes from 341 to 352 entries, 10 of them admin.
 
   - `RUNTIME_FLAGS`, a fixed registry of eight operator-set flags (`host_messaging_kill_switch`, `outreach_digest_enabled`, `report_autoforward_enabled`, `min_app_version_ios`, `min_app_version_android`, `app_store_url_ios`, `announcement_text`, `announcement_level`), with `RuntimeFlagKey`, `RuntimeFlagValueSchema` (boolean, string or null) and `runtimeFlagValueSchema(key)`, the per-flag value check. Strings are trimmed and never empty, so "not set" is always null; an unknown key accepts nothing.
   - `getAppConfig` (`GET /app/config`, auth optional) returning `AppConfigResponse`: minimum app versions, store links and the announcement.
   - Operator endpoints under `/admin/dev`, all auth required and csrf on every mutation: `adminListRuntimeFlags` and `adminSetRuntimeFlag` (`RuntimeFlagStateDTO`, `AdminSetRuntimeFlagRequest`), `adminDevOverview` (`AdminDevOverviewResponse`), `adminDevJobs` and `adminDevRunJob` (`AdminDevJobsResponse`, `AdminDevRunJobResponse`), and the staging test tools `adminDevListForceUpdate`, `adminDevSetForceUpdate`, `adminDevTestPush`, `adminDevTestEmail` and `adminDevResetFirstRun`, whose request schemas are strict and trim and validate the email.
+
+## 0.67.0
+
+### Minor Changes
+
+- Schemas typed by name now name their input as well as their output (DECISIONS §65). The 108 schemas annotated `z.ZodType<Output, unknown>` to stay under the TS7056 declaration cap are now `z.ZodType<Output, OutputInput>`, with each input type exported next to its output (`OrganizationRefDTOInput`, `CleanupDTOInput`, `EventInsightsInput`, and so on). No endpoint's response input is `unknown` any more (117 were), so `z.input` of a response, as the backend uses to type route replies, is the real shape. Runtime behavior is unchanged, and so is every exported output type and every endpoint's inferred request and response type. The emitted `.d.ts` grows from 2.58 MB to 4.19 MB.
+
+## 0.66.0
+
+### Minor Changes
+
+- Link fields accept only http and https (DECISIONS §64). The new `HttpUrlSchema` trims, then accepts `http:` and `https:` links only, and rejects `javascript:`, `data:`, `file:`, `vbscript:`, `blob:` and scheme-relative `//host` links; it is exported with `HTTP_URL_MAX_LENGTH` (2048). `SuggestContactRequest.formUrl` and the `formUrl` of `PatchJurisdictionRequest`, `SaveContactsRequest` and `SaveDraftRequest` use it capped at 2048 characters, with their optional and nullable behavior unchanged. `JurisdictionDirectoryDTO.form` and `MailAttachment.url` use it with no length cap; no server sends anything else there.
 
 ## 0.65.0
 

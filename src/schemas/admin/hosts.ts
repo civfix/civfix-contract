@@ -57,13 +57,19 @@ const AdminBroadcastListItemDTOObjectSchema = z.object({
   finishedAt: ISODateSchema.nullable().optional(),
 })
 export type AdminBroadcastListItemDTO = z.infer<typeof AdminBroadcastListItemDTOObjectSchema>
-export const AdminBroadcastListItemDTOSchema: z.ZodType<AdminBroadcastListItemDTO, unknown> =
-  AdminBroadcastListItemDTOObjectSchema
+export type AdminBroadcastListItemDTOInput = z.input<typeof AdminBroadcastListItemDTOObjectSchema>
+export const AdminBroadcastListItemDTOSchema: z.ZodType<
+  AdminBroadcastListItemDTO,
+  AdminBroadcastListItemDTOInput
+> = AdminBroadcastListItemDTOObjectSchema
 
 const AdminBroadcastListResponseObjectSchema = pageResponse(AdminBroadcastListItemDTOSchema)
 export type AdminBroadcastListResponse = z.infer<typeof AdminBroadcastListResponseObjectSchema>
-export const AdminBroadcastListResponseSchema: z.ZodType<AdminBroadcastListResponse, unknown> =
-  AdminBroadcastListResponseObjectSchema
+export type AdminBroadcastListResponseInput = z.input<typeof AdminBroadcastListResponseObjectSchema>
+export const AdminBroadcastListResponseSchema: z.ZodType<
+  AdminBroadcastListResponse,
+  AdminBroadcastListResponseInput
+> = AdminBroadcastListResponseObjectSchema
 
 export const AdminHostListQuerySchema = AdminListQuerySchema.extend({
   suspended: QueryBooleanSchema.optional(),
@@ -86,10 +92,16 @@ const AdminHostListItemDTOObjectSchema = z.object({
   eventsMessaged: z.number().int().nonnegative().default(0),
 })
 export type AdminHostListItemDTO = z.infer<typeof AdminHostListItemDTOObjectSchema>
-export const AdminHostListItemDTOSchema: z.ZodType<AdminHostListItemDTO, unknown> =
-  AdminHostListItemDTOObjectSchema
+export type AdminHostListItemDTOInput = z.input<typeof AdminHostListItemDTOObjectSchema>
+export const AdminHostListItemDTOSchema: z.ZodType<
+  AdminHostListItemDTO,
+  AdminHostListItemDTOInput
+> = AdminHostListItemDTOObjectSchema
 
 const AdminHostListResponseObjectSchema = pageResponse(AdminHostListItemDTOSchema)
 export type AdminHostListResponse = z.infer<typeof AdminHostListResponseObjectSchema>
-export const AdminHostListResponseSchema: z.ZodType<AdminHostListResponse, unknown> =
-  AdminHostListResponseObjectSchema
+export type AdminHostListResponseInput = z.input<typeof AdminHostListResponseObjectSchema>
+export const AdminHostListResponseSchema: z.ZodType<
+  AdminHostListResponse,
+  AdminHostListResponseInput
+> = AdminHostListResponseObjectSchema

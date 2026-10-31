@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 /**
- * Runtime flags: operator-set values the backend reads at the moment it acts (DECISIONS §65). The list is
+ * Runtime flags: operator-set values the backend reads at the moment it acts (DECISIONS §66). The list is
  * fixed here so every flag, its type and its fallback is reviewed in the contract; the backend stores
  * only overrides and resolves each value against this registry.
  */

@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { ForwardTemplateBodySchema, ForwardTemplateSubjectSchema } from "./forward-template.js"
 import { pageResponse } from "../common.js"
+import { HttpUrlSchema } from "../entities.js"
 import { JurisdictionLayerSchema } from "../map.js"
 import { AdminListQuerySchema } from "./common.js"
 import { RoutingContactFields } from "./internal-fields.js"
@@ -64,7 +65,7 @@ export const JurisdictionDirectoryDTOSchema = z
     org: z.string(),
     dept: z.string().nullable(),
     email: z.email().nullable(),
-    form: z.url().nullable(),
+    form: HttpUrlSchema.nullable(),
     method: JurisdictionMethodSchema,
     status: JurisdictionContactStatusSchema,
     coverage: z.string(),

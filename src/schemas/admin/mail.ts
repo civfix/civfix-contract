@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { IdSchema, pageResponse } from "../common.js"
+import { HttpUrlSchema } from "../entities.js"
 import {
   AdminListQuerySchema,
   MailAuthVerdictSchema,
@@ -14,7 +15,7 @@ export const MailAttachmentSchema = z
     // same link under an honest name. It expires MEDIA_GET_URL_TTL_SEC (15 minutes) after the response
     // is built, so refetch the message instead of caching the link.
     key: z.string(),
-    url: z.url().optional(),
+    url: HttpUrlSchema.optional(),
     filename: z.string(),
     size: z.number().int().nonnegative(),
   })
