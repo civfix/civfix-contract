@@ -26,7 +26,9 @@ const HostExportDTOObjectSchema = z.object({
   expiresAt: ISODateSchema.nullable().optional(),
 })
 export type HostExportDTO = z.infer<typeof HostExportDTOObjectSchema>
-export const HostExportDTOSchema: z.ZodType<HostExportDTO, unknown> = HostExportDTOObjectSchema
+export type HostExportDTOInput = z.input<typeof HostExportDTOObjectSchema>
+export const HostExportDTOSchema: z.ZodType<HostExportDTO, HostExportDTOInput> =
+  HostExportDTOObjectSchema
 
 export const HostExportFiltersSchema = z
   .object({
@@ -58,8 +60,11 @@ export type ListEventExportsRequest = z.infer<typeof ListEventExportsRequestSche
 
 const ListEventExportsResponseObjectSchema = pageResponse(HostExportDTOSchema)
 export type ListEventExportsResponse = z.infer<typeof ListEventExportsResponseObjectSchema>
-export const ListEventExportsResponseSchema: z.ZodType<ListEventExportsResponse, unknown> =
-  ListEventExportsResponseObjectSchema
+export type ListEventExportsResponseInput = z.input<typeof ListEventExportsResponseObjectSchema>
+export const ListEventExportsResponseSchema: z.ZodType<
+  ListEventExportsResponse,
+  ListEventExportsResponseInput
+> = ListEventExportsResponseObjectSchema
 
 export const GetEventExportRequestSchema = z.object({ id: IdSchema, exportId: IdSchema }).strict()
 export type GetEventExportRequest = z.infer<typeof GetEventExportRequestSchema>
@@ -76,5 +81,8 @@ const DownloadHostExportResponseObjectSchema = z.object({
   filename: z.string(),
 })
 export type DownloadHostExportResponse = z.infer<typeof DownloadHostExportResponseObjectSchema>
-export const DownloadHostExportResponseSchema: z.ZodType<DownloadHostExportResponse, unknown> =
-  DownloadHostExportResponseObjectSchema
+export type DownloadHostExportResponseInput = z.input<typeof DownloadHostExportResponseObjectSchema>
+export const DownloadHostExportResponseSchema: z.ZodType<
+  DownloadHostExportResponse,
+  DownloadHostExportResponseInput
+> = DownloadHostExportResponseObjectSchema

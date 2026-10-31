@@ -209,8 +209,12 @@ export type FeedCountsResponse = z.infer<typeof FeedCountsResponseSchema>
 export interface ListRepliesResponse extends FeedPageDTO {
   authorReplies: PostDTO[]
 }
-export const ListRepliesResponseSchema: z.ZodType<ListRepliesResponse, unknown> =
-  FeedPageDTOSchema.extend({ authorReplies: z.array(PostDTOSchema).default([]) })
+const ListRepliesResponseObjectSchema = FeedPageDTOSchema.extend({
+  authorReplies: z.array(PostDTOSchema).default([]),
+})
+export type ListRepliesResponseInput = z.input<typeof ListRepliesResponseObjectSchema>
+export const ListRepliesResponseSchema: z.ZodType<ListRepliesResponse, ListRepliesResponseInput> =
+  ListRepliesResponseObjectSchema
 
 export const ListUserPostsResponseSchema = FeedPageDTOSchema
 export type ListUserPostsResponse = z.infer<typeof ListUserPostsResponseSchema>

@@ -70,7 +70,8 @@ const EventQuestionDefUnionSchema = z.discriminatedUnion("kind", [
 ])
 export type EventQuestionDef = z.infer<typeof EventQuestionDefUnionSchema>
 
-export const EventQuestionDefSchema: z.ZodType<EventQuestionDef, unknown> =
+export type EventQuestionDefInput = z.input<typeof EventQuestionDefUnionSchema>
+export const EventQuestionDefSchema: z.ZodType<EventQuestionDef, EventQuestionDefInput> =
   EventQuestionDefUnionSchema
 
 const EventQuestionDTOObjectSchema = z.object({
@@ -89,7 +90,8 @@ const EventQuestionDTOObjectSchema = z.object({
   archivedAt: ISODateSchema.nullable().optional(),
 })
 export type EventQuestionDTO = z.infer<typeof EventQuestionDTOObjectSchema>
-export const EventQuestionDTOSchema: z.ZodType<EventQuestionDTO, unknown> =
+export type EventQuestionDTOInput = z.input<typeof EventQuestionDTOObjectSchema>
+export const EventQuestionDTOSchema: z.ZodType<EventQuestionDTO, EventQuestionDTOInput> =
   EventQuestionDTOObjectSchema
 
 export const ListEventQuestionsRequestSchema = z
@@ -101,8 +103,11 @@ const ListEventQuestionsResponseObjectSchema = z.object({
   items: z.array(EventQuestionDTOSchema),
 })
 export type ListEventQuestionsResponse = z.infer<typeof ListEventQuestionsResponseObjectSchema>
-export const ListEventQuestionsResponseSchema: z.ZodType<ListEventQuestionsResponse, unknown> =
-  ListEventQuestionsResponseObjectSchema
+export type ListEventQuestionsResponseInput = z.input<typeof ListEventQuestionsResponseObjectSchema>
+export const ListEventQuestionsResponseSchema: z.ZodType<
+  ListEventQuestionsResponse,
+  ListEventQuestionsResponseInput
+> = ListEventQuestionsResponseObjectSchema
 
 export const SaveEventQuestionsRequestSchema = z
   .object({
@@ -116,8 +121,11 @@ const SaveEventQuestionsResponseObjectSchema = z.object({
   items: z.array(EventQuestionDTOSchema),
 })
 export type SaveEventQuestionsResponse = z.infer<typeof SaveEventQuestionsResponseObjectSchema>
-export const SaveEventQuestionsResponseSchema: z.ZodType<SaveEventQuestionsResponse, unknown> =
-  SaveEventQuestionsResponseObjectSchema
+export type SaveEventQuestionsResponseInput = z.input<typeof SaveEventQuestionsResponseObjectSchema>
+export const SaveEventQuestionsResponseSchema: z.ZodType<
+  SaveEventQuestionsResponse,
+  SaveEventQuestionsResponseInput
+> = SaveEventQuestionsResponseObjectSchema
 
 export const EventAnswerValueSchema = z.union([
   z.string().max(MAX_LONG_TEXT_ANSWER),
