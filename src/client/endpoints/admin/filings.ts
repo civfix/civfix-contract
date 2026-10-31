@@ -22,7 +22,7 @@ import {
   SetFilingSettingsResponseSchema,
 } from "../../../schemas/admin/filings.js"
 
-/** City filing (DECISIONS §65). Rate limits live in the backend routes. */
+/** City filing (DECISIONS §66). Rate limits live in the backend routes. */
 export const adminFilingEndpoints = {
   fileReport: def({
     method: "POST",
