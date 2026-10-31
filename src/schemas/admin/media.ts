@@ -10,5 +10,8 @@ const AdminGetMediaResponseObjectSchema = z.object({
   expiresAt: ISODateSchema,
 })
 export type AdminGetMediaResponse = z.infer<typeof AdminGetMediaResponseObjectSchema>
-export const AdminGetMediaResponseSchema: z.ZodType<AdminGetMediaResponse, unknown> =
-  AdminGetMediaResponseObjectSchema
+export type AdminGetMediaResponseInput = z.input<typeof AdminGetMediaResponseObjectSchema>
+export const AdminGetMediaResponseSchema: z.ZodType<
+  AdminGetMediaResponse,
+  AdminGetMediaResponseInput
+> = AdminGetMediaResponseObjectSchema

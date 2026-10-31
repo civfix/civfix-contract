@@ -1173,7 +1173,7 @@ verification, which is evidence-backed and does scale. So `VerificationStatus`, 
 verification is untouched (`OrgVerificationStatus`/`Kind`, `OrganizationRefDTO.verified`, the admin
 verification queue), and so is `reportVerified`, which is a
 different claim about a different thing (this reporter's reports may be auto-forwarded to the city;
-**amended in 0.67.0 (§65):** auto-forward is retired, so no report reaches a city before an operator
+**amended in 0.68.0 (§66):** auto-forward is retired, so no report reaches a city before an operator
 approves it).
 
 These removals are NOT additive, and that is a deliberate exception to §11 rather than an oversight.
@@ -1748,7 +1748,7 @@ stored default (`setForwardTemplateDefault`) -> the built-in `DEFAULT_FORWARD_SU
 `DEFAULT_FORWARD_BODY_TEMPLATE`. The built-in default is a template string, not code, so an editor can
 prefill it and "reset to default" means exactly that. The backend appends the photo list and the operator
 note as structured blocks when the body does not use `{photoLinks}` / `{operatorNote}`, so a templated
-packet can never arrive with attachments it does not mention. **Amended in 0.67.0 (§65):** the photo
+packet can never arrive with attachments it does not mention. **Amended in 0.68.0 (§66):** the photo
 block lists only the ready media that were not attached to the email (photos past the send budget, and
 videos), and nothing is appended when every item was attached; `routeReport` attaches nothing, so its
 block is unchanged. The built-in `DEFAULT_FORWARD_BODY_TEMPLATE` no longer carries the "Photo/Video
@@ -2402,7 +2402,41 @@ Every consumer adopts it in one delivery set, because a minor needs a range edit
 civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
 civfix-admin.
 
-## 65. City filing: an approved report is filed with its city through a saved route, and residents see it (0.67.0)
+## 65. A schema typed by name names its input as well as its output (0.67.0)
+
+Since 0.39.0 the large DTO and response schemas carry an explicit `z.ZodType` annotation, because a
+named type stops the declaration emitter from inlining a whole object structure into every schema and
+endpoint that uses it, and without that the `endpoints` declaration crossed TypeScript's serializer
+cap (TS7056) and the `.d.ts` build failed. Those annotations named only the output, as
+`z.ZodType<Output, unknown>`, so the input became `unknown`, and `unknown` spread to every response
+containing one of those schemas: 117 of the 341 endpoints had a response input of `unknown`. The
+backend types each route's reply as `z.input` of the endpoint's `response` (`EndpointReply<N>`), so for
+those routes the compiler checked nothing about what the handler sends.
+
+Every such annotation now names both types, with the input exported next to the output as
+`<Output>Input`:
+
+```ts
+export type OrganizationRefDTO = z.infer<typeof OrganizationRefDTOObjectSchema>
+export type OrganizationRefDTOInput = z.input<typeof OrganizationRefDTOObjectSchema>
+export const OrganizationRefDTOSchema: z.ZodType<OrganizationRefDTO, OrganizationRefDTOInput> =
+  OrganizationRefDTOObjectSchema
+```
+
+A schema that needs a named type for TS7056 follows the same form: the underlying schema in its own
+const, both aliases taken from it, and never `unknown` as the input. The named input keeps the
+declaration under the cap the same way the named output does. The emitted `.d.ts` grows from 2.58 MB
+to 4.19 MB, which only the type checker reads. `__tests__/endpoint-input-types.test.ts` fails
+typecheck if any endpoint's response input, or the input of a request that is a schema, is `unknown`
+(`request: null`, an endpoint without a request body, has no input to check). Runtime behavior and
+every exported output type are unchanged.
+
+Every consumer adopts it in one delivery set, because a minor needs a range edit on 0.x:
+civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
+civfix-admin. The backend's test-only response check stays: it still covers the bodies a
+fast-json-stringify schema emits.
+
+## 66. City filing: an approved report is filed with its city through a saved route, and residents see it (0.68.0)
 
 **Approve files the report; nothing skips approval.** An operator's Approve verdict (`setReportVerdict`
 with `approved`) creates a filing for the report in the same request; its response stays `{ ok: true }`.
@@ -2498,7 +2532,7 @@ string the server validated; a client opens it only when it is https.
 defaulting to 0), and `setReportVerdict`, `routeReport`, `ReportStatus`, `ReportCategory` and the admin
 status machine keep their shapes. Requests carry their path parameters as fields and are `.strict()`;
 the new DTOs and responses are `.strict()` like the other admin DTOs. Because `AdminReportDTO` and
-`HomeSummaryResponse` are strict, an admin build older than 0.67.0 logs a response parse warning and
+`HomeSummaryResponse` are strict, an admin build older than 0.68.0 logs a response parse warning and
 falls back to the raw body once the backend sends the new fields. That is expected and harmless.
 `FilingEvidenceDTO.url` is a signed GET that expires after 15 minutes, so clients refetch the filing
 instead of caching it. The limits are exported (`FILING_NOTE_MAX`, `FILING_REQUEST_TYPE_HINT_MAX`,
