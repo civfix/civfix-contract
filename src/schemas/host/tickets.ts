@@ -28,8 +28,13 @@ const ListEventTicketTypesResponseObjectSchema = z.object({
   items: z.array(TicketTypeDTOSchema),
 })
 export type ListEventTicketTypesResponse = z.infer<typeof ListEventTicketTypesResponseObjectSchema>
-export const ListEventTicketTypesResponseSchema: z.ZodType<ListEventTicketTypesResponse, unknown> =
-  ListEventTicketTypesResponseObjectSchema
+export type ListEventTicketTypesResponseInput = z.input<
+  typeof ListEventTicketTypesResponseObjectSchema
+>
+export const ListEventTicketTypesResponseSchema: z.ZodType<
+  ListEventTicketTypesResponse,
+  ListEventTicketTypesResponseInput
+> = ListEventTicketTypesResponseObjectSchema
 
 export const SALES_WINDOW_ISSUE = {
   path: ["salesClosesAt"] as const,
@@ -102,9 +107,10 @@ export const DeleteEventTicketTypeRequestSchema = z
 export type DeleteEventTicketTypeRequest = z.infer<typeof DeleteEventTicketTypeRequestSchema>
 
 export type DeleteEventTicketTypeResponse = z.infer<typeof OkResponseSchema>
+export type DeleteEventTicketTypeResponseInput = z.input<typeof OkResponseSchema>
 export const DeleteEventTicketTypeResponseSchema: z.ZodType<
   DeleteEventTicketTypeResponse,
-  unknown
+  DeleteEventTicketTypeResponseInput
 > = OkResponseSchema
 
 export const ReorderEventTicketTypesRequestSchema = z
@@ -121,7 +127,10 @@ const ReorderEventTicketTypesResponseObjectSchema = z.object({
 export type ReorderEventTicketTypesResponse = z.infer<
   typeof ReorderEventTicketTypesResponseObjectSchema
 >
+export type ReorderEventTicketTypesResponseInput = z.input<
+  typeof ReorderEventTicketTypesResponseObjectSchema
+>
 export const ReorderEventTicketTypesResponseSchema: z.ZodType<
   ReorderEventTicketTypesResponse,
-  unknown
+  ReorderEventTicketTypesResponseInput
 > = ReorderEventTicketTypesResponseObjectSchema

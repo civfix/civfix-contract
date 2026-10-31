@@ -421,7 +421,7 @@ is optional so existing implementers keep compiling. Nothing here is a shape cha
   `1..64` (producers emit ≤36-char ids: `packages/ui/src/data/hooks/chatOutbox.ts` `randomId()`); RESPONSE /
   server-ack `clientId` fields are deliberately NOT touched (tightening a payload a new client must parse
   from an old server would break it). `RegisterPushTokenRequest.token` (and the new unregister twin) is
-  bounded `1..2048` (Expo device tokens ~40 chars; Expo is gone since §65). `EventHoursEntry.hours` gains a `MIN_EVENT_HOURS`
+  bounded `1..2048` (Expo device tokens ~40 chars; Expo is gone since §66). `EventHoursEntry.hours` gains a `MIN_EVENT_HOURS`
   (0.01) floor exported beside `MAX_EVENT_HOURS`; no `.multipleOf(0.01)` (float-equality hazard); 2-dp
   rounding stays a backend concern. Anon `AnonReportRequest.mediaUploadIds` is capped at `.max(5)`,
   aligning with the authed `CreateReportRequest` twin.
@@ -751,8 +751,8 @@ recipient.
 - **Critical messages are asymmetric.** `event_cancelled` and `event_updated` bypass unsubscribes,
   per-event mutes and the `hostBroadcasts` preference - they are service messages about something
   the recipient signed up for. They do NOT bypass bans or the bounce/complaint suppression list.
-  Everything else is bulk and fully opt-out-able. **Superseded for account holders in 0.67.0
-  (§65):** their category settings decide every channel; guests keep this bypass.
+  Everything else is bulk and fully opt-out-able. **Superseded for account holders in 0.68.0
+  (§66):** their category settings decide every channel; guests keep this bypass.
 - **`hostBroadcasts` is its own preference bucket**, defaulted `true` so an older server's prefs
   payload still parses and the shallow `.partial()` update request keeps working. A recipient must be
   able to mute hosts without muting event chat or service messages. It is a CHANNEL-WIDE opt-out -
@@ -2396,7 +2396,41 @@ Every consumer adopts it in one delivery set, because a minor needs a range edit
 civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
 civfix-admin.
 
-## 65. Notifications are eleven categories, Off means nothing, and push is sent directly (0.67.0)
+## 65. A schema typed by name names its input as well as its output (0.67.0)
+
+Since 0.39.0 the large DTO and response schemas carry an explicit `z.ZodType` annotation, because a
+named type stops the declaration emitter from inlining a whole object structure into every schema and
+endpoint that uses it, and without that the `endpoints` declaration crossed TypeScript's serializer
+cap (TS7056) and the `.d.ts` build failed. Those annotations named only the output, as
+`z.ZodType<Output, unknown>`, so the input became `unknown`, and `unknown` spread to every response
+containing one of those schemas: 117 of the 341 endpoints had a response input of `unknown`. The
+backend types each route's reply as `z.input` of the endpoint's `response` (`EndpointReply<N>`), so for
+those routes the compiler checked nothing about what the handler sends.
+
+Every such annotation now names both types, with the input exported next to the output as
+`<Output>Input`:
+
+```ts
+export type OrganizationRefDTO = z.infer<typeof OrganizationRefDTOObjectSchema>
+export type OrganizationRefDTOInput = z.input<typeof OrganizationRefDTOObjectSchema>
+export const OrganizationRefDTOSchema: z.ZodType<OrganizationRefDTO, OrganizationRefDTOInput> =
+  OrganizationRefDTOObjectSchema
+```
+
+A schema that needs a named type for TS7056 follows the same form: the underlying schema in its own
+const, both aliases taken from it, and never `unknown` as the input. The named input keeps the
+declaration under the cap the same way the named output does. The emitted `.d.ts` grows from 2.58 MB
+to 4.19 MB, which only the type checker reads. `__tests__/endpoint-input-types.test.ts` fails
+typecheck if any endpoint's response input, or the input of a request that is a schema, is `unknown`
+(`request: null`, an endpoint without a request body, has no input to check). Runtime behavior and
+every exported output type are unchanged.
+
+Every consumer adopts it in one delivery set, because a minor needs a range edit on 0.x:
+civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
+civfix-admin. The backend's test-only response check stays: it still covers the bodies a
+fast-json-stringify schema emits.
+
+## 66. Notifications are eleven categories, Off means nothing, and push is sent directly (0.68.0)
 
 **Eleven categories in five sections.** Every notification belongs to exactly one
 `NotificationCategory`, or is always on: registration confirmations, the broadcast kinds `confirmation`
