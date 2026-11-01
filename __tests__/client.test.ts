@@ -45,7 +45,7 @@ function jsonResponse(
 describe("endpoint registry", () => {
   it("covers every registered endpoint with a unique path per method", () => {
     const names = Object.keys(endpoints)
-    expect(names.length).toBe(351)
+    expect(names.length).toBe(362)
     const seen = new Set<string>()
     for (const name of names) {
       const e = endpoints[name as keyof typeof endpoints]
@@ -56,11 +56,11 @@ describe("endpoint registry", () => {
     }
   })
 
-  it("registers exactly 119 admin endpoints under /admin", () => {
+  it("registers exactly 129 admin endpoints under /admin", () => {
     const adminNames = Object.keys(endpoints).filter((n) =>
       endpoints[n as keyof typeof endpoints].path.startsWith("/admin"),
     )
-    expect(adminNames.length).toBe(119)
+    expect(adminNames.length).toBe(129)
   })
 
   const filingEndpoints = [
@@ -136,8 +136,8 @@ describe("endpoint registry", () => {
       })
     }
     const names = Object.keys(endpoints)
-    expect(names.length).toBe(351)
-    expect(names.filter((n) => registry[n]?.path.startsWith("/admin")).length).toBe(119)
+    expect(names.length).toBe(362)
+    expect(names.filter((n) => registry[n]?.path.startsWith("/admin")).length).toBe(129)
   })
 
   it("T36: the ten filing endpoints are v1 and use the filings request and response schemas", () => {
