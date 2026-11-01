@@ -1,5 +1,11 @@
 # @civfix/contract
 
+## 0.69.1
+
+### Patch Changes
+
+- The `report_autoforward_enabled` flag's developer-console label and description now say it gates only the @city suggestion in report discussions: "Suggest the city in discussions".
+
 ## 0.69.0
 
 ### Minor Changes
