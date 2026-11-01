@@ -19,6 +19,7 @@ export * from "./schemas/volunteer.js"
 export * from "./schemas/certificates.js"
 export * from "./schemas/host/index.js"
 export * from "./schemas/legal.js"
+export * from "./schemas/app-config.js"
 
 export * from "./schemas/admin/index.js"
 
@@ -39,3 +40,4 @@ export * from "./host/index.js"
 export * from "./markdown/index.js"
 export * from "./ics/index.js"
 export * from "./legal/index.js"
+export * from "./flags/runtime-flags.js"
