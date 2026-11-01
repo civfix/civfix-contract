@@ -1,16 +1,26 @@
 # @civfix/contract
 
-## 0.68.0
+## 0.69.0
 
 ### Minor Changes
 
-- Notification settings, the notification center and direct push data (DECISIONS §66). All additive: the registry goes from 341 to 349 entries, none of them admin.
+- Notification settings, the notification center and direct push data (DECISIONS §67). All additive: the registry goes from 352 to 360 entries, none of them admin.
 
   - Eleven notification categories: `NotificationCategorySchema`, `NotificationCategorySettingSchema` (`{ enabled, push, email }`, strict), `NOTIFICATION_SECTIONS` (five sections whose ids are the Android channel ids) and `NOTIFICATION_CATEGORY_DEFAULTS`.
   - New endpoints: `getNotificationSettings` (`GET /notifications/settings`) and `updateNotificationSettings` (`PATCH /notifications/settings`, a strict patch) answering `NotificationSettingsDTO`; `getNotificationUnread` (`GET /notifications/unread`); `markAllNotificationsRead` (`POST /notifications/read-all`); `dismissNotification` (`DELETE /notifications/:id`); `getPushWebConfig` (`GET /push/web-config`); and the public one-click pair `unsubscribeNotificationEmail` (`POST /notifications/email-unsubscribe`) and `openUnsubscribeNotificationEmail` (`GET`, a 302).
   - `PushMessageDataSchema`, the data every push carries (`kind: "notification"` or `"clear"`), with `encodePushMessageData` / `decodePushMessageData` for FCM's flat string map; decoding returns `null` on a malformed map and never throws.
   - `NotificationTypeSchema` appends `chat_mention`.
   - The prefs endpoints and `NotificationPrefsDTO` are unchanged.
+
+## 0.68.0
+
+### Minor Changes
+
+- Developer console, runtime flags and the app config (DECISIONS §66). All additive: the registry goes from 341 to 352 entries, 10 of them admin.
+
+  - `RUNTIME_FLAGS`, a fixed registry of eight operator-set flags (`host_messaging_kill_switch`, `outreach_digest_enabled`, `report_autoforward_enabled`, `min_app_version_ios`, `min_app_version_android`, `app_store_url_ios`, `announcement_text`, `announcement_level`), with `RuntimeFlagKey`, `RuntimeFlagValueSchema` (boolean, string or null) and `runtimeFlagValueSchema(key)`, the per-flag value check. Strings are trimmed and never empty, so "not set" is always null; an unknown key accepts nothing.
+  - `getAppConfig` (`GET /app/config`, auth optional) returning `AppConfigResponse`: minimum app versions, store links and the announcement.
+  - Operator endpoints under `/admin/dev`, all auth required and csrf on every mutation: `adminListRuntimeFlags` and `adminSetRuntimeFlag` (`RuntimeFlagStateDTO`, `AdminSetRuntimeFlagRequest`), `adminDevOverview` (`AdminDevOverviewResponse`), `adminDevJobs` and `adminDevRunJob` (`AdminDevJobsResponse`, `AdminDevRunJobResponse`), and the staging test tools `adminDevListForceUpdate`, `adminDevSetForceUpdate`, `adminDevTestPush`, `adminDevTestEmail` and `adminDevResetFirstRun`, whose request schemas are strict and trim and validate the email.
 
 ## 0.67.0
 

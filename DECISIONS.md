@@ -421,7 +421,7 @@ is optional so existing implementers keep compiling. Nothing here is a shape cha
   `1..64` (producers emit ≤36-char ids: `packages/ui/src/data/hooks/chatOutbox.ts` `randomId()`); RESPONSE /
   server-ack `clientId` fields are deliberately NOT touched (tightening a payload a new client must parse
   from an old server would break it). `RegisterPushTokenRequest.token` (and the new unregister twin) is
-  bounded `1..2048` (Expo device tokens ~40 chars; Expo is gone since §66). `EventHoursEntry.hours` gains a `MIN_EVENT_HOURS`
+  bounded `1..2048` (Expo device tokens ~40 chars; Expo is gone since §67). `EventHoursEntry.hours` gains a `MIN_EVENT_HOURS`
   (0.01) floor exported beside `MAX_EVENT_HOURS`; no `.multipleOf(0.01)` (float-equality hazard); 2-dp
   rounding stays a backend concern. Anon `AnonReportRequest.mediaUploadIds` is capped at `.max(5)`,
   aligning with the authed `CreateReportRequest` twin.
@@ -751,8 +751,8 @@ recipient.
 - **Critical messages are asymmetric.** `event_cancelled` and `event_updated` bypass unsubscribes,
   per-event mutes and the `hostBroadcasts` preference - they are service messages about something
   the recipient signed up for. They do NOT bypass bans or the bounce/complaint suppression list.
-  Everything else is bulk and fully opt-out-able. **Superseded for account holders in 0.68.0
-  (§66):** their category settings decide every channel; guests keep this bypass.
+  Everything else is bulk and fully opt-out-able. **Superseded for account holders in 0.69.0
+  (§67):** their category settings decide every channel; guests keep this bypass.
 - **`hostBroadcasts` is its own preference bucket**, defaulted `true` so an older server's prefs
   payload still parses and the shallow `.partial()` update request keeps working. A recipient must be
   able to mute hosts without muting event chat or service messages. It is a CHANNEL-WIDE opt-out -
@@ -2430,7 +2430,56 @@ civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civf
 civfix-admin. The backend's test-only response check stays: it still covers the bodies a
 fast-json-stringify schema emits.
 
-## 66. Notifications are eleven categories, Off means nothing, and push is sent directly (0.68.0)
+## 66. Runtime flags are a fixed registry in the contract, and the developer console's shapes (0.68.0)
+
+**Runtime flags.** `RUNTIME_FLAGS` is the whole list of values an operator can change without a
+deploy. Each entry fixes its `key`, `label`, `description`, `type` (`boolean`, `semver`, `url`,
+`text` or `choice`), `default`, `envFallback` (the backend env var used when there is no override, or
+null), `public` (included in `GET /app/config`) and, by type, `choices`, `maxLength` or `urlPrefix`.
+Adding, removing or retyping a flag is a contract change, reviewed like any other; the backend stores
+only overrides and resolves every value against this list (override, else a non-empty env fallback,
+else the default), so a stored row whose key is not here is ignored. The first eight are the three
+switches founders flipped by redeploy (`host_messaging_kill_switch`, `outreach_digest_enabled`,
+`report_autoforward_enabled`, each still falling back to its env var), the minimum app versions and
+App Store link the force-update screen reads, and the site-wide announcement.
+
+**Values.** A flag value is JSON: `RuntimeFlagValueSchema` is boolean, string or null, and it is what
+`RuntimeFlagStateDTO` (`value`, `override`, `fallback`) and `AdminSetRuntimeFlagRequest` carry. The
+per-flag check is `runtimeFlagValueSchema(key)`, which the backend runs on every write and on every
+stored row. Strings are trimmed and an empty one is rejected, so "not set" is always null and never
+`""`; null is a value only for `semver`, `url` and `text` flags. `semver` is `MAJOR.MINOR.PATCH`
+digits only (no `v`, no pre-release), `url` must be a URL starting with its `urlPrefix`, `text` is
+capped at its `maxLength`, and `choice` takes one of its choice values. An unknown key accepts
+nothing, null included.
+
+**The flag key on the set request.** `adminSetRuntimeFlag` is `PUT /admin/dev/flags/:key` with the
+body `{ value }`. Like every request-carrying endpoint with a path param, its request schema declares
+the param, so `AdminSetRuntimeFlagRequest` is `{ key, value }`, strict, and the typed client fills
+`:key` from it. The server takes `key` from the path, as it does for `:id` elsewhere, so the wire body
+is the same. `key` is any string rather than an enum of the registry's keys: an unknown key reaches the
+server and is `NOT_FOUND`, not a parse `VALIDATION` error.
+
+**App config.** `AppConfigResponse` (`getAppConfig`, auth optional) is built from the public flags:
+`minAppVersion` and `storeUrl` per platform (the Android store link is a constant, so it is never
+null) and `announcement`, null when no text is set. It is not strict, so a phone on an older version
+still parses a response that gained a field; the admin shapes below are strict, like the rest of
+`/admin`.
+
+**Developer console.** Ten operator endpoints under `/admin/dev`, all auth required, csrf on every
+mutation: the flag list and set; `adminDevOverview` (environment `prod`, `staging`, `local` or
+`unknown`; the API's and worker's build identity, each field null when the deploy did not pass it;
+real or fake per seam, named by its lowercased flag; read-only env settings as strings; the test
+account addresses); `adminDevJobs` and `adminDevRunJob` (counts and ages are non-negative integers;
+the run has no body and answers `{ enqueued }`); and the staging test tools (force update, test push,
+test email, reset first run). Each test tool names its target by a trimmed, validated email and
+nothing else; the test email's request is an empty strict object, so it can only go to the signed-in
+operator. The test push caps `title` at 80 and `body` at 200 characters
+(`DEV_TEST_PUSH_TITLE_MAX_LENGTH`, `DEV_TEST_PUSH_BODY_MAX_LENGTH`).
+
+The change is additive: no existing export changes. The registry moves from 341 to 352 entries, 119
+of them under `/admin`.
+
+## 67. Notifications are eleven categories, Off means nothing, and push is sent directly (0.69.0)
 
 **Eleven categories in five sections.** Every notification belongs to exactly one
 `NotificationCategory`, or is always on: registration confirmations, the broadcast kinds `confirmation`
@@ -2489,4 +2538,4 @@ response names the category when the token was valid and applied (`null` otherwi
 what stopped: it reveals only what the signed token already says, to whoever holds it. There is still
 no open or click tracking.
 
-The change is additive. The registry moves from 341 to 349 entries, none of them under `/admin`.
+The change is additive. The registry moves from 352 to 360 entries, none of them under `/admin`.
