@@ -1,5 +1,18 @@
 # @civfix/contract
 
+## 0.70.0
+
+### Minor Changes
+
+- Legal documents served by the API (DECISIONS §68). All additive: the registry goes from 360 to 364 entries, none of them admin.
+
+  - `LEGAL_DOCUMENTS` holds every version ever published, newest last per type, and a version entry gains optional `title`, `summary` and `material`, set on every version written from now on.
+  - `LegalBlockSchema` (on the root and `/legal`): a document's body is headings, paragraphs, lists and tables whose inline text is the contract's inline markdown.
+  - New subpath `@civfix/contract/legal-texts`: `LEGAL_TEXTS` (each version's blocks by `type@version`) and `legalRecordSha256`, the hash of a version's whole record.
+  - New schemas: `LegalDocumentDTO`, `GetLegalDocumentsResponse`, `GetLegalDocumentRequest`, `GetLegalDocumentResponse`, `MyLegalStatusResponse`, `AcceptLegalRequest`, `AcceptLegalResponse` and `LegalVersionOutdatedDetails`.
+  - New endpoints: `getLegalDocuments`, `getLegalDocument`, `getMyLegalStatus` and `acceptLegal`.
+  - An error reply can carry an optional `details` object; a malformed `details` is dropped without losing the rest of the error.
+
 ## 0.69.0
 
 ### Minor Changes

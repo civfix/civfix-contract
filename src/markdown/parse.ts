@@ -72,6 +72,7 @@ interface InlineScan {
   noStarCloser: boolean
   noUnderscoreCloser: boolean
   noBracketCloser: boolean
+  unsafeHrefs: string[]
 }
 
 interface InlineMatch {
@@ -93,7 +94,7 @@ function tryStrong(src: string, i: number, depth: number, scan: InlineScan): Inl
     scan.noStrongCloser = true
     return null
   }
-  const children = parseInline(src.slice(i + 2, close), depth + 1)
+  const children = parseInline(src.slice(i + 2, close), depth + 1, scan.unsafeHrefs)
   if (!hasContent(children)) return null
   return { nodes: [{ type: "strong", children }], next: close + 2 }
 }
@@ -108,7 +109,7 @@ function tryEmphasis(src: string, i: number, depth: number, scan: InlineScan): I
     else scan.noUnderscoreCloser = true
     return null
   }
-  const children = parseInline(src.slice(i + 1, close), depth + 1)
+  const children = parseInline(src.slice(i + 1, close), depth + 1, scan.unsafeHrefs)
   if (!hasContent(children)) return null
   return { nodes: [{ type: "em", children }], next: close + 1 }
 }
@@ -124,11 +125,11 @@ function tryLink(src: string, i: number, depth: number, scan: InlineScan): Inlin
   const hrefEnd = findHrefEnd(src, labelEnd + 2)
   if (hrefEnd === -1) return null
   const href = src.slice(labelEnd + 2, hrefEnd)
-  const children = parseInline(src.slice(i + 1, labelEnd), depth + 1)
+  const children = parseInline(src.slice(i + 1, labelEnd), depth + 1, scan.unsafeHrefs)
   if (!hasContent(children)) return null
-  const nodes: MarkdownInline[] = isSafeMarkdownHref(href)
-    ? [{ type: "link", href: href.trim(), children }]
-    : children
+  const safe = isSafeMarkdownHref(href)
+  if (!safe) scan.unsafeHrefs.push(href)
+  const nodes: MarkdownInline[] = safe ? [{ type: "link", href: href.trim(), children }] : children
   return { nodes, next: hrefEnd + 1 }
 }
 
@@ -141,13 +142,14 @@ function tryDelimited(src: string, i: number, depth: number, scan: InlineScan): 
   )
 }
 
-function parseInline(src: string, depth: number): MarkdownInline[] {
+function parseInline(src: string, depth: number, unsafeHrefs: string[] = []): MarkdownInline[] {
   const out: MarkdownInline[] = []
   const scan: InlineScan = {
     noStrongCloser: false,
     noStarCloser: false,
     noUnderscoreCloser: false,
     noBracketCloser: false,
+    unsafeHrefs,
   }
   let buffer = ""
   let i = 0
@@ -175,6 +177,19 @@ function parseInline(src: string, depth: number): MarkdownInline[] {
 
   pushText(out, buffer)
   return out
+}
+
+export interface MarkdownInlineParse {
+  nodes: MarkdownInline[]
+  /** Every link target the parser refused; each of those links renders as its plain label instead. */
+  unsafeHrefs: string[]
+}
+
+/** One line of inline text, parsed as a paragraph's content is, for a validator that must refuse what rendering degrades. */
+export function parseMarkdownInline(src: string): MarkdownInlineParse {
+  const unsafeHrefs: string[] = []
+  const nodes = parseInline(src.trim(), 0, unsafeHrefs)
+  return { nodes, unsafeHrefs }
 }
 
 function paragraphFrom(lines: readonly string[]): MarkdownParagraph | null {

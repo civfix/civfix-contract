@@ -175,7 +175,7 @@ export default tseslint.config(
       // The rule follows helpers declared in the same file on its own; these are the shared ones that assert.
       "vitest/expect-expect": [
         "error",
-        { assertFunctionNames: ["expect", "expectTypeOf", "expectConsole*"] },
+        { assertFunctionNames: ["expect", "expectTypeOf", "expectConsole*", "expectNamed"] },
       ],
     },
   },
