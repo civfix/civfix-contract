@@ -10,9 +10,9 @@ import {
 } from "node:fs"
 import { dirname, join, relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
-import { build, type Options } from "tsup"
+import { build } from "tsdown"
 import { afterAll, describe, expect, it } from "vitest"
-import tsupConfig from "../../../tsup.config.js"
+import tsdownConfig from "../../../tsdown.config.js"
 
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url))
 const IMPORT_SPECIFIER =
@@ -83,12 +83,12 @@ describe("entry points", () => {
       dirs.push(pkg)
       copyFileSync(join(ROOT, "package.json"), join(pkg, "package.json"))
       await build({
-        ...(tsupConfig as Options),
-        entry: ((tsupConfig as Options).entry as string[]).map((file) => join(ROOT, file)),
+        ...tsdownConfig,
+        entry: (tsdownConfig.entry as string[]).map((file) => join(ROOT, file)),
         outDir: join(pkg, "dist"),
         dts: false,
         sourcemap: false,
-        silent: true,
+        logLevel: "silent",
         config: false,
       })
 

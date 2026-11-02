@@ -2740,3 +2740,11 @@ live in the backend routes: the registry has no field for them. The ten endpoint
 `listFilings`, `getFiling`, `retryFiling`, `cancelFiling`, `recordManualFiling`, `getFilingSettings`,
 `setFilingSettings`, `listFilingRoutes`, `saveFilingRoutes`) are in `src/client/endpoints/admin/filings.ts`;
 the registry moves from 364 to 374 entries, 129 of them under `/admin`.
+
+## 70. The package builds with tsdown (no release)
+
+tsup is unmaintained, so the build moved to tsdown (civfix/issue-tracker#288, D9). The entry files, their
+`.js`/`.cjs`/`.d.ts`/`.d.cts` paths, the `exports` map and every entry's runtime exports and types are
+the same as tsup's; only the shared chunks' names differ, and the re-export-only entries no longer get
+an empty `.map`. tsdown always shares code between entries, so §59's one module instance per build
+holds. Its rule carries over: `require` of every exports entry is re-checked after a tsdown upgrade.

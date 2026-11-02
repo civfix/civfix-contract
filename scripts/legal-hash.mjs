@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { join, resolve } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import { parseArgs } from "node:util"
-import { build } from "tsup"
+import { build } from "tsdown"
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url))
 const { values } = parseArgs({
@@ -51,14 +51,13 @@ try {
       hash: join(ROOT, "src/legal-texts/hash.ts"),
     },
     outDir,
-    format: ["esm"],
-    outExtension: () => ({ js: ".mjs" }),
+    format: "esm",
+    outExtensions: () => ({ js: ".mjs" }),
     platform: "node",
-    target: "node20",
+    target: "node24",
     dts: false,
     sourcemap: false,
-    splitting: false,
-    silent: true,
+    logLevel: "silent",
   })
   /** @type {(name: string) => Promise<unknown>} */
   const load = (name) => import(pathToFileURL(join(outDir, `${name}.mjs`)).href)
