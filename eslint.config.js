@@ -123,6 +123,11 @@ export default defineConfig(
       sourceType: "module",
     },
     rules: {
+      // ESLint 10's recommended set adds these; this upgrade keeps ESLint 9's rules (civfix/issue-tracker#289).
+      "no-unassigned-vars": "off",
+      "no-useless-assignment": "off",
+      "preserve-caught-error": "off",
+      "no-shadow-restricted-names": ["error", { reportGlobalThis: false }],
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",

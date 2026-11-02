@@ -116,7 +116,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown",
+    "build": "tsup",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.scripts.json",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -128,7 +128,7 @@
     "check:licenses": "node scripts/check-licenses.mjs",
     "test:scripts": "node --test scripts/*.test.mjs",
     "clean": "rimraf dist *.tsbuildinfo",
-    "dev": "tsdown --watch",
+    "dev": "tsup --watch",
     "changeset": "changeset"
   },
   "dependencies": {
@@ -146,7 +146,7 @@
     "prettier": "3.9.9",
     "publint": "0.3.25",
     "rimraf": "^6.0.1",
-    "tsdown": "^0.23.4",
+    "tsup": "^9.0.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "typescript-eslint": "^8.18.0",
     "vitest": "^5.0.5"

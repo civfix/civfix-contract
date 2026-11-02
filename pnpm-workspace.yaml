@@ -22,4 +22,7 @@ blockExoticSubdeps: true
 # A new install script must stop the install for review: skipped silently, it can also break a native binary unnoticed.
 strictDepBuilds: true
 
-# No dependency runs an install script today. Allow one in `allowBuilds` only after reading its script.
+# The only packages allowed to run install scripts. esbuild (tsup, vitest) verifies, and if needed fetches, the
+# native binary its platform package provides. Add a package here only after reading its script.
+allowBuilds:
+  esbuild: true

@@ -3,7 +3,7 @@
 The API contract between the civfix backend and its clients: Zod schemas and their inferred types,
 the `endpoints` registry, `AppError`/`ErrorCode`, the typed API client, and the domain helpers both
 sides run (host rules, markdown, calendar export, legal documents, avatar gradients, date and geo
-helpers). The only runtime dependency is `zod`; it builds to ESM, CJS and `.d.ts` with tsdown.
+helpers). The only runtime dependency is `zod`; it builds to ESM, CJS and `.d.ts` with tsup.
 
 It contains no app code, no UI and no vendor SDKs. React, React Native, `@civfix/ui` and
 `@civfix/tokens` are banned by lint: the backend installs this package and must not pull any of them
@@ -28,7 +28,7 @@ change in every consumer.
 
 `@civfix/contract` (everything), and `/client`, `/avatar`, `/datetime`, `/geocode`, `/host`,
 `/markdown`, `/ics`, `/legal`. The build splits shared code into common chunks so every subpath uses
-the same `AppError` class; `instanceof` across subpaths depends on it (`tsdown.config.ts`).
+the same `AppError` class; `instanceof` across subpaths depends on it (`tsup.config.ts`).
 
 ## Develop
 
