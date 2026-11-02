@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { LegalDocumentTypeSchema, type LegalDocumentType } from "../../schemas/common.js"
-import { LEGAL_DOCUMENTS, currentLegalVersion, currentVersion, isCurrent, legalDocument } from "../documents.js"
+import {
+  LEGAL_DOCUMENTS,
+  currentLegalVersion,
+  currentVersion,
+  isCurrent,
+  legalDocument,
+} from "../documents.js"
 
 const ALL: readonly LegalDocumentType[] = LegalDocumentTypeSchema.options
 
@@ -34,12 +40,24 @@ describe("LEGAL_DOCUMENTS", () => {
 
 describe("currentLegalVersion", () => {
   it("T20: returns the newest version in effect at the given time", () => {
-    expect(currentLegalVersion("terms", new Date("2026-09-21T00:00:00.000Z")).version).toBe("2026-09-21")
-    expect(currentLegalVersion("terms", new Date("2026-09-20T23:59:59.999Z")).version).toBe("2026-09-16")
-    expect(currentLegalVersion("privacy", new Date("2026-09-06T00:00:00.000Z")).version).toBe("2026-09-06")
-    expect(currentLegalVersion("cookies", new Date("2026-12-01T00:00:00.000Z")).version).toBe("2026-10-26")
-    expect(() => currentLegalVersion("terms", new Date("2026-09-05T23:59:59.999Z"))).toThrow(RangeError)
-    expect(() => currentLegalVersion("donations" as LegalDocumentType, new Date())).toThrow(RangeError)
+    expect(currentLegalVersion("terms", new Date("2026-09-21T00:00:00.000Z")).version).toBe(
+      "2026-09-21",
+    )
+    expect(currentLegalVersion("terms", new Date("2026-09-20T23:59:59.999Z")).version).toBe(
+      "2026-09-16",
+    )
+    expect(currentLegalVersion("privacy", new Date("2026-09-06T00:00:00.000Z")).version).toBe(
+      "2026-09-06",
+    )
+    expect(currentLegalVersion("cookies", new Date("2026-12-01T00:00:00.000Z")).version).toBe(
+      "2026-10-26",
+    )
+    expect(() => currentLegalVersion("terms", new Date("2026-09-05T23:59:59.999Z"))).toThrow(
+      RangeError,
+    )
+    expect(() => currentLegalVersion("donations" as LegalDocumentType, new Date())).toThrow(
+      RangeError,
+    )
   })
 })
 
@@ -71,5 +89,6 @@ describe("legalDocument / currentVersion / isCurrent", () => {
   it("throws on an unknown type rather than silently accepting stale consent", () => {
     expect(() => currentVersion("nope" as LegalDocumentType)).toThrow(RangeError)
     expect(() => legalDocument("nope" as LegalDocumentType)).toThrow(RangeError)
+    expect(() => legalDocument("toString" as LegalDocumentType)).toThrow(RangeError)
   })
 })

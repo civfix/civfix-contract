@@ -1,5 +1,9 @@
 import type { TicketTypeDTO } from "../schemas/entities.js"
-import type { EventAnswerInput, EventAnswerValue, EventQuestionDTO } from "../schemas/host/questions.js"
+import type {
+  EventAnswerInput,
+  EventAnswerValue,
+  EventQuestionDTO,
+} from "../schemas/host/questions.js"
 import type { RegisterOutcome } from "../schemas/host/registrations.js"
 
 export type AnswerMap = Readonly<Record<string, EventAnswerValue>>
@@ -76,7 +80,9 @@ export function clampPartySize(value: number, max: number): number {
   return Math.min(ceiling, Math.max(1, Math.floor(value)))
 }
 
-export function sortedTicketTypes<T extends Pick<TicketTypeDTO, "sortOrder">>(types: readonly T[]): T[] {
+export function sortedTicketTypes<T extends Pick<TicketTypeDTO, "sortOrder">>(
+  types: readonly T[],
+): T[] {
   return [...types].sort((a, b) => a.sortOrder - b.sortOrder)
 }
 

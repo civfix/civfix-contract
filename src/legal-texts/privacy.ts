@@ -1,6 +1,6 @@
 import type { LegalBlock } from "../legal/blocks.js"
 
-// Privacy Policy 2026-10-26: the text of the 2026-09-21 web page, word for word (DECISIONS §66).
+// Privacy Policy 2026-10-26: the text of the 2026-09-21 web page, word for word (DECISIONS §68).
 // "501(\u200cc)(3)" keeps the page's zero-width non-joiner, which stops "(c)" turning into ©; the hash covers it.
 export const PRIVACY_2026_10_26: readonly LegalBlock[] = [
   { kind: "heading", level: 2, text: "1\\. Overview" },
@@ -223,7 +223,11 @@ export const PRIVACY_2026_10_26: readonly LegalBlock[] = [
         "As long as it remains useful for operating and securing civfix",
         "Fraud, abuse and incident investigation.",
       ],
-      ["Never-attached media uploads", "Swept shortly after upload", "An orphaned upload has no purpose."],
+      [
+        "Never-attached media uploads",
+        "Swept shortly after upload",
+        "An orphaned upload has no purpose.",
+      ],
     ],
   },
   {

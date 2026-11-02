@@ -72,8 +72,7 @@ describe("LogEventHoursRequestSchema (per-attendee entries)", () => {
   })
 
   it("accepts exactly MAX_EVENT_HOURS_ENTRIES entries and rejects one more", () => {
-    const entries = (n: number) =>
-      Array.from({ length: n }, () => ({ userId: UUID, hours: 1 }))
+    const entries = (n: number) => Array.from({ length: n }, () => ({ userId: UUID, hours: 1 }))
     expect(MAX_EVENT_HOURS_ENTRIES).toBe(2000)
     expect(
       LogEventHoursRequestSchema.safeParse({ id: UUID, entries: entries(MAX_EVENT_HOURS_ENTRIES) })

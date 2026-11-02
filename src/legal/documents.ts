@@ -2,7 +2,7 @@ import type { LegalDocumentType } from "../schemas/common.js"
 
 /**
  * One published version of a legal document. `title`, `summary` and `material` are set on every version
- * written since DECISIONS §66 and missing only on the earlier ones, whose text was a web page and whose
+ * written since DECISIONS §68 and missing only on the earlier ones, whose text was a web page and whose
  * `sha256` is kept as it was stored. A version's blocks live in `@civfix/contract/legal-texts`, keyed by
  * `type@version`, and `sha256` is `legalRecordSha256` of the two, written by `pnpm legal:hash`.
  */
@@ -138,7 +138,7 @@ export const LEGAL_DOCUMENTS: readonly LegalDocumentVersion[] = Object.freeze(
 
 /**
  * The newest version of `type` whose `effectiveAt` has passed at `now`. A version written ahead of its
- * `effectiveAt` ships early and only becomes current then (DECISIONS §66).
+ * `effectiveAt` ships early and only becomes current then (DECISIONS §68).
  */
 export function currentLegalVersion(type: LegalDocumentType, now: Date): LegalDocumentVersion {
   const at = now.getTime()
@@ -156,17 +156,17 @@ export function currentLegalVersion(type: LegalDocumentType, now: Date): LegalDo
   )
 }
 
-/** The version of `type` in effect now. Backend only: clients get versions from the API (DECISIONS §66). */
+/** The version of `type` in effect now. Backend only: clients get versions from the API (DECISIONS §68). */
 export function legalDocument(type: LegalDocumentType): LegalDocumentVersion {
   return currentLegalVersion(type, new Date())
 }
 
-/** The version string of `type` in effect now. Backend only: clients get versions from the API (DECISIONS §66). */
+/** The version string of `type` in effect now. Backend only: clients get versions from the API (DECISIONS §68). */
 export function currentVersion(type: LegalDocumentType): string {
   return legalDocument(type).version
 }
 
-/** Whether `version` is the version of `type` in effect now. Backend only: clients must not call it (DECISIONS §66). */
+/** Whether `version` is the version of `type` in effect now. Backend only: clients must not call it (DECISIONS §68). */
 export function isCurrent(type: LegalDocumentType, version: string): boolean {
   return legalDocument(type).version === version
 }

@@ -44,7 +44,6 @@ export const UserSignalSchema = z
   .strict()
 export type UserSignal = z.infer<typeof UserSignalSchema>
 
-
 export const WsClientMessageSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("join"), cleanupId: IdSchema, roomKind: RoomKindSchema.optional() }),
   z.object({ type: z.literal("leave"), cleanupId: IdSchema, roomKind: RoomKindSchema.optional() }),
@@ -68,7 +67,6 @@ export const WsClientMessageSchema = z.discriminatedUnion("type", [
   }),
 ])
 export type WsClientMessage = z.infer<typeof WsClientMessageSchema>
-
 
 export const WsServerMessageSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("message"), message: ChatMessageDTOSchema }),

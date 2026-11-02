@@ -1,9 +1,5 @@
 import { z } from "zod"
-import {
-  IdSchema,
-  ContentReportSubjectSchema,
-  ContentReportReasonSchema,
-} from "./common.js"
+import { IdSchema, ContentReportSubjectSchema, ContentReportReasonSchema } from "./common.js"
 import { OkResponseSchema } from "./internal-fields.js"
 
 /**

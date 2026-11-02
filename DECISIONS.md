@@ -153,7 +153,7 @@ the Zod runtime) and a drift test asserts the two stay byte-for-byte identical.
 
 Refined DTOs / responses:
 
-- `UserDTO.email`: `z.string().email().nullable().optional()`. Account email for display. Nullable for
+- `UserDTO.email`: `z.email().nullable().optional()`. Account email for display. Nullable for
   accounts without one (Apple private relay omitted) and optional for backward compatibility.
   `SessionResponse` / `SessionCheckResponse` continue to compose over `UserDTO` unchanged.
 - `SessionCheckResponse.enabledProviders`: `z.array(OAuthProviderSchema).optional()`, so the web can
@@ -421,7 +421,7 @@ is optional so existing implementers keep compiling. Nothing here is a shape cha
   `1..64` (producers emit ≤36-char ids: `packages/ui/src/data/hooks/chatOutbox.ts` `randomId()`); RESPONSE /
   server-ack `clientId` fields are deliberately NOT touched (tightening a payload a new client must parse
   from an old server would break it). `RegisterPushTokenRequest.token` (and the new unregister twin) is
-  bounded `1..2048` (Expo device tokens ~40 chars). `EventHoursEntry.hours` gains a `MIN_EVENT_HOURS`
+  bounded `1..2048` (Expo device tokens ~40 chars; Expo is gone since §67). `EventHoursEntry.hours` gains a `MIN_EVENT_HOURS`
   (0.01) floor exported beside `MAX_EVENT_HOURS`; no `.multipleOf(0.01)` (float-equality hazard); 2-dp
   rounding stays a backend concern. Anon `AnonReportRequest.mediaUploadIds` is capped at `.max(5)`,
   aligning with the authed `CreateReportRequest` twin.
@@ -751,7 +751,8 @@ recipient.
 - **Critical messages are asymmetric.** `event_cancelled` and `event_updated` bypass unsubscribes,
   per-event mutes and the `hostBroadcasts` preference - they are service messages about something
   the recipient signed up for. They do NOT bypass bans or the bounce/complaint suppression list.
-  Everything else is bulk and fully opt-out-able.
+  Everything else is bulk and fully opt-out-able. **Superseded for account holders in 0.69.0
+  (§67):** their category settings decide every channel; guests keep this bypass.
 - **`hostBroadcasts` is its own preference bucket**, defaulted `true` so an older server's prefs
   payload still parses and the shallow `.partial()` update request keeps working. A recipient must be
   able to mute hosts without muting event chat or service messages. It is a CHANNEL-WIDE opt-out -
@@ -2246,7 +2247,7 @@ this release does not attempt them; each needs its own coordinated PR:
   plus product and counsel wording.
 - Light-scheme category pin contrast: five fills sit under 3:1 on light paper (a design-token
   decision).
-- One timestamp schema: responses mix `z.string()`, `z.string().datetime()` and `ISODateSchema`; move
+- One timestamp schema: responses mix `z.string()`, `z.iso.datetime()` and `ISODateSchema`; move
   them together once the backend is confirmed to always emit ISO.
 - Atomic operator writes asked for by admin (H-03 verify-and-send, H-06 save contacts and extras in one
   request): new endpoints, backend first.
@@ -2339,7 +2340,207 @@ tests assert accepted values rather than zod's text. The explicit annotations ar
 Every consumer adopts it in one delivery set: civfix-backend (`services/api`, `services/media-worker`,
 `packages/seams`, with its own `zod` moved to `^4.6.6`), civfix-app and civfix-admin.
 
-## 66. Legal documents served by the API (0.68.0)
+## 63. String formats are zod 4's top-level schemas, and their behavior is pinned (0.65.0)
+
+The string formats are written as zod 4's own schemas: `z.email()`, `z.url()`, `z.iso.datetime()` and
+`z.iso.date()`, not the deprecated `z.string().email()` methods, and lint's `no-deprecated` keeps it
+that way. Each top-level schema runs the same check, with the same default pattern, as the method it
+replaces, so nothing a client sends or receives changes. Where a transform has to run before the
+format check, the check is attached in place with `.check(z.email())` (or `z.url()`), because
+`z.email().trim()` would check the format before trimming: `HostEventEmailSchema` trims and lowercases
+first, and `HttpsUrlSchema` trims first. `z.url()` alone accepts any protocol (`javascript:` and
+`mailto:` included), so no field uses it bare: link fields use `HttpUrlSchema` (http and https only,
+§64) or `HttpsUrlSchema` (`https://` only).
+`__tests__/string-formats.test.ts` pins what each format accepts, how it normalizes and the issue
+clients receive.
+
+`z.ZodType` replaces `z.ZodTypeAny` in the client's generics. The default of `EndpointDef`'s type
+parameters is therefore a schema whose output is `unknown` rather than `any`; every registry entry's
+request and response types are unchanged.
+
+Every consumer adopts it in one delivery set, because a minor needs a range edit on 0.x:
+civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
+civfix-admin.
+
+## 64. Link fields accept only http and https (0.66.0)
+
+`z.url()` only checks that `new URL()` parses the string, and `javascript:alert(1)`,
+`data:text/html,...`, `file:///etc/passwd` and `vbscript:` all parse. The contract's link fields are
+rendered as `href`s in the operator console, so a `javascript:` value there is a stored XSS. The rule
+lives in the contract, the one definition both sides share, so a new route that takes a link is
+covered without remembering a backend helper.
+
+`HttpUrlSchema` is `z.string().trim().check(z.url({ protocol: /^https?$/ }))`: it trims, then accepts
+`http:` and `https:` only (case-insensitive), and rejects every other scheme, scheme-relative `//host`
+and a link without a hostname (`http:foo`). Every link field in `src/` is either `HttpUrlSchema` or
+`HttpsUrlSchema`; none is a bare `z.url()`. The four fields:
+
+- `SuggestContactRequest.formUrl` (public) and `RoutingContactFields.formUrl` (operator; spread into
+  `PatchJurisdictionRequest`, `SaveContactsRequest` and `SaveDraftRequest`) are
+  `HttpUrlSchema.max(HTTP_URL_MAX_LENGTH)` (2048 characters, measured after the trim), with their
+  modifiers unchanged: the public one is optional, the operator one optional and nullable, so `null`
+  still clears it.
+- `JurisdictionDirectoryDTO.form` and `MailAttachment.url` are `HttpUrlSchema` with no length cap:
+  a presigned link can be long, and a response is not an input to bound.
+
+**http stays allowed.** Some city reporting forms are still served over plain http, and the backend's
+own checks accept http. A field that must be https keeps `HttpsUrlSchema`.
+
+**The two response fields can tighten.** §16 keeps response schemas from tightening because a new
+client must still parse an old server's body. No server emits anything else in these two fields: the
+backend has refused a non-http(s) `formUrl` at its persist boundary since 2026-07-24, and attachment
+links are always presigned http(s) URLs the server builds. The backend keeps those checks as defense
+in depth.
+
+Every consumer adopts it in one delivery set, because a minor needs a range edit on 0.x:
+civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
+civfix-admin.
+
+## 65. A schema typed by name names its input as well as its output (0.67.0)
+
+Since 0.39.0 the large DTO and response schemas carry an explicit `z.ZodType` annotation, because a
+named type stops the declaration emitter from inlining a whole object structure into every schema and
+endpoint that uses it, and without that the `endpoints` declaration crossed TypeScript's serializer
+cap (TS7056) and the `.d.ts` build failed. Those annotations named only the output, as
+`z.ZodType<Output, unknown>`, so the input became `unknown`, and `unknown` spread to every response
+containing one of those schemas: 117 of the 341 endpoints had a response input of `unknown`. The
+backend types each route's reply as `z.input` of the endpoint's `response` (`EndpointReply<N>`), so for
+those routes the compiler checked nothing about what the handler sends.
+
+Every such annotation now names both types, with the input exported next to the output as
+`<Output>Input`:
+
+```ts
+export type OrganizationRefDTO = z.infer<typeof OrganizationRefDTOObjectSchema>
+export type OrganizationRefDTOInput = z.input<typeof OrganizationRefDTOObjectSchema>
+export const OrganizationRefDTOSchema: z.ZodType<OrganizationRefDTO, OrganizationRefDTOInput> =
+  OrganizationRefDTOObjectSchema
+```
+
+A schema that needs a named type for TS7056 follows the same form: the underlying schema in its own
+const, both aliases taken from it, and never `unknown` as the input. The named input keeps the
+declaration under the cap the same way the named output does. The emitted `.d.ts` grows from 2.58 MB
+to 4.19 MB, which only the type checker reads. `__tests__/endpoint-input-types.test.ts` fails
+typecheck if any endpoint's response input, or the input of a request that is a schema, is `unknown`
+(`request: null`, an endpoint without a request body, has no input to check). Runtime behavior and
+every exported output type are unchanged.
+
+Every consumer adopts it in one delivery set, because a minor needs a range edit on 0.x:
+civfix-backend (`services/api`, `services/media-worker`, `packages/seams`), civfix-app and
+civfix-admin. The backend's test-only response check stays: it still covers the bodies a
+fast-json-stringify schema emits.
+
+## 66. Runtime flags are a fixed registry in the contract, and the developer console's shapes (0.68.0)
+
+**Runtime flags.** `RUNTIME_FLAGS` is the whole list of values an operator can change without a
+deploy. Each entry fixes its `key`, `label`, `description`, `type` (`boolean`, `semver`, `url`,
+`text` or `choice`), `default`, `envFallback` (the backend env var used when there is no override, or
+null), `public` (included in `GET /app/config`) and, by type, `choices`, `maxLength` or `urlPrefix`.
+Adding, removing or retyping a flag is a contract change, reviewed like any other; the backend stores
+only overrides and resolves every value against this list (override, else a non-empty env fallback,
+else the default), so a stored row whose key is not here is ignored. The first eight are the three
+switches founders flipped by redeploy (`host_messaging_kill_switch`, `outreach_digest_enabled`,
+`report_autoforward_enabled`, each still falling back to its env var), the minimum app versions and
+App Store link the force-update screen reads, and the site-wide announcement.
+
+**Values.** A flag value is JSON: `RuntimeFlagValueSchema` is boolean, string or null, and it is what
+`RuntimeFlagStateDTO` (`value`, `override`, `fallback`) and `AdminSetRuntimeFlagRequest` carry. The
+per-flag check is `runtimeFlagValueSchema(key)`, which the backend runs on every write and on every
+stored row. Strings are trimmed and an empty one is rejected, so "not set" is always null and never
+`""`; null is a value only for `semver`, `url` and `text` flags. `semver` is `MAJOR.MINOR.PATCH`
+digits only (no `v`, no pre-release), `url` must be a URL starting with its `urlPrefix`, `text` is
+capped at its `maxLength`, and `choice` takes one of its choice values. An unknown key accepts
+nothing, null included.
+
+**The flag key on the set request.** `adminSetRuntimeFlag` is `PUT /admin/dev/flags/:key` with the
+body `{ value }`. Like every request-carrying endpoint with a path param, its request schema declares
+the param, so `AdminSetRuntimeFlagRequest` is `{ key, value }`, strict, and the typed client fills
+`:key` from it. The server takes `key` from the path, as it does for `:id` elsewhere, so the wire body
+is the same. `key` is any string rather than an enum of the registry's keys: an unknown key reaches the
+server and is `NOT_FOUND`, not a parse `VALIDATION` error.
+
+**App config.** `AppConfigResponse` (`getAppConfig`, auth optional) is built from the public flags:
+`minAppVersion` and `storeUrl` per platform (the Android store link is a constant, so it is never
+null) and `announcement`, null when no text is set. It is not strict, so a phone on an older version
+still parses a response that gained a field; the admin shapes below are strict, like the rest of
+`/admin`.
+
+**Developer console.** Ten operator endpoints under `/admin/dev`, all auth required, csrf on every
+mutation: the flag list and set; `adminDevOverview` (environment `prod`, `staging`, `local` or
+`unknown`; the API's and worker's build identity, each field null when the deploy did not pass it;
+real or fake per seam, named by its lowercased flag; read-only env settings as strings; the test
+account addresses); `adminDevJobs` and `adminDevRunJob` (counts and ages are non-negative integers;
+the run has no body and answers `{ enqueued }`); and the staging test tools (force update, test push,
+test email, reset first run). Each test tool names its target by a trimmed, validated email and
+nothing else; the test email's request is an empty strict object, so it can only go to the signed-in
+operator. The test push caps `title` at 80 and `body` at 200 characters
+(`DEV_TEST_PUSH_TITLE_MAX_LENGTH`, `DEV_TEST_PUSH_BODY_MAX_LENGTH`).
+
+The change is additive: no existing export changes. The registry moves from 341 to 352 entries, 119
+of them under `/admin`.
+
+## 67. Notifications are eleven categories, Off means nothing, and push is sent directly (0.69.0)
+
+**Eleven categories in five sections.** Every notification belongs to exactly one
+`NotificationCategory`, or is always on: registration confirmations, the broadcast kinds `confirmation`
+and `waitlist_promoted`, sign-in codes and other account email are transactional. `NOTIFICATION_SECTIONS`
+orders the categories into five sections whose ids are also the Android notification channel ids, and
+`NOTIFICATION_CATEGORY_DEFAULTS` holds each category's default. The backend, the settings screen and
+the Android channels read these lists instead of keeping their own copies.
+
+**A setting is `{ enabled, push, email }`.** Off (`enabled: false`) means nothing at all: no row on the
+notifications page, no push, no email. Push and Email keep their saved values while a category is Off,
+so turning it back on restores them. On with neither checked is in-app only; each checked channel adds
+itself. Direct messages, Group chats and Report discussions are in-app in Messages, never on the
+notifications page, so their setting controls push and email, and Off also stops their notification
+rows while the messages stay in the conversation. A host broadcast reaches an account holder through
+the intersection of the host's channels and the broadcast's category; a channel skipped this way is
+recorded on the delivery row as `prefs_off`, and an Off recipient is never a failed delivery. Quiet
+hours still suppress push only. `NotificationSettingsDTO` names every category plus `emailAvailable`
+(the account has a verified email); `UpdateNotificationSettingsRequest` is a strict patch that names
+at least one category, each with at least one field, and answers the whole DTO.
+
+**Off is absolute, which supersedes §24's critical bypass for account holders.** `event_cancelled` and
+`event_updated` no longer bypass anything for a resident with an account: with Events you're going to
+Off they get nothing, and an unchecked channel is skipped; nor do the two kinds bypass their per-event
+mutes or one-click unsubscribes any more. Guests have no settings and keep §24's bypass. Bans and the bounce and
+complaint suppression list still apply to everyone.
+
+**`chat_mention` is appended to `NotificationType`** (the §33/§34 precedent). It covers @mentions and
+replies in any chat room, which used to borrow the room's type and so never reached the notifications
+page. Older rows keep their types. The old prefs endpoints and `NotificationPrefsDTO` are unchanged.
+
+**Push is sent directly, and Expo is gone; this amends §16's token note.** The backend sends to APNs,
+FCM and web push itself. `registerPush` takes a raw APNs device token (hex), an FCM token or a web
+`PushSubscription` as JSON, and an Expo-format token is a validation error; a stored Expo token is
+revoked the first time a send finds it. The `1..2048` bound on `RegisterPushTokenRequest.token` is
+unchanged, but §16's "Expo device tokens ~40 chars" no longer describes what it carries: an APNs token
+is 64 hex characters today, and FCM tokens and subscription JSON run to a few hundred.
+
+**Every push carries `PushMessageData`**, discriminated on `kind`. A `notification` names the
+recipient's own notification row (`notificationId`, `type`, `category`, `link`, the last two nullable).
+A `clear` asks the device to remove notifications it shows: exactly one of `ids` (1 to 100) or `all`.
+FCM data carries only strings, and APNs gets the same map, so `encodePushMessageData` writes a flat
+string map (`ids` as JSON, `all` as `"true"`, a null `category` or `link` left out) and
+`decodePushMessageData` reads it back. Decoding returns `null` for any malformed map and never throws,
+so the app ignores a push it cannot read instead of failing in its handler. The backend and the app
+share this one codec.
+
+**Notification emails carry no one else's words.** An email for Mentions and replies, Direct messages,
+Group chats or Report discussions carries the title and the conversation's name, never the message or
+post text; other categories carry the notification's title and body. Every one has a Stop these emails
+link, served by `unsubscribeNotificationEmail` and `openUnsubscribeNotificationEmail`, which mirror
+§24's pair: the GET never changes anything and answers `302` to the web page (an empty strict response
+schema), and the public, csrf-free POST unchecks Email for the one category its token names. Its
+token is a notification token, distinct from a broadcast token, and neither works on the other's
+route; both share `UnsubscribeTokenSchema`'s bounds. Unlike §24's byte-identical `{ ok: true }`, the
+response names the category when the token was valid and applied (`null` otherwise) so the page can say
+what stopped: it reveals only what the signed token already says, to whoever holds it. There is still
+no open or click tracking.
+
+The change is additive. The registry moves from 352 to 360 entries, none of them under `/admin`.
+
+## 68. Legal documents served by the API (0.70.0)
 
 **The contract writes the documents, the backend serves them.** Every legal document version lives in
 the contract as data: its metadata in `LEGAL_DOCUMENTS` (on the root and `/legal`) and its text in
@@ -2413,7 +2614,7 @@ key, and a malformed `details` is dropped rather than losing the rest of the err
 
 **API contract.** One additive minor, 0.68.0 (the notification center holds 0.65.0, city filing 0.66.0
 and the developer console 0.67.0). New schemas: `LegalBlockSchema`, `LegalDocumentDTO` (the version's
-fields, `sha256` and `blocks`, with `title`, `summary`, `material` and `blocks` null on the pre-§66
+fields, `sha256` and `blocks`, with `title`, `summary`, `material` and `blocks` null on the pre-§68
 versions), `GetLegalDocumentsResponse`, `GetLegalDocumentRequest`, `GetLegalDocumentResponse`,
 `MyLegalStatusResponse` (its `required` and `notices` are the DTO without `blocks`; `accepted` is a
 `z.partialRecord` by type), `AcceptLegalRequest` and `AcceptLegalResponse` (the status response).

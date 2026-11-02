@@ -11,10 +11,16 @@ import {
 import { ReportContentResponseSchema } from "../src/schemas/content-report.js"
 import { ListGroupMembersRequestSchema } from "../src/schemas/groups.js"
 import { SuggestContactResponseSchema } from "../src/schemas/map.js"
-import { MarkReadResponseSchema, RegisterPushTokenResponseSchema } from "../src/schemas/notifications.js"
+import {
+  MarkReadResponseSchema,
+  RegisterPushTokenResponseSchema,
+} from "../src/schemas/notifications.js"
 import { DeletePostResponseSchema } from "../src/schemas/posts.js"
 import { ConnectionsListQuerySchema, DeleteAccountResponseSchema } from "../src/schemas/social.js"
-import { LeaderboardQuerySchema, MyVolunteerHoursEntriesQuerySchema } from "../src/schemas/volunteer.js"
+import {
+  LeaderboardQuerySchema,
+  MyVolunteerHoursEntriesQuerySchema,
+} from "../src/schemas/volunteer.js"
 import { ChatMessageDTOSchema } from "../src/schemas/entities.js"
 import { RoomKindSchema } from "../src/types/ws.js"
 

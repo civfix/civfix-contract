@@ -6,8 +6,9 @@ import {
   GetLegalDocumentsResponseSchema,
   GetLegalVersionsResponseSchema,
 } from "../../schemas/legal.js"
+import { AppConfigResponseSchema } from "../../schemas/app-config.js"
 
-const HealthzResponseSchema = z.object({ ok: z.literal(true) }).passthrough()
+const HealthzResponseSchema = z.looseObject({ ok: z.literal(true) })
 
 export const systemEndpoints = {
   health: def({
@@ -43,6 +44,15 @@ export const systemEndpoints = {
     request: GetLegalDocumentRequestSchema,
     response: GetLegalDocumentResponseSchema,
     auth: "public",
+    csrf: false,
+    version: "v1",
+  }),
+  getAppConfig: def({
+    method: "GET",
+    path: "/app/config",
+    request: null,
+    response: AppConfigResponseSchema,
+    auth: "optional",
     csrf: false,
     version: "v1",
   }),

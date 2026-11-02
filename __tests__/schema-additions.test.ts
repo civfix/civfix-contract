@@ -60,7 +60,6 @@ import { AdminEventDTOSchema, AdminEventListItemDTOSchema } from "../src/schemas
 import { AdminReportDTOSchema } from "../src/schemas/admin/reports.js"
 import { z } from "zod"
 
-
 const UUID = "123e4567-e89b-12d3-a456-426614174000"
 
 describe("REPORT_CATEGORY_LABELS", () => {
@@ -135,9 +134,7 @@ describe("MessageThreadDTO.lastMessageAt", () => {
   })
 
   it("rejects a non-ISO timestamp", () => {
-    expect(
-      MessageThreadDTOSchema.safeParse({ ...base, lastMessageAt: "30m" }).success,
-    ).toBe(false)
+    expect(MessageThreadDTOSchema.safeParse({ ...base, lastMessageAt: "30m" }).success).toBe(false)
   })
 })
 
@@ -156,7 +153,8 @@ describe("markThreadRead (PUT /threads/read)", () => {
       expect(MarkThreadReadRequestSchema.safeParse({ roomKind, roomId: UUID }).success).toBe(true)
     }
     expect(
-      MarkThreadReadRequestSchema.safeParse({ roomKind: "report_discussion", roomId: UUID }).success,
+      MarkThreadReadRequestSchema.safeParse({ roomKind: "report_discussion", roomId: UUID })
+        .success,
     ).toBe(false)
     expect(
       MarkThreadReadRequestSchema.safeParse({ roomKind: "dm", roomId: UUID, upToId: UUID }).success,
@@ -279,7 +277,17 @@ describe("event<->report linking contract additions", () => {
       linkedAt: ISO,
     })
     expect(ref.category).toBe("trash")
-    expect(LinkedReportRefSchema.safeParse({ id: UUID, category: "water", title: "x", status: "resolved", lat: 0, lng: 0, linkedAt: ISO }).success).toBe(true)
+    expect(
+      LinkedReportRefSchema.safeParse({
+        id: UUID,
+        category: "water",
+        title: "x",
+        status: "resolved",
+        lat: 0,
+        lng: 0,
+        linkedAt: ISO,
+      }).success,
+    ).toBe(true)
   })
 
   it("LinkedEventRefSchema parses a representative event ref", () => {
@@ -331,14 +339,24 @@ describe("event<->report linking contract additions", () => {
   })
 
   it("ReportDTO defaults linkedEvents to [] (backward compatible)", () => {
-    expect(z.object({ linkedEvents: ReportDTOSchema.shape.linkedEvents }).parse({}).linkedEvents).toEqual([])
+    expect(
+      z.object({ linkedEvents: ReportDTOSchema.shape.linkedEvents }).parse({}).linkedEvents,
+    ).toEqual([])
   })
 
   it("CleanupPinDTO + Admin DTOs carry the additive fields with safe defaults", () => {
-    expect(z.object({ eventKind: CleanupPinDTOSchema.shape.eventKind }).parse({}).eventKind).toBe("cleanup")
-    expect(z.object({ eventKind: AdminEventListItemDTOSchema.shape.eventKind }).parse({}).eventKind).toBe("cleanup")
-    expect(z.object({ linkedReports: AdminEventDTOSchema.shape.linkedReports }).parse({}).linkedReports).toEqual([])
-    expect(z.object({ linkedEvents: AdminReportDTOSchema.shape.linkedEvents }).parse({}).linkedEvents).toEqual([])
+    expect(z.object({ eventKind: CleanupPinDTOSchema.shape.eventKind }).parse({}).eventKind).toBe(
+      "cleanup",
+    )
+    expect(
+      z.object({ eventKind: AdminEventListItemDTOSchema.shape.eventKind }).parse({}).eventKind,
+    ).toBe("cleanup")
+    expect(
+      z.object({ linkedReports: AdminEventDTOSchema.shape.linkedReports }).parse({}).linkedReports,
+    ).toEqual([])
+    expect(
+      z.object({ linkedEvents: AdminReportDTOSchema.shape.linkedEvents }).parse({}).linkedEvents,
+    ).toEqual([])
   })
 
   it("CreateCleanupRequest defaults eventKind when omitted and accepts it with linkedReportIds", () => {
@@ -351,7 +369,17 @@ describe("event<->report linking contract additions", () => {
     })
     expect(parsed.eventKind).toBe("cleanup")
     expect(parsed.linkedReportIds).toBeUndefined()
-    expect(CreateCleanupRequestSchema.safeParse({ title: "S", type: "route", lat: 0, lng: 0, scheduledAt: ISO, eventKind: "other_volunteer", linkedReportIds: [UUID] }).success).toBe(true)
+    expect(
+      CreateCleanupRequestSchema.safeParse({
+        title: "S",
+        type: "route",
+        lat: 0,
+        lng: 0,
+        scheduledAt: ISO,
+        eventKind: "other_volunteer",
+        linkedReportIds: [UUID],
+      }).success,
+    ).toBe(true)
   })
 
   it("UpdateCleanupRequest is strict + all-optional beside the required id, with bounded coordinates", () => {
@@ -442,9 +470,9 @@ describe("canonical report type taxonomy", () => {
 
 describe("chat message reactions", () => {
   it("ChatMessageDTO.reactions defaults to [] (additive)", () => {
-    expect(z.object({ reactions: ChatMessageDTOSchema.shape.reactions }).parse({}).reactions).toEqual(
-      [],
-    )
+    expect(
+      z.object({ reactions: ChatMessageDTOSchema.shape.reactions }).parse({}).reactions,
+    ).toEqual([])
   })
 
   it("widens the reaction allowlist to 8 (append-only; laugh + sad accepted, unknowns rejected)", () => {
@@ -472,7 +500,8 @@ describe("chat message reactions", () => {
       }).success,
     ).toBe(true)
     expect(
-      ToggleCleanupMessageReactionRequestSchema.safeParse({ messageId: UUID, emoji: "like" }).success,
+      ToggleCleanupMessageReactionRequestSchema.safeParse({ messageId: UUID, emoji: "like" })
+        .success,
     ).toBe(false)
     expect(
       ToggleDmMessageReactionRequestSchema.safeParse({
@@ -487,7 +516,16 @@ describe("chat message reactions", () => {
     const msg = {
       id: UUID,
       cleanupId: UUID,
-      from: { id: UUID, name: "U", handle: null, bio: null, avatar: null, followers: 0, following: 0, isFollowing: false },
+      from: {
+        id: UUID,
+        name: "U",
+        handle: null,
+        bio: null,
+        avatar: null,
+        followers: 0,
+        following: 0,
+        isFollowing: false,
+      },
       body: "hi",
       kind: "text",
       attachments: null,
@@ -498,8 +536,12 @@ describe("chat message reactions", () => {
       WsServerMessageSchema.safeParse({ type: "reaction", cleanupId: UUID, message: msg }).success,
     ).toBe(true)
     expect(
-      WsServerMessageSchema.safeParse({ type: "reaction", cleanupId: UUID, roomKind: "dm", message: msg })
-        .success,
+      WsServerMessageSchema.safeParse({
+        type: "reaction",
+        cleanupId: UUID,
+        roomKind: "dm",
+        message: msg,
+      }).success,
     ).toBe(true)
     expect(WsServerMessageSchema.safeParse({ type: "message", message: msg }).success).toBe(true)
   })
@@ -514,7 +556,9 @@ describe("user @-mentions", () => {
   })
 
   it("ChatMessageDTO defaults mentions to [] (additive)", () => {
-    expect(z.object({ mentions: ChatMessageDTOSchema.shape.mentions }).parse({}).mentions).toEqual([])
+    expect(z.object({ mentions: ChatMessageDTOSchema.shape.mentions }).parse({}).mentions).toEqual(
+      [],
+    )
   })
 
   it("the WS send client frame accepts an optional capped mentionedUserIds", () => {
@@ -560,11 +604,15 @@ describe("affiliation, posting as an org, duplicating an event", () => {
       createdAt: ISO_43,
     }
     expect(UserDTOSchema.parse(base).primaryOrganizationId).toBeUndefined()
-    expect(UserDTOSchema.parse({ ...base, primaryOrganizationId: null }).primaryOrganizationId).toBeNull()
+    expect(
+      UserDTOSchema.parse({ ...base, primaryOrganizationId: null }).primaryOrganizationId,
+    ).toBeNull()
     expect(
       UserDTOSchema.parse({ ...base, primaryOrganizationId: ORG_ID }).primaryOrganizationId,
     ).toBe(ORG_ID)
-    expect(UpdateSettingsRequestSchema.safeParse({ primaryOrganizationId: null }).success).toBe(true)
+    expect(UpdateSettingsRequestSchema.safeParse({ primaryOrganizationId: null }).success).toBe(
+      true,
+    )
     expect(UpdateSettingsRequestSchema.safeParse({ primaryOrganizationId: ORG_ID }).success).toBe(
       true,
     )
@@ -578,8 +626,12 @@ describe("affiliation, posting as an org, duplicating an event", () => {
       PostComposeInputSchema.parse({ body: "hello", organizationId: ORG_ID }).organizationId,
     ).toBe(ORG_ID)
     expect(
-      PostComposeInputSchema.safeParse({ kind: "reply", replyToId: UUID, body: "hi", organizationId: ORG_ID })
-        .success,
+      PostComposeInputSchema.safeParse({
+        kind: "reply",
+        replyToId: UUID,
+        body: "hi",
+        organizationId: ORG_ID,
+      }).success,
     ).toBe(true)
     expect(
       PostComposeInputSchema.safeParse({

@@ -14,7 +14,16 @@ const USER = "11111111-1111-1111-1111-111111111111"
 const MESSAGE = {
   id: ROOM,
   cleanupId: ROOM,
-  from: { id: USER, name: "U", handle: null, bio: null, avatar: null, followers: 0, following: 0, isFollowing: false },
+  from: {
+    id: USER,
+    name: "U",
+    handle: null,
+    bio: null,
+    avatar: null,
+    followers: 0,
+    following: 0,
+    isFollowing: false,
+  },
   body: "hi",
   kind: "text",
   attachments: null,

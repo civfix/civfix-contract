@@ -60,7 +60,7 @@ export type AppleCallbackBody = z.infer<typeof AppleCallbackBodySchema>
 
 export const EmailOtpRequestRequestSchema = z
   .object({
-    email: z.string().email(),
+    email: z.email(),
   })
   .strict()
 export type EmailOtpRequestRequest = z.infer<typeof EmailOtpRequestRequestSchema>
@@ -85,7 +85,7 @@ export const OtpCodeSchema = z.union([
 
 export const EmailOtpVerifyRequestSchema = z
   .object({
-    email: z.string().email(),
+    email: z.email(),
     code: OtpCodeSchema,
   })
   .strict()
@@ -97,7 +97,7 @@ export const UserDTOSchema = z.object({
   displayName: z.string(),
   handle: z.string().nullable().optional(),
   // Null for accounts without one (Apple private relay omitted); optional so older servers parse.
-  email: z.string().email().nullable().optional(),
+  email: z.email().nullable().optional(),
   // Provider profile photo URL; null means render the letter monogram. Optional so older servers parse.
   avatarUrl: z.string().nullable().optional(),
   // Whether first-run registration (username + name) is done. The first-run gate triggers only on an
@@ -111,7 +111,7 @@ export const UserDTOSchema = z.object({
   // Absent means true (the server default). Written via PUT /me/settings.
   showVolunteerHours: z.boolean().optional(),
   // When the user may next change their @handle (30-day cooldown); null means changeable now.
-  handleChangeableAt: z.string().datetime().nullable().optional(),
+  handleChangeableAt: z.iso.datetime().nullable().optional(),
   // Drives client UI language and server-generated copy. `.catch` coerces an out-of-domain value and
   // `.default` fills an absent one, so a server with a newer or missing locale still parses.
   locale: SupportedLocaleSchema.catch("en").default("en"),

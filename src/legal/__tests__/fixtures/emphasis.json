@@ -63,19 +63,11 @@
       "Reach Out Los Angeles Inc.",
       "Roman Aytur"
     ],
-    "em": [
-      "about"
-    ]
+    "em": ["about"]
   },
   "cookies": {
-    "strong": [
-      "strictly necessary",
-      "not",
-      "civfix does not show a cookie consent banner"
-    ],
-    "em": [
-      "about"
-    ]
+    "strong": ["strictly necessary", "not", "civfix does not show a cookie consent banner"],
+    "em": ["about"]
   },
   "subprocessors": {
     "strong": [],

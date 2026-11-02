@@ -1,6 +1,6 @@
 import type { LegalBlock } from "../legal/blocks.js"
 
-// Sub-processors 2026-10-26: the text of the 2026-09-16 web page, word for word (DECISIONS §66).
+// Sub-processors 2026-10-26: the text of the 2026-09-16 web page, word for word (DECISIONS §68).
 export const SUBPROCESSORS_2026_10_26: readonly LegalBlock[] = [
   {
     kind: "paragraph",

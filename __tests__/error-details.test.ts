@@ -9,13 +9,20 @@ const DETAILS = {
 }
 
 const conflict = (body: unknown): Response =>
-  new Response(JSON.stringify(body), { status: 409, headers: { "content-type": "application/json" } })
+  new Response(JSON.stringify(body), {
+    status: 409,
+    headers: { "content-type": "application/json" },
+  })
 
 describe("AppError details", () => {
   it("T28: carries details when given and leaves every other error as it was", () => {
     const withDetails = new AppError(ErrorCode.CONFLICT, "Outdated", { details: DETAILS })
     expect(withDetails.details).toEqual(DETAILS)
-    expect(withDetails.toJSON()).toEqual({ code: "CONFLICT", message: "Outdated", details: DETAILS })
+    expect(withDetails.toJSON()).toEqual({
+      code: "CONFLICT",
+      message: "Outdated",
+      details: DETAILS,
+    })
 
     const plain = new AppError(ErrorCode.CONFLICT, "Outdated")
     expect(plain).not.toHaveProperty("details")
@@ -29,7 +36,9 @@ describe("AppError details", () => {
   })
 
   it("T32: parseError and toAppError keep a details object and drop a malformed one, never the envelope", async () => {
-    const parsed = await parseError(conflict({ code: "CONFLICT", message: "m", requestId: "r1", details: DETAILS }))
+    const parsed = await parseError(
+      conflict({ code: "CONFLICT", message: "m", requestId: "r1", details: DETAILS }),
+    )
     expect(parsed).toBeInstanceOf(AppError)
     expect(parsed.code).toBe(ErrorCode.CONFLICT)
     expect(parsed.httpStatus).toBe(409)
@@ -45,9 +54,15 @@ describe("AppError details", () => {
       expect(malformed, JSON.stringify(details)).not.toHaveProperty("details")
     }
 
-    expect(await parseError(conflict({ code: "CONFLICT", message: "m" }))).not.toHaveProperty("details")
+    expect(await parseError(conflict({ code: "CONFLICT", message: "m" }))).not.toHaveProperty(
+      "details",
+    )
 
-    expect(toAppError({ code: "CONFLICT", message: "m", details: { a: 1 } }).details).toEqual({ a: 1 })
-    expect(toAppError({ code: "CONFLICT", message: "m", details: "x" })).not.toHaveProperty("details")
+    expect(toAppError({ code: "CONFLICT", message: "m", details: { a: 1 } }).details).toEqual({
+      a: 1,
+    })
+    expect(toAppError({ code: "CONFLICT", message: "m", details: "x" })).not.toHaveProperty(
+      "details",
+    )
   })
 })

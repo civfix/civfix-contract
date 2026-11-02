@@ -141,7 +141,10 @@ describe("buildIcs", () => {
       "https://civfix.org/a\u0001b",
       `https://civfix.org/${"a".repeat(2048)}`,
     ]) {
-      expect(unfold(buildIcs({ ...BASE, url })).some((row) => row.startsWith("URL:")), url).toBe(false)
+      expect(
+        unfold(buildIcs({ ...BASE, url })).some((row) => row.startsWith("URL:")),
+        url,
+      ).toBe(false)
     }
     const rows = unfold(buildIcs({ ...BASE, organizer: { email: "ada\u0001@civfix.org" } }))
     expect(rows.some((row) => row.startsWith("ORGANIZER"))).toBe(false)

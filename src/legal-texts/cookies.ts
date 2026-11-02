@@ -1,6 +1,6 @@
 import type { LegalBlock } from "../legal/blocks.js"
 
-// Cookies & Storage 2026-10-26: the text of the 2026-09-16 web page, word for word (DECISIONS §66).
+// Cookies & Storage 2026-10-26: the text of the 2026-09-16 web page, word for word (DECISIONS §68).
 export const COOKIES_2026_10_26: readonly LegalBlock[] = [
   { kind: "heading", level: 2, text: "1\\. The short version" },
   {

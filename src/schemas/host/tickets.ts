@@ -4,7 +4,6 @@ import { TicketTypeDTOSchema } from "../entities.js"
 import { OkResponseSchema, SortOrderInputSchema } from "../internal-fields.js"
 import { MAX_EVENT_QUESTIONS } from "./questions.js"
 
-
 export { TicketTypeDTOSchema } from "../entities.js"
 export type { TicketTypeDTO } from "../entities.js"
 export { TicketTypeVisibilitySchema } from "../common.js"
@@ -29,8 +28,13 @@ const ListEventTicketTypesResponseObjectSchema = z.object({
   items: z.array(TicketTypeDTOSchema),
 })
 export type ListEventTicketTypesResponse = z.infer<typeof ListEventTicketTypesResponseObjectSchema>
-export const ListEventTicketTypesResponseSchema: z.ZodType<ListEventTicketTypesResponse, unknown> =
-  ListEventTicketTypesResponseObjectSchema
+export type ListEventTicketTypesResponseInput = z.input<
+  typeof ListEventTicketTypesResponseObjectSchema
+>
+export const ListEventTicketTypesResponseSchema: z.ZodType<
+  ListEventTicketTypesResponse,
+  ListEventTicketTypesResponseInput
+> = ListEventTicketTypesResponseObjectSchema
 
 export const SALES_WINDOW_ISSUE = {
   path: ["salesClosesAt"] as const,
@@ -38,7 +42,7 @@ export const SALES_WINDOW_ISSUE = {
 }
 
 export function refineSalesWindow(
-  value: { salesOpensAt?: string | null; salesClosesAt?: string | null },
+  value: { salesOpensAt?: string | null | undefined; salesClosesAt?: string | null | undefined },
   ctx: z.RefinementCtx,
 ): void {
   const opens = value.salesOpensAt
@@ -46,7 +50,7 @@ export function refineSalesWindow(
   if (opens == null || closes == null) return
   if (Date.parse(closes) > Date.parse(opens)) return
   ctx.addIssue({
-    code: z.ZodIssueCode.custom,
+    code: "custom",
     path: [...SALES_WINDOW_ISSUE.path],
     message: SALES_WINDOW_ISSUE.message,
   })
@@ -103,8 +107,11 @@ export const DeleteEventTicketTypeRequestSchema = z
 export type DeleteEventTicketTypeRequest = z.infer<typeof DeleteEventTicketTypeRequestSchema>
 
 export type DeleteEventTicketTypeResponse = z.infer<typeof OkResponseSchema>
-export const DeleteEventTicketTypeResponseSchema: z.ZodType<DeleteEventTicketTypeResponse, unknown> =
-  OkResponseSchema
+export type DeleteEventTicketTypeResponseInput = z.input<typeof OkResponseSchema>
+export const DeleteEventTicketTypeResponseSchema: z.ZodType<
+  DeleteEventTicketTypeResponse,
+  DeleteEventTicketTypeResponseInput
+> = OkResponseSchema
 
 export const ReorderEventTicketTypesRequestSchema = z
   .object({
@@ -117,6 +124,13 @@ export type ReorderEventTicketTypesRequest = z.infer<typeof ReorderEventTicketTy
 const ReorderEventTicketTypesResponseObjectSchema = z.object({
   items: z.array(TicketTypeDTOSchema),
 })
-export type ReorderEventTicketTypesResponse = z.infer<typeof ReorderEventTicketTypesResponseObjectSchema>
-export const ReorderEventTicketTypesResponseSchema: z.ZodType<ReorderEventTicketTypesResponse, unknown> =
-  ReorderEventTicketTypesResponseObjectSchema
+export type ReorderEventTicketTypesResponse = z.infer<
+  typeof ReorderEventTicketTypesResponseObjectSchema
+>
+export type ReorderEventTicketTypesResponseInput = z.input<
+  typeof ReorderEventTicketTypesResponseObjectSchema
+>
+export const ReorderEventTicketTypesResponseSchema: z.ZodType<
+  ReorderEventTicketTypesResponse,
+  ReorderEventTicketTypesResponseInput
+> = ReorderEventTicketTypesResponseObjectSchema

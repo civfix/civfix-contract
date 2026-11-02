@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest"
 import { MessageThreadDTOSchema } from "../src/schemas/chat.js"
 import { NotificationTypeSchema } from "../src/schemas/notifications.js"
 
-
 const UUID = "123e4567-e89b-12d3-a456-426614174000"
 
 describe("MessageThreadDTO kind:'report'", () => {

@@ -1,10 +1,5 @@
 import { describe, it, expect } from "vitest"
-import {
-  PostKindSchema,
-  POST_KIND_VALUES,
-  PostDTOSchema,
-  PostRefDTOSchema,
-} from "../entities.js"
+import { PostKindSchema, POST_KIND_VALUES, PostDTOSchema, PostRefDTOSchema } from "../entities.js"
 import {
   POST_BODY_MAX,
   PostComposeInputSchema,

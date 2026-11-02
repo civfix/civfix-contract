@@ -1,15 +1,9 @@
 import { z } from "zod"
-import {
-  ConsentSurfaceSchema,
-  IdSchema,
-  ISODateSchema,
-  PaginationQuerySchema,
-} from "../common.js"
+import { ConsentSurfaceSchema, IdSchema, ISODateSchema, PaginationQuerySchema } from "../common.js"
 import { EventAnswerDTOSchema, EventRegistrationDTOSchema } from "../entities.js"
 import { IdempotencyKeySchema, OkResponseSchema } from "../internal-fields.js"
 import { AccessCodeSchema, MAX_PARTY_SIZE } from "./tickets.js"
 import { EventAnswerInputSchema, MAX_EVENT_QUESTIONS } from "./questions.js"
-
 
 export {
   EventRegistrationDTOSchema,
@@ -67,7 +61,10 @@ export const RegisterForEventRequestSchema = z
     idempotencyKey: IdempotencyKeySchema,
     ticketTypeId: IdSchema.optional(),
     partySize: z.number().int().min(1).max(MAX_PARTY_SIZE).default(1),
-    attendeeNames: z.array(z.string().trim().min(1).max(MAX_ATTENDEE_NAME)).max(MAX_PARTY_SIZE).optional(),
+    attendeeNames: z
+      .array(z.string().trim().min(1).max(MAX_ATTENDEE_NAME))
+      .max(MAX_PARTY_SIZE)
+      .optional(),
     accessCode: AccessCodeSchema.optional(),
     answers: z.array(EventAnswerInputSchema).max(MAX_EVENT_QUESTIONS).optional(),
     consent: EventConsentInputSchema.optional(),
@@ -86,8 +83,11 @@ const RegisterForEventResponseObjectSchema = z.object({
   fields: z.record(z.string(), z.string()).optional(),
 })
 export type RegisterForEventResponse = z.infer<typeof RegisterForEventResponseObjectSchema>
-export const RegisterForEventResponseSchema: z.ZodType<RegisterForEventResponse, unknown> =
-  RegisterForEventResponseObjectSchema
+export type RegisterForEventResponseInput = z.input<typeof RegisterForEventResponseObjectSchema>
+export const RegisterForEventResponseSchema: z.ZodType<
+  RegisterForEventResponse,
+  RegisterForEventResponseInput
+> = RegisterForEventResponseObjectSchema
 
 export const RegistrationRosterFilterSchema = z.enum([
   "all",
@@ -125,9 +125,16 @@ const ListEventRegistrationsResponseObjectSchema = z.object({
   nextCursor: z.string().nullable(),
   total: z.number().int().nonnegative().optional(),
 })
-export type ListEventRegistrationsResponse = z.infer<typeof ListEventRegistrationsResponseObjectSchema>
-export const ListEventRegistrationsResponseSchema: z.ZodType<ListEventRegistrationsResponse, unknown> =
-  ListEventRegistrationsResponseObjectSchema
+export type ListEventRegistrationsResponse = z.infer<
+  typeof ListEventRegistrationsResponseObjectSchema
+>
+export type ListEventRegistrationsResponseInput = z.input<
+  typeof ListEventRegistrationsResponseObjectSchema
+>
+export const ListEventRegistrationsResponseSchema: z.ZodType<
+  ListEventRegistrationsResponse,
+  ListEventRegistrationsResponseInput
+> = ListEventRegistrationsResponseObjectSchema
 
 export const GetEventRegistrationRequestSchema = z
   .object({ id: IdSchema, registrationId: IdSchema })
@@ -150,9 +157,16 @@ const CancelEventRegistrationResponseObjectSchema = z.object({
   ok: z.literal(true),
   registration: EventRegistrationDTOSchema.nullable(),
 })
-export type CancelEventRegistrationResponse = z.infer<typeof CancelEventRegistrationResponseObjectSchema>
-export const CancelEventRegistrationResponseSchema: z.ZodType<CancelEventRegistrationResponse, unknown> =
-  CancelEventRegistrationResponseObjectSchema
+export type CancelEventRegistrationResponse = z.infer<
+  typeof CancelEventRegistrationResponseObjectSchema
+>
+export type CancelEventRegistrationResponseInput = z.input<
+  typeof CancelEventRegistrationResponseObjectSchema
+>
+export const CancelEventRegistrationResponseSchema: z.ZodType<
+  CancelEventRegistrationResponse,
+  CancelEventRegistrationResponseInput
+> = CancelEventRegistrationResponseObjectSchema
 
 export const RemoveEventRegistrationRequestSchema = z
   .object({
@@ -165,8 +179,11 @@ export const RemoveEventRegistrationRequestSchema = z
 export type RemoveEventRegistrationRequest = z.infer<typeof RemoveEventRegistrationRequestSchema>
 
 export type RemoveEventRegistrationResponse = z.infer<typeof OkResponseSchema>
-export const RemoveEventRegistrationResponseSchema: z.ZodType<RemoveEventRegistrationResponse, unknown> =
-  OkResponseSchema
+export type RemoveEventRegistrationResponseInput = z.input<typeof OkResponseSchema>
+export const RemoveEventRegistrationResponseSchema: z.ZodType<
+  RemoveEventRegistrationResponse,
+  RemoveEventRegistrationResponseInput
+> = OkResponseSchema
 
 export const TransferEventRegistrationRequestSchema = z
   .object({

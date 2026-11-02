@@ -9,7 +9,11 @@ import {
   UpdateCleanupRequestSchema,
 } from "../cleanups.js"
 import { MESSAGE_BODY_MAX } from "../../types/ws.js"
-import { ChatGroupDTOSchema, CreateChatGroupRequestSchema, SetGroupMemberRoleRequestSchema } from "../groups.js"
+import {
+  ChatGroupDTOSchema,
+  CreateChatGroupRequestSchema,
+  SetGroupMemberRoleRequestSchema,
+} from "../groups.js"
 import {
   MAX_BROADCAST_SUBJECT,
   PreviewEventBroadcastRequestSchema,
@@ -76,8 +80,12 @@ describe("report submission requests", () => {
     ] as const) {
       expect(schema.safeParse({ ...base, mediaUploadIds: ids(5) }).success).toBe(true)
       expect(schema.safeParse({ ...base, mediaUploadIds: ids(6) }).success).toBe(false)
-      expect(schema.safeParse({ ...base, addr: "a".repeat(MAX_REPORT_ADDR_LENGTH) }).success).toBe(true)
-      expect(schema.safeParse({ ...base, addr: "a".repeat(MAX_REPORT_ADDR_LENGTH + 1) }).success).toBe(false)
+      expect(schema.safeParse({ ...base, addr: "a".repeat(MAX_REPORT_ADDR_LENGTH) }).success).toBe(
+        true,
+      )
+      expect(
+        schema.safeParse({ ...base, addr: "a".repeat(MAX_REPORT_ADDR_LENGTH + 1) }).success,
+      ).toBe(false)
       expect(schema.safeParse({ ...base, title: "a".repeat(121) }).success).toBe(false)
       expect(schema.safeParse({ ...base, description: "a".repeat(2001) }).success).toBe(false)
       expect(schema.safeParse({ ...base, lat: 90.5 }).success).toBe(false)
@@ -88,8 +96,12 @@ describe("report submission requests", () => {
   it("accept capturedAt only on the signed-in request and anonToken only on the anonymous one", () => {
     const capturedAt = "2026-07-24T17:00:00.000Z"
     expect(CreateReportRequestSchema.safeParse({ ...report, capturedAt }).success).toBe(true)
-    expect(AnonReportRequestSchema.safeParse({ ...report, turnstileToken: "t", capturedAt }).success).toBe(false)
-    expect(AnonReportRequestSchema.safeParse({ ...report, turnstileToken: "t", anonToken: "x" }).success).toBe(true)
+    expect(
+      AnonReportRequestSchema.safeParse({ ...report, turnstileToken: "t", capturedAt }).success,
+    ).toBe(false)
+    expect(
+      AnonReportRequestSchema.safeParse({ ...report, turnstileToken: "t", anonToken: "x" }).success,
+    ).toBe(true)
     expect(CreateReportRequestSchema.safeParse({ ...report, anonToken: "x" }).success).toBe(false)
   })
 })
@@ -105,13 +117,19 @@ describe("broadcast draft patches", () => {
   it("apply the draft's own bounds to each field that is present", () => {
     for (const schema of [UpdateEventBroadcastRequestSchema, PreviewEventBroadcastRequestSchema]) {
       expect(issuePaths(schema.safeParse({ ...update, subject: "" }))).toEqual(["subject"])
-      expect(schema.safeParse({ ...update, subject: "a".repeat(MAX_BROADCAST_SUBJECT) }).success).toBe(true)
-      expect(schema.safeParse({ ...update, subject: "a".repeat(MAX_BROADCAST_SUBJECT + 1) }).success).toBe(false)
+      expect(
+        schema.safeParse({ ...update, subject: "a".repeat(MAX_BROADCAST_SUBJECT) }).success,
+      ).toBe(true)
+      expect(
+        schema.safeParse({ ...update, subject: "a".repeat(MAX_BROADCAST_SUBJECT + 1) }).success,
+      ).toBe(false)
       expect(schema.safeParse({ ...update, ctaLabel: null, ctaUrl: null }).success).toBe(true)
       expect(schema.safeParse({ ...update, ctaUrl: "http://example.org" }).success).toBe(false)
       expect(schema.safeParse({ ...update, ctaUrl: "https://example.org" }).success).toBe(true)
       const pushOnly = schema.safeParse({ ...update, channels: ["push"] })
-      expect(pushOnly.error?.issues.map((issue) => issue.message)).toEqual([PUSH_REQUIRES_INAPP_MESSAGE])
+      expect(pushOnly.error?.issues.map((issue) => issue.message)).toEqual([
+        PUSH_REQUIRES_INAPP_MESSAGE,
+      ])
       expect(schema.safeParse({ ...update, segment: { kind: "everyone" } }).success).toBe(false)
       expect(schema.safeParse({ ...update, unknown: true }).success).toBe(false)
     }
@@ -147,13 +165,20 @@ describe("role pickers", () => {
     const base = { id: ID, userId: OTHER_ID }
     expect(SetMemberRoleRequestSchema.safeParse({ ...base, role: "member" }).success).toBe(true)
     expect(SetMemberRoleRequestSchema.safeParse({ ...base, role: "organizer" }).success).toBe(false)
-    expect(SetMemberRoleRequestSchema.shape.role.options).toEqual(["cohost", "staff", "coordinator", "member"])
+    expect(SetMemberRoleRequestSchema.shape.role.options).toEqual([
+      "cohost",
+      "staff",
+      "coordinator",
+      "member",
+    ])
   })
 
   it("offer admin and member, never owner, in a chat group", () => {
     const base = { id: ID, userId: OTHER_ID }
     expect(SetGroupMemberRoleRequestSchema.safeParse({ ...base, role: "admin" }).success).toBe(true)
-    expect(SetGroupMemberRoleRequestSchema.safeParse({ ...base, role: "owner" }).success).toBe(false)
+    expect(SetGroupMemberRoleRequestSchema.safeParse({ ...base, role: "owner" }).success).toBe(
+      false,
+    )
   })
 })
 
@@ -163,7 +188,9 @@ describe("chat groups", () => {
     expect(created.kind).toBe("group")
     expect(created.visibility).toBe("private")
     expect(CreateChatGroupRequestSchema.safeParse({ name: "x", kind: "forum" }).success).toBe(false)
-    expect(CreateChatGroupRequestSchema.safeParse({ name: "x", visibility: "secret" }).success).toBe(false)
+    expect(
+      CreateChatGroupRequestSchema.safeParse({ name: "x", visibility: "secret" }).success,
+    ).toBe(false)
     const dto = {
       id: ID,
       kind: "channel",
@@ -189,18 +216,30 @@ describe("message edits", () => {
       expect(schema.safeParse({ ...base, mentionedUserIds: ids(20) }).success).toBe(true)
       expect(schema.safeParse({ ...base, mentionedUserIds: ids(21) }).success).toBe(false)
       expect(schema.safeParse({ ...base, body: "a".repeat(MESSAGE_BODY_MAX) }).success).toBe(true)
-      expect(schema.safeParse({ ...base, body: "a".repeat(MESSAGE_BODY_MAX + 1) }).success).toBe(false)
+      expect(schema.safeParse({ ...base, body: "a".repeat(MESSAGE_BODY_MAX + 1) }).success).toBe(
+        false,
+      )
     }
   })
 })
 
 describe("event question options", () => {
   it("cap an option value, and the value a condition compares against, at 80 characters", () => {
-    expect(EventQuestionOptionSchema.safeParse({ value: "a".repeat(80), label: "A" }).success).toBe(true)
-    expect(EventQuestionOptionSchema.safeParse({ value: "a".repeat(81), label: "A" }).success).toBe(false)
-    expect(EventQuestionConditionSchema.safeParse({ questionId: ID, equals: "a".repeat(80) }).success).toBe(true)
-    expect(EventQuestionConditionSchema.safeParse({ questionId: ID, equals: "a".repeat(81) }).success).toBe(false)
-    expect(EventQuestionConditionSchema.safeParse({ questionId: ID, equals: true }).success).toBe(true)
+    expect(EventQuestionOptionSchema.safeParse({ value: "a".repeat(80), label: "A" }).success).toBe(
+      true,
+    )
+    expect(EventQuestionOptionSchema.safeParse({ value: "a".repeat(81), label: "A" }).success).toBe(
+      false,
+    )
+    expect(
+      EventQuestionConditionSchema.safeParse({ questionId: ID, equals: "a".repeat(80) }).success,
+    ).toBe(true)
+    expect(
+      EventQuestionConditionSchema.safeParse({ questionId: ID, equals: "a".repeat(81) }).success,
+    ).toBe(false)
+    expect(EventQuestionConditionSchema.safeParse({ questionId: ID, equals: true }).success).toBe(
+      true,
+    )
   })
 })
 
@@ -214,15 +253,24 @@ describe("cleanup create and update", () => {
   }
 
   it("bound the create idempotency key to 8-128 characters", () => {
-    expect(CreateCleanupRequestSchema.safeParse({ ...create, idempotencyKey: "a".repeat(8) }).success).toBe(true)
-    expect(CreateCleanupRequestSchema.safeParse({ ...create, idempotencyKey: "a".repeat(7) }).success).toBe(false)
-    expect(CreateCleanupRequestSchema.safeParse({ ...create, idempotencyKey: "a".repeat(128) }).success).toBe(true)
-    expect(CreateCleanupRequestSchema.safeParse({ ...create, idempotencyKey: "a".repeat(129) }).success).toBe(false)
+    expect(
+      CreateCleanupRequestSchema.safeParse({ ...create, idempotencyKey: "a".repeat(8) }).success,
+    ).toBe(true)
+    expect(
+      CreateCleanupRequestSchema.safeParse({ ...create, idempotencyKey: "a".repeat(7) }).success,
+    ).toBe(false)
+    expect(
+      CreateCleanupRequestSchema.safeParse({ ...create, idempotencyKey: "a".repeat(128) }).success,
+    ).toBe(true)
+    expect(
+      CreateCleanupRequestSchema.safeParse({ ...create, idempotencyKey: "a".repeat(129) }).success,
+    ).toBe(false)
     expect(CreateCleanupRequestSchema.safeParse({ ...create, type: "loop" }).success).toBe(false)
   })
 
   it("let an update move the pin within the globe and change the event type", () => {
-    const parse = (patch: object) => UpdateCleanupRequestSchema.safeParse({ id: ID, ...patch }).success
+    const parse = (patch: object) =>
+      UpdateCleanupRequestSchema.safeParse({ id: ID, ...patch }).success
     expect(parse({ lat: 90, lng: -180, type: "route" })).toBe(true)
     expect(parse({ lat: 90.5 })).toBe(false)
     expect(parse({ lng: 180.5 })).toBe(false)
@@ -232,7 +280,9 @@ describe("cleanup create and update", () => {
   it("bound slot sort order to 0-1000", () => {
     const slot = (sortOrder: number) => ({ title: "Shift", sortOrder })
     expect(UpdateCleanupRequestSchema.safeParse({ id: ID, slots: [slot(1000)] }).success).toBe(true)
-    expect(UpdateCleanupRequestSchema.safeParse({ id: ID, slots: [slot(1001)] }).success).toBe(false)
+    expect(UpdateCleanupRequestSchema.safeParse({ id: ID, slots: [slot(1001)] }).success).toBe(
+      false,
+    )
     expect(UpdateCleanupRequestSchema.safeParse({ id: ID, slots: [slot(-1)] }).success).toBe(false)
   })
 })

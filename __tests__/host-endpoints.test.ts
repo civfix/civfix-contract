@@ -2,13 +2,11 @@ import { describe, it, expect } from "vitest"
 import { endpoints, hostEndpoints, hostAdminEndpoints } from "../src/client/endpoints.js"
 import { extractParams, fillPath } from "../src/client/client.js"
 
-
 const UUID = "123e4567-e89b-12d3-a456-426614174000"
 
-const NEW_NAMES = [
-  ...Object.keys(hostEndpoints),
-  ...Object.keys(hostAdminEndpoints),
-] as Array<keyof typeof endpoints>
+const NEW_NAMES = [...Object.keys(hostEndpoints), ...Object.keys(hostAdminEndpoints)] as Array<
+  keyof typeof endpoints
+>
 
 const CSRF_FREE_MUTATIONS = new Set([
   "unsubscribeBroadcasts",
@@ -76,9 +74,7 @@ describe("host platform endpoint registry", () => {
   it("pins /registrations/walkup as a STATIC sibling of /registrations/:registrationId", () => {
     expect(endpoints.createWalkupRegistration.path).toBe("/cleanups/:id/registrations/walkup")
     expect(endpoints.createWalkupRegistration.method).toBe("POST")
-    expect(endpoints.getEventRegistration.path).toBe(
-      "/cleanups/:id/registrations/:registrationId",
-    )
+    expect(endpoints.getEventRegistration.path).toBe("/cleanups/:id/registrations/:registrationId")
     expect(endpoints.cancelEventRegistration.path).toBe(
       "/cleanups/:id/registrations/:registrationId/cancel",
     )
@@ -187,9 +183,7 @@ describe("host platform endpoint registry", () => {
   it("keeps /me/hosted-events and /me/hosted-events/analytics fully static", () => {
     expect(endpoints.listMyHostedEvents.path).toBe("/me/hosted-events")
     expect(endpoints.hostedEventsAnalytics.path).toBe("/me/hosted-events/analytics")
-    expect(endpoints.hostedEventsAnalyticsSummary.path).toBe(
-      "/me/hosted-events/analytics/summary",
-    )
+    expect(endpoints.hostedEventsAnalyticsSummary.path).toBe("/me/hosted-events/analytics/summary")
     expect(endpoints.listMyHostedEvents.path).not.toMatch(/:[A-Za-z0-9_]+/)
     expect(endpoints.hostedEventsAnalytics.path).not.toMatch(/:[A-Za-z0-9_]+/)
     expect(endpoints.hostedEventsAnalyticsSummary.path).not.toMatch(/:[A-Za-z0-9_]+/)
@@ -219,7 +213,9 @@ describe("host platform endpoint registry", () => {
       const { params, consumedKeys } = extractParams(e.path, { inviteId: UUID })
       expect(params, name).toEqual({ inviteId: UUID })
       expect(consumedKeys.has("inviteId"), name).toBe(true)
-      expect(fillPath(e.path, params), name).toBe(`/me/event-invites/${UUID}/${name === "acceptMyEventInvite" ? "accept" : "decline"}`)
+      expect(fillPath(e.path, params), name).toBe(
+        `/me/event-invites/${UUID}/${name === "acceptMyEventInvite" ? "accept" : "decline"}`,
+      )
     }
     expect(endpoints.acceptEventTeamInvite.path).toBe("/cleanups/:id/team/invites/accept")
     expect(endpoints.acceptMyEventInvite.path.startsWith("/cleanups/")).toBe(false)

@@ -10,9 +10,11 @@ let cachedSegmenter: Segmenter | null | undefined
 
 function segmenter(): Segmenter | null {
   if (cachedSegmenter !== undefined) return cachedSegmenter
-  const intl = (globalThis as {
-    Intl?: { Segmenter?: new (locale?: string, options?: unknown) => Segmenter }
-  }).Intl
+  const intl = (
+    globalThis as {
+      Intl?: { Segmenter?: new (locale?: string, options?: unknown) => Segmenter }
+    }
+  ).Intl
   cachedSegmenter =
     intl !== undefined && typeof intl.Segmenter === "function"
       ? new intl.Segmenter(undefined, { granularity: "grapheme" })
@@ -27,7 +29,8 @@ function fallbackSegments(text: string): string[] {
   for (const codePoint of text) {
     const isRegional = REGIONAL.test(codePoint)
     const pairsWithPrevious = isRegional && regionalRun % 2 === 1
-    const attaches = joinNext || COMBINING.test(codePoint) || EXTENDER.test(codePoint) || pairsWithPrevious
+    const attaches =
+      joinNext || COMBINING.test(codePoint) || EXTENDER.test(codePoint) || pairsWithPrevious
     if (attaches && clusters.length > 0) {
       clusters[clusters.length - 1] += codePoint
     } else {

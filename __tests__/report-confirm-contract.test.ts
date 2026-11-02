@@ -89,20 +89,22 @@ describe("confirmReport / unconfirmReport schemas", () => {
       fixedCount: 0,
       fixedByMe: false,
     })
-    expect(ReportConfirmResponseSchema.safeParse({ confirmCount: -1, confirmedByMe: false }).success).toBe(
-      false,
-    )
+    expect(
+      ReportConfirmResponseSchema.safeParse({ confirmCount: -1, confirmedByMe: false }).success,
+    ).toBe(false)
   })
 })
 
 describe("pressingReports schemas", () => {
   it("takes a bbox under the mapReports bbox rules and nothing else", () => {
     expect(PressingReportsRequestSchema.safeParse({ bbox: BBOX }).success).toBe(true)
-    expect(PressingReportsRequestSchema.safeParse({ bbox: { ...BBOX, north: 91 } }).success).toBe(false)
-    expect(PressingReportsRequestSchema.safeParse({ bbox: BBOX, zoom: 12 }).success).toBe(false)
-    expect(PressingReportsRequestSchema.safeParse({ bbox: BBOX, categories: ["trash"] }).success).toBe(
+    expect(PressingReportsRequestSchema.safeParse({ bbox: { ...BBOX, north: 91 } }).success).toBe(
       false,
     )
+    expect(PressingReportsRequestSchema.safeParse({ bbox: BBOX, zoom: 12 }).success).toBe(false)
+    expect(
+      PressingReportsRequestSchema.safeParse({ bbox: BBOX, categories: ["trash"] }).success,
+    ).toBe(false)
   })
 
   it("accepts up to 20 items and fills each pin's count", () => {
@@ -112,9 +114,10 @@ describe("pressingReports schemas", () => {
   })
 
   it("rejects 21 items", () => {
-    expect(PressingReportsResponseSchema.safeParse({ items: Array.from({ length: 21 }, basePin) }).success).toBe(
-      false,
-    )
+    expect(
+      PressingReportsResponseSchema.safeParse({ items: Array.from({ length: 21 }, basePin) })
+        .success,
+    ).toBe(false)
   })
 })
 

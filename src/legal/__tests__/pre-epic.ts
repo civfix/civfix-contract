@@ -1,8 +1,7 @@
 import type { LegalDocumentType } from "../../schemas/common.js"
 import type { LegalDocumentVersion } from "../documents.js"
 
-/** The ten versions seeded before DECISIONS §66, exactly as published. */
-export const PRE_EPIC: readonly LegalDocumentVersion[] = [
+const SEEDED: readonly (readonly [LegalDocumentType, string, string])[] = [
   ["terms", "2026-09-06", "4a4fcfac1a8d4ced63c4c033feb14df58a2db74632bdca37865fd5ab299a485e"],
   ["terms", "2026-09-16", "afa437255814c5fb39e75f7507304b7a2618aa1397bcdbe3d66129385515ca36"],
   ["terms", "2026-09-21", "52fe3908a8d7aa4427239a7555a2d7b2346d7a2b9730dfb539ecd157f6195772"],
@@ -11,12 +10,23 @@ export const PRE_EPIC: readonly LegalDocumentVersion[] = [
   ["privacy", "2026-09-21", "e7bb3df8d1bae0ebf3dac45021beb1f260c3035f2bf3cabd0201e2586eb2f127"],
   ["cookies", "2026-09-06", "a45a5d61d54b22c60e7de8ea2a76fc58ed48c26cfdcbd73c5a9e02f5fb9a30ed"],
   ["cookies", "2026-09-16", "4a05415bba1ef0301058815ce6d01f98eb593bd18378e7ce52555074da3064c0"],
-  ["subprocessors", "2026-09-06", "e3debad19253777755713b14ed4f1e853737e7e755b722d16f622fb0641c56a9"],
-  ["subprocessors", "2026-09-16", "5ab722bb37cc2972ada7521b6dc239bfd85f82691d0e3e2489f5dcac9983a198"],
-].map(([type, version, sha256]) => ({
-  type: type as LegalDocumentType,
-  version: version as string,
+  [
+    "subprocessors",
+    "2026-09-06",
+    "e3debad19253777755713b14ed4f1e853737e7e755b722d16f622fb0641c56a9",
+  ],
+  [
+    "subprocessors",
+    "2026-09-16",
+    "5ab722bb37cc2972ada7521b6dc239bfd85f82691d0e3e2489f5dcac9983a198",
+  ],
+]
+
+/** The ten versions seeded before DECISIONS §68, exactly as published. */
+export const PRE_EPIC: readonly LegalDocumentVersion[] = SEEDED.map(([type, version, sha256]) => ({
+  type,
+  version,
   effectiveAt: `${version}T00:00:00.000Z`,
   url: `https://civfix.org/legal/${type}`,
-  sha256: sha256 as string,
+  sha256,
 }))

@@ -27,7 +27,9 @@ export function seriesValuesForChart(points: readonly SeriesPoint[]): (number | 
 }
 
 export function seriesIsChartable(points: readonly SeriesPoint[]): boolean {
-  return seriesValuesForChart(points).filter((value) => value !== null).length >= MIN_CHARTABLE_POINTS
+  return (
+    seriesValuesForChart(points).filter((value) => value !== null).length >= MIN_CHARTABLE_POINTS
+  )
 }
 
 export function seriesHasSuppressedPoints(points: readonly SeriesPoint[]): boolean {

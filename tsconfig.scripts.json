@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
+  },
+  "include": ["scripts", "eslint.config.js"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -25,9 +25,9 @@ describe("safeDateFormat", () => {
     const options = { hour: "numeric", minute: "2-digit", timeZoneName: "short" } as const
     expect(safeDateFormat(SAT_NOON_UTC_MINUS_7, "en-US", options, LA)).toBe("10:00 AM PDT")
     expect(safeDateFormat(SAT_NOON_UTC_MINUS_7, "en-US", options, NEW_YORK)).toBe("1:00 PM EDT")
-    expect(safeDateFormat("2026-03-04T10:00:00.000Z", "en-US", { dateStyle: "medium" }, "UTC")).toBe(
-      "Mar 4, 2026",
-    )
+    expect(
+      safeDateFormat("2026-03-04T10:00:00.000Z", "en-US", { dateStyle: "medium" }, "UTC"),
+    ).toBe("Mar 4, 2026")
   })
 
   it("keeps the viewer's language and only drops a malformed zone", () => {
@@ -75,7 +75,9 @@ describe("formatEventInstant", () => {
     expect(formatEventInstant(SAT_NOON_UTC_MINUS_7, undefined, "short")).toBe(
       "Sat, Sep 12, 10:00 AM PDT",
     )
-    expect(formatEventInstant(SAT_NOON_UTC_MINUS_7, null, "short")).toBe("Sat, Sep 12, 10:00 AM PDT")
+    expect(formatEventInstant(SAT_NOON_UTC_MINUS_7, null, "short")).toBe(
+      "Sat, Sep 12, 10:00 AM PDT",
+    )
     expect(formatEventInstant(SAT_NOON_UTC_MINUS_7, "Mars/Olympus", "short")).toBe(
       "Sat, Sep 12, 10:00 AM PDT",
     )
@@ -159,7 +161,9 @@ describe("console datetime-local inputs in the event's zone", () => {
     expect(isoFromDatetimeLocal("2026-03-08T02:30", LA)).toEqual({ kind: "invalid" })
     expect(isoFromDatetimeLocal("2026-03-08T02:00", LA)).toEqual({ kind: "invalid" })
     expect(isoFromDatetimeLocal("2026-03-29T02:30", "Europe/Berlin")).toEqual({ kind: "invalid" })
-    expect(isoFromDatetimeLocal("2026-10-04T02:30", "Australia/Sydney")).toEqual({ kind: "invalid" })
+    expect(isoFromDatetimeLocal("2026-10-04T02:30", "Australia/Sydney")).toEqual({
+      kind: "invalid",
+    })
     expect(isoFromDatetimeLocal("not a date", LA)).toEqual({ kind: "invalid" })
     expect(isoFromDatetimeLocal("2026-12-01 09:30", LA)).toEqual({ kind: "invalid" })
   })
@@ -183,7 +187,11 @@ describe("console datetime-local inputs in the event's zone", () => {
   it("reads a repeated fall-back wall clock as one of its two real instants", () => {
     for (const [value, zone, candidates] of [
       ["2026-11-01T01:30", LA, ["2026-11-01T08:30:00.000Z", "2026-11-01T09:30:00.000Z"]],
-      ["2026-10-25T02:30", "Europe/Berlin", ["2026-10-25T00:30:00.000Z", "2026-10-25T01:30:00.000Z"]],
+      [
+        "2026-10-25T02:30",
+        "Europe/Berlin",
+        ["2026-10-25T00:30:00.000Z", "2026-10-25T01:30:00.000Z"],
+      ],
     ] as const) {
       const parsed = isoFromDatetimeLocal(value, zone)
       expect(parsed.kind).toBe("instant")

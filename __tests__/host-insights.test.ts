@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest"
-import {
-  CleanupMemberRoleSchema,
-  OrganizationMemberRoleSchema,
-} from "../src/schemas/common.js"
+import { CleanupMemberRoleSchema, OrganizationMemberRoleSchema } from "../src/schemas/common.js"
 import {
   ArrivalOffsetBucketSchema,
   EventPhaseSchema,
@@ -26,7 +23,6 @@ import {
   type HostStanding,
 } from "../src/host/index.js"
 import { endpoints } from "../src/client/endpoints.js"
-
 
 const UUID = "123e4567-e89b-12d3-a456-426614174000"
 const TICKET_UUID = "223e4567-e89b-12d3-a456-426614174000"
@@ -173,7 +169,11 @@ describe("getEventInsights contract", () => {
 
 describe("eventPhase", () => {
   it("reads cancelled off the status, whatever the clock says", () => {
-    for (const now of [START - LIVE_LEAD_MS - 1, START, START + DEFAULT_DURATION_MS + LIVE_TAIL_MS]) {
+    for (const now of [
+      START - LIVE_LEAD_MS - 1,
+      START,
+      START + DEFAULT_DURATION_MS + LIVE_TAIL_MS,
+    ]) {
       expect(eventPhase(clockOf({ status: "cancelled" }), now)).toBe("cancelled")
     }
   })
@@ -258,7 +258,7 @@ describe("insights authz invariant (DECISIONS §36)", () => {
     let analyticsHolders = 0
     for (const eventRole of eventRoles) {
       for (const orgRole of orgRoles) {
-        const standing = { eventRole, orgRole } as HostStanding
+        const standing: HostStanding = { eventRole, orgRole }
         if (!can(standing, "view_analytics")) continue
         analyticsHolders += 1
         expect(can(standing, "view_roster"), `${eventRole ?? "none"}|${orgRole ?? "none"}`).toBe(

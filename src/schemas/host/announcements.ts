@@ -11,7 +11,6 @@ import { OrganizationRefDTOSchema, PersonDTOSchema } from "../entities.js"
 import { MAX_BROADCAST_BODY, MAX_BROADCAST_SUBJECT } from "./broadcasts.js"
 import type { HostBroadcastChannel } from "./broadcasts.js"
 
-
 export const ANNOUNCEMENT_BROADCAST_KIND = "announcement" satisfies BroadcastKind
 
 export const MAX_ANNOUNCEMENT_TITLE = MAX_BROADCAST_SUBJECT
@@ -35,8 +34,11 @@ const AnnouncementAudienceUnionSchema = z.discriminatedUnion("kind", [
 ])
 export type AnnouncementAudience = z.infer<typeof AnnouncementAudienceUnionSchema>
 
-export const AnnouncementAudienceSchema: z.ZodType<AnnouncementAudience, unknown> =
-  AnnouncementAudienceUnionSchema
+export type AnnouncementAudienceInput = z.input<typeof AnnouncementAudienceUnionSchema>
+export const AnnouncementAudienceSchema: z.ZodType<
+  AnnouncementAudience,
+  AnnouncementAudienceInput
+> = AnnouncementAudienceUnionSchema
 
 export const ANNOUNCEMENT_AUDIENCE_KINDS = [
   "all_registered",
@@ -67,7 +69,8 @@ const AnnouncementDTOObjectSchema = z.object({
   createdAt: ISODateSchema,
 })
 export type AnnouncementDTO = z.infer<typeof AnnouncementDTOObjectSchema>
-export const AnnouncementDTOSchema: z.ZodType<AnnouncementDTO, unknown> =
+export type AnnouncementDTOInput = z.input<typeof AnnouncementDTOObjectSchema>
+export const AnnouncementDTOSchema: z.ZodType<AnnouncementDTO, AnnouncementDTOInput> =
   AnnouncementDTOObjectSchema
 
 export const CreateEventAnnouncementRequestSchema = z
@@ -92,8 +95,13 @@ const ListEventAnnouncementsResponseObjectSchema = pageResponse(AnnouncementDTOS
 export type ListEventAnnouncementsResponse = z.infer<
   typeof ListEventAnnouncementsResponseObjectSchema
 >
+export type ListEventAnnouncementsResponseInput = z.input<
+  typeof ListEventAnnouncementsResponseObjectSchema
+>
 export const ListEventAnnouncementsResponseSchema: z.ZodType<
-  ListEventAnnouncementsResponse, unknown> = ListEventAnnouncementsResponseObjectSchema
+  ListEventAnnouncementsResponse,
+  ListEventAnnouncementsResponseInput
+> = ListEventAnnouncementsResponseObjectSchema
 
 export const GetEventAnnouncementRequestSchema = z
   .object({ id: IdSchema, announcementId: IdSchema })

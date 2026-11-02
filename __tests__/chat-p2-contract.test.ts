@@ -21,7 +21,9 @@ const MSG = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
 const USER = "11111111-1111-1111-1111-111111111111"
 
 describe("around-mode history queries", () => {
-  const cases: Array<[string, { safeParse: (v: unknown) => { success: boolean } }, Record<string, string>]> = [
+  const cases: Array<
+    [string, { safeParse: (v: unknown) => { success: boolean } }, Record<string, string>]
+  > = [
     ["ChatHistoryQuerySchema", ChatHistoryQuerySchema, {}],
     ["ChatHistoryRequestSchema", ChatHistoryRequestSchema, { cleanupId: ROOM }],
     ["DmHistoryQuerySchema", DmHistoryQuerySchema, {}],
@@ -43,7 +45,8 @@ describe("around-mode history queries", () => {
 
   it("history response accepts prevCursor, and tolerates its absence (back-compat)", () => {
     expect(
-      ChatHistoryResponseSchema.safeParse({ items: [], nextCursor: null, prevCursor: "c1" }).success,
+      ChatHistoryResponseSchema.safeParse({ items: [], nextCursor: null, prevCursor: "c1" })
+        .success,
     ).toBe(true)
     expect(ChatHistoryResponseSchema.safeParse({ items: [], nextCursor: null }).success).toBe(true)
   })

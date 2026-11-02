@@ -3,8 +3,6 @@ import { ReportCategorySchema } from "../common.js"
 import { EventKindSchema } from "../entities.js"
 import { AdminReportStatusSchema, EventStatusSchema } from "./common.js"
 
-
-
 const DiscoverySummarySchema = z
   .object({
     queue: z.number().int().nonnegative(),
@@ -73,7 +71,6 @@ export const HomeSummaryResponseSchema = z
   })
   .strict()
 export type HomeSummaryResponse = z.infer<typeof HomeSummaryResponseSchema>
-
 
 export const HomeMapPinSchema = z
   .object({

@@ -42,6 +42,8 @@ describe("legalRecordSha256", () => {
       sha256: "d3789e993ddee83cb5c556234694a9d0f200e5d99b533eba6ca3ca2053df9417",
     }
     expect(() => legalRecordSha256(entry, [{ kind: "paragraph", text: "Hi" }])).toThrow(Error)
-    expect(() => legalRecordSha256(entry, [{ kind: "paragraph", text: "Hi" }])).toThrow(/privacy@2026-09-16/)
+    expect(() => legalRecordSha256(entry, [{ kind: "paragraph", text: "Hi" }])).toThrow(
+      /privacy@2026-09-16/,
+    )
   })
 })

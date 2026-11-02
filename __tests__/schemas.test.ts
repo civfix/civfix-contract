@@ -136,7 +136,11 @@ describe("pagination", () => {
   })
   it("chat-history query tolerates the cleanupId path-param echo (non-strict)", () => {
     const cursor = "11111111-1111-4111-8111-111111111111"
-    const parsed = ChatHistoryQuerySchema.parse({ cleanupId: "ignored", before: cursor, limit: "5" })
+    const parsed = ChatHistoryQuerySchema.parse({
+      cleanupId: "ignored",
+      before: cursor,
+      limit: "5",
+    })
     expect(parsed.limit).toBe(5)
     expect(parsed.before).toBe(cursor)
     expect("cleanupId" in parsed).toBe(false)
@@ -262,9 +266,9 @@ describe("auth schemas", () => {
   })
 
   it("SessionCheckResponse composes with optional enabledProviders", () => {
-    expect(
-      SessionCheckResponseSchema.safeParse({ authenticated: false, roles: [] }).success,
-    ).toBe(true)
+    expect(SessionCheckResponseSchema.safeParse({ authenticated: false, roles: [] }).success).toBe(
+      true,
+    )
     const parsed = SessionCheckResponseSchema.parse({
       authenticated: false,
       roles: [],
@@ -484,8 +488,12 @@ describe("media + anon + prefs", () => {
     }
     expect(NotificationPrefsDTOSchema.parse(prefs).hostBroadcasts).toBe(true)
     expect(UpdateNotificationPrefsRequestSchema.parse({ push: false })).toEqual({ push: false })
-    expect(UpdateNotificationPrefsRequestSchema.parse({ quietHours: null })).toEqual({ quietHours: null })
-    expect(UpdateNotificationPrefsRequestSchema.parse({ hostBroadcasts: false })).toEqual({ hostBroadcasts: false })
+    expect(UpdateNotificationPrefsRequestSchema.parse({ quietHours: null })).toEqual({
+      quietHours: null,
+    })
+    expect(UpdateNotificationPrefsRequestSchema.parse({ hostBroadcasts: false })).toEqual({
+      hostBroadcasts: false,
+    })
   })
 })
 
@@ -501,9 +509,9 @@ describe("new standalone enums", () => {
     expect([...RegisterPushTokenRequestSchema.shape.platform.options]).toEqual([
       ...PushPlatformSchema.options,
     ])
-    expect(
-      RegisterPushTokenRequestSchema.safeParse({ platform: "ios", token: "t" }).success,
-    ).toBe(true)
+    expect(RegisterPushTokenRequestSchema.safeParse({ platform: "ios", token: "t" }).success).toBe(
+      true,
+    )
     expect(
       RegisterPushTokenRequestSchema.safeParse({ platform: "desktop", token: "t" }).success,
     ).toBe(false)
@@ -554,9 +562,9 @@ describe("refined response fields stay backward compatible", () => {
       counts: { trash: 3, graffiti: 1 },
     })
     expect(withCounts.counts).toEqual({ trash: 3, graffiti: 1 })
-    expect(
-      ReportClusterResponseSchema.safeParse({ ...base, counts: { event: 2 } }).success,
-    ).toBe(false)
+    expect(ReportClusterResponseSchema.safeParse({ ...base, counts: { event: 2 } }).success).toBe(
+      false,
+    )
   })
 
   it("MessageThreadDTO.lastFromMe defaults to false and accepts true", () => {

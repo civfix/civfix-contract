@@ -3,7 +3,6 @@ import { LegalBlockSchema } from "../legal/blocks.js"
 import { ISODateSchema, LegalDocumentTypeSchema } from "./common.js"
 import { LegalDocumentVersionDTOSchema } from "./entities.js"
 
-
 export { LegalDocumentVersionDTOSchema } from "./entities.js"
 export type { LegalDocumentVersionDTO } from "./entities.js"
 export { LegalDocumentTypeSchema, ConsentSurfaceSchema } from "./common.js"
@@ -14,15 +13,18 @@ const GetLegalVersionsResponseObjectSchema = z.object({
   generatedAt: ISODateSchema,
 })
 export type GetLegalVersionsResponse = z.infer<typeof GetLegalVersionsResponseObjectSchema>
-export const GetLegalVersionsResponseSchema: z.ZodType<GetLegalVersionsResponse, unknown> =
-  GetLegalVersionsResponseObjectSchema
+export type GetLegalVersionsResponseInput = z.input<typeof GetLegalVersionsResponseObjectSchema>
+export const GetLegalVersionsResponseSchema: z.ZodType<
+  GetLegalVersionsResponse,
+  GetLegalVersionsResponseInput
+> = GetLegalVersionsResponseObjectSchema
 
-// YYYY-MM-DD, then YYYY-MM-DD-2, -3, ... for a further version written the same day (DECISIONS §66).
+// YYYY-MM-DD, then YYYY-MM-DD-2, -3, ... for a further version written the same day (DECISIONS §68).
 export const LegalVersionSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}(?:-[2-9]|-[1-9]\d+)?$/u)
 
 const Sha256HexSchema = z.string().regex(/^[0-9a-f]{64}$/u)
 
-// `title`, `summary`, `material` and `blocks` are null on versions from before DECISIONS §66, which have
+// `title`, `summary`, `material` and `blocks` are null on versions from before DECISIONS §68, which have
 // no text to show.
 const LegalDocumentDTOObjectSchema = z.object({
   type: LegalDocumentTypeSchema,
@@ -36,18 +38,27 @@ const LegalDocumentDTOObjectSchema = z.object({
   blocks: z.array(LegalBlockSchema).min(1).nullable(),
 })
 export type LegalDocumentDTO = z.infer<typeof LegalDocumentDTOObjectSchema>
-export const LegalDocumentDTOSchema: z.ZodType<LegalDocumentDTO, unknown> = LegalDocumentDTOObjectSchema
+export type LegalDocumentDTOInput = z.input<typeof LegalDocumentDTOObjectSchema>
+export const LegalDocumentDTOSchema: z.ZodType<LegalDocumentDTO, LegalDocumentDTOInput> =
+  LegalDocumentDTOObjectSchema
 
 const LegalDocumentMetaDTOObjectSchema = LegalDocumentDTOObjectSchema.omit({ blocks: true })
 export type LegalDocumentMetaDTO = z.infer<typeof LegalDocumentMetaDTOObjectSchema>
-export const LegalDocumentMetaDTOSchema: z.ZodType<LegalDocumentMetaDTO, unknown> = LegalDocumentMetaDTOObjectSchema
+export type LegalDocumentMetaDTOInput = z.input<typeof LegalDocumentMetaDTOObjectSchema>
+export const LegalDocumentMetaDTOSchema: z.ZodType<
+  LegalDocumentMetaDTO,
+  LegalDocumentMetaDTOInput
+> = LegalDocumentMetaDTOObjectSchema
 
 const GetLegalDocumentsResponseObjectSchema = z.object({
   documents: z.array(LegalDocumentDTOSchema),
 })
 export type GetLegalDocumentsResponse = z.infer<typeof GetLegalDocumentsResponseObjectSchema>
-export const GetLegalDocumentsResponseSchema: z.ZodType<GetLegalDocumentsResponse, unknown> =
-  GetLegalDocumentsResponseObjectSchema
+export type GetLegalDocumentsResponseInput = z.input<typeof GetLegalDocumentsResponseObjectSchema>
+export const GetLegalDocumentsResponseSchema: z.ZodType<
+  GetLegalDocumentsResponse,
+  GetLegalDocumentsResponseInput
+> = GetLegalDocumentsResponseObjectSchema
 
 export const GetLegalDocumentRequestSchema = z
   .object({
@@ -61,8 +72,11 @@ const GetLegalDocumentResponseObjectSchema = z.object({
   document: LegalDocumentDTOSchema,
 })
 export type GetLegalDocumentResponse = z.infer<typeof GetLegalDocumentResponseObjectSchema>
-export const GetLegalDocumentResponseSchema: z.ZodType<GetLegalDocumentResponse, unknown> =
-  GetLegalDocumentResponseObjectSchema
+export type GetLegalDocumentResponseInput = z.input<typeof GetLegalDocumentResponseObjectSchema>
+export const GetLegalDocumentResponseSchema: z.ZodType<
+  GetLegalDocumentResponse,
+  GetLegalDocumentResponseInput
+> = GetLegalDocumentResponseObjectSchema
 
 export const LegalAcceptActionSchema = z.enum(["accepted", "acknowledged"])
 export type LegalAcceptAction = z.infer<typeof LegalAcceptActionSchema>
@@ -77,7 +91,9 @@ const LegalAcceptanceDTOObjectSchema = z.object({
   at: ISODateSchema,
 })
 export type LegalAcceptanceDTO = z.infer<typeof LegalAcceptanceDTOObjectSchema>
-export const LegalAcceptanceDTOSchema: z.ZodType<LegalAcceptanceDTO, unknown> = LegalAcceptanceDTOObjectSchema
+export type LegalAcceptanceDTOInput = z.input<typeof LegalAcceptanceDTOObjectSchema>
+export const LegalAcceptanceDTOSchema: z.ZodType<LegalAcceptanceDTO, LegalAcceptanceDTOInput> =
+  LegalAcceptanceDTOObjectSchema
 
 const MyLegalStatusResponseObjectSchema = z.object({
   required: z.array(LegalDocumentMetaDTOSchema),
@@ -86,8 +102,11 @@ const MyLegalStatusResponseObjectSchema = z.object({
   accepted: z.partialRecord(LegalDocumentTypeSchema, LegalAcceptanceDTOSchema),
 })
 export type MyLegalStatusResponse = z.infer<typeof MyLegalStatusResponseObjectSchema>
-export const MyLegalStatusResponseSchema: z.ZodType<MyLegalStatusResponse, unknown> =
-  MyLegalStatusResponseObjectSchema
+export type MyLegalStatusResponseInput = z.input<typeof MyLegalStatusResponseObjectSchema>
+export const MyLegalStatusResponseSchema: z.ZodType<
+  MyLegalStatusResponse,
+  MyLegalStatusResponseInput
+> = MyLegalStatusResponseObjectSchema
 
 const AcceptLegalItemSchema = z
   .object({
@@ -108,7 +127,11 @@ export const AcceptLegalRequestSchema = z
         const seen = new Set<string>()
         items.forEach((item, index) => {
           if (seen.has(item.type)) {
-            ctx.addIssue({ code: "custom", path: [index, "type"], message: `More than one ${item.type} item` })
+            ctx.addIssue({
+              code: "custom",
+              path: [index, "type"],
+              message: `More than one ${item.type} item`,
+            })
           }
           seen.add(item.type)
         })
@@ -137,5 +160,10 @@ const LegalVersionOutdatedDetailsObjectSchema = z.object({
     .min(1),
 })
 export type LegalVersionOutdatedDetails = z.infer<typeof LegalVersionOutdatedDetailsObjectSchema>
-export const LegalVersionOutdatedDetailsSchema: z.ZodType<LegalVersionOutdatedDetails, unknown> =
-  LegalVersionOutdatedDetailsObjectSchema
+export type LegalVersionOutdatedDetailsInput = z.input<
+  typeof LegalVersionOutdatedDetailsObjectSchema
+>
+export const LegalVersionOutdatedDetailsSchema: z.ZodType<
+  LegalVersionOutdatedDetails,
+  LegalVersionOutdatedDetailsInput
+> = LegalVersionOutdatedDetailsObjectSchema

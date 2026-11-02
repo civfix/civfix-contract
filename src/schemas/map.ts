@@ -2,7 +2,12 @@ import { z } from "zod"
 import { IdSchema, ISODateSchema, BBoxSchema, LatLngFields, LatLngSchema } from "./common.js"
 import { OkResponseSchema } from "./internal-fields.js"
 import type { GeoSuggestion } from "../geocode.js"
-import { AddressPrecisionSchema, EventKindSchema } from "./entities.js"
+import {
+  AddressPrecisionSchema,
+  EventKindSchema,
+  HTTP_URL_MAX_LENGTH,
+  HttpUrlSchema,
+} from "./entities.js"
 
 export const TileInfoResponseSchema = z.object({
   pmtilesUrl: z.string(),
@@ -94,7 +99,8 @@ export type GeoSuggestionDTO = z.infer<typeof GeoSuggestionSchema>
 // fails typecheck the moment the two drift in either direction.
 type _GeoSuggestionMatchesWire = ExpectTrue<SameType<GeoSuggestionDTO, GeoSuggestion>>
 // Identity rather than mutual assignability, which would miss an optional field added on one side only.
-type SameType<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false
+type SameType<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false
 type ExpectTrue<T extends true> = T
 
 export const SuggestPlacesResponseSchema = z.object({
@@ -110,8 +116,8 @@ export type SuggestPlacesResponse = z.infer<typeof SuggestPlacesResponseSchema>
 export const SuggestContactRequestSchema = z
   .object({
     geoid: z.string().min(1),
-    email: z.string().email().optional(),
-    formUrl: z.string().url().optional(),
+    email: z.email().optional(),
+    formUrl: HttpUrlSchema.max(HTTP_URL_MAX_LENGTH).optional(),
     note: z.string().max(2000).optional(),
   })
   .strict()

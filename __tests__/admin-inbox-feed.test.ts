@@ -73,46 +73,93 @@ describe("admin inbox feed contract", () => {
   })
 
   it("rejects an unknown source and any extra key on either item", () => {
-    expect(InboxFeedResponseSchema.safeParse({ items: [{ ...replyItem, source: "sms" }], nextCursor: null }).success).toBe(false)
-    expect(InboxFeedResponseSchema.safeParse({ items: [{ ...emailItem, threadId: THREAD }], nextCursor: null }).success).toBe(false)
-    expect(InboxFeedResponseSchema.safeParse({ items: [{ ...replyItem, status: "unread" }], nextCursor: null }).success).toBe(false)
+    expect(
+      InboxFeedResponseSchema.safeParse({
+        items: [{ ...replyItem, source: "sms" }],
+        nextCursor: null,
+      }).success,
+    ).toBe(false)
+    expect(
+      InboxFeedResponseSchema.safeParse({
+        items: [{ ...emailItem, threadId: THREAD }],
+        nextCursor: null,
+      }).success,
+    ).toBe(false)
+    expect(
+      InboxFeedResponseSchema.safeParse({
+        items: [{ ...replyItem, status: "unread" }],
+        nextCursor: null,
+      }).success,
+    ).toBe(false)
   })
 
   it("keeps the verdict and publication optional on the existing mail and inbox DTOs", () => {
     expect(MailMessageDTOSchema.parse(message).authVerdict).toBeUndefined()
-    expect(MailMessageDTOSchema.parse({ ...message, authVerdict: null, publication: null })).toMatchObject({
+    expect(
+      MailMessageDTOSchema.parse({ ...message, authVerdict: null, publication: null }),
+    ).toMatchObject({
       authVerdict: null,
       publication: null,
     })
-    expect(MailMessageDTOSchema.parse({ ...message, authVerdict: "pass", publication: "published" }).publication).toBe("published")
+    expect(
+      MailMessageDTOSchema.parse({ ...message, authVerdict: "pass", publication: "published" })
+        .publication,
+    ).toBe("published")
     const { source: _source, ...listItem } = emailItem
-    const detail = { ...listItem, bodyText: "Hello there", bodyHtml: null, messageId: null, attachments: [] }
+    const detail = {
+      ...listItem,
+      bodyText: "Hello there",
+      bodyHtml: null,
+      messageId: null,
+      attachments: [],
+    }
     expect(InboundEmailDTOSchema.parse(detail).authVerdict).toBe("unknown")
     const { authVerdict: _verdict, ...legacy } = detail
     expect(InboundEmailDTOSchema.parse(legacy).authVerdict).toBeUndefined()
   })
 
   it("validates the publish request and response", () => {
-    expect(PublishMailReplyRequestSchema.parse({ id: THREAD, messageId: MESSAGE })).toEqual({ id: THREAD, messageId: MESSAGE })
-    expect(PublishMailReplyRequestSchema.safeParse({ id: THREAD, messageId: "MSG-1" }).success).toBe(false)
-    expect(PublishMailReplyRequestSchema.safeParse({ id: THREAD, messageId: MESSAGE, force: true }).success).toBe(false)
-    expect(PublishMailReplyResponseSchema.parse({ publication: "pending" })).toEqual({ publication: "pending" })
+    expect(PublishMailReplyRequestSchema.parse({ id: THREAD, messageId: MESSAGE })).toEqual({
+      id: THREAD,
+      messageId: MESSAGE,
+    })
+    expect(
+      PublishMailReplyRequestSchema.safeParse({ id: THREAD, messageId: "MSG-1" }).success,
+    ).toBe(false)
+    expect(
+      PublishMailReplyRequestSchema.safeParse({ id: THREAD, messageId: MESSAGE, force: true })
+        .success,
+    ).toBe(false)
+    expect(PublishMailReplyResponseSchema.parse({ publication: "pending" })).toEqual({
+      publication: "pending",
+    })
     expect(PublishMailReplyResponseSchema.safeParse({ publication: "sent" }).success).toBe(false)
   })
 
   it("filters by a known facet and coerces the page size", () => {
-    expect(InboxFeedQuerySchema.parse({ filter: "review", limit: "25" })).toEqual({ filter: "review", limit: 25 })
+    expect(InboxFeedQuerySchema.parse({ filter: "review", limit: "25" })).toEqual({
+      filter: "review",
+      limit: 25,
+    })
     expect(InboxFeedQuerySchema.safeParse({ filter: "bogus" }).success).toBe(false)
   })
 
   it("labels every verdict, publication state and feed filter", () => {
-    for (const verdict of MailAuthVerdictSchema.options) expect(MAIL_AUTH_VERDICT_LABELS[verdict]).toBeTruthy()
-    for (const state of MailReplyPublicationSchema.options) expect(MAIL_REPLY_PUBLICATION_LABELS[state]).toBeTruthy()
-    for (const filter of InboxFeedFilterSchema.options) expect(INBOX_FEED_FILTER_LABELS[filter]).toBeTruthy()
+    for (const verdict of MailAuthVerdictSchema.options)
+      expect(MAIL_AUTH_VERDICT_LABELS[verdict]).toBeTruthy()
+    for (const state of MailReplyPublicationSchema.options)
+      expect(MAIL_REPLY_PUBLICATION_LABELS[state]).toBeTruthy()
+    for (const filter of InboxFeedFilterSchema.options)
+      expect(INBOX_FEED_FILTER_LABELS[filter]).toBeTruthy()
   })
 
   it("registers the feed read and the csrf-guarded publish under /admin", () => {
-    expect(endpoints.listInboxFeed).toMatchObject({ method: "GET", path: "/admin/inbox/feed", auth: "required", csrf: false })
+    expect(endpoints.listInboxFeed).toMatchObject({
+      method: "GET",
+      path: "/admin/inbox/feed",
+      auth: "required",
+      csrf: false,
+    })
     expect(endpoints.listInboxFeed.request).toBe(InboxFeedQuerySchema)
     expect(endpoints.publishMailReply).toMatchObject({
       method: "POST",

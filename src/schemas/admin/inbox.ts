@@ -81,7 +81,14 @@ export const SetInboxStatusRequestSchema = z
   .strict()
 export type SetInboxStatusRequest = z.infer<typeof SetInboxStatusRequestSchema>
 
-export const InboxFeedFilterSchema = z.enum(["all", "unread", "replies", "review", "unmatched", "archived"])
+export const InboxFeedFilterSchema = z.enum([
+  "all",
+  "unread",
+  "replies",
+  "review",
+  "unmatched",
+  "archived",
+])
 export type InboxFeedFilter = z.infer<typeof InboxFeedFilterSchema>
 
 export const INBOX_FEED_FILTER_LABELS: Record<InboxFeedFilter, string> = {

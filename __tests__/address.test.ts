@@ -16,10 +16,7 @@ import {
   ReportAddressSourceSchema,
   ReportDTOSchema,
 } from "../src/schemas/entities.js"
-import {
-  ResolveAddressRequestSchema,
-  ResolveAddressResponseSchema,
-} from "../src/schemas/map.js"
+import { ResolveAddressRequestSchema, ResolveAddressResponseSchema } from "../src/schemas/map.js"
 import {
   CreateCleanupRequestSchema,
   UpdateCleanupRequestSchema,
@@ -79,9 +76,7 @@ describe("address verification helpers", () => {
 describe("geocode point key", () => {
   it("rounds to five decimals so a sub-metre pin nudge reuses one cache row", () => {
     expect(roundGeocodeCoord(34.052231234)).toBe(34.05223)
-    expect(geocodePointKey({ lat: 34.052231234, lng: -118.243683999 })).toBe(
-      "34.05223,-118.24368",
-    )
+    expect(geocodePointKey({ lat: 34.052231234, lng: -118.243683999 })).toBe("34.05223,-118.24368")
     expect(geocodePointKey({ lat: 34.05223, lng: -118.24368 })).toBe(
       geocodePointKey({ lat: 34.0522302, lng: -118.2436799 }),
     )
@@ -109,9 +104,9 @@ describe("resolve-address contract", () => {
       lat: 34.05,
       lng: -118.24,
     })
-    expect(ResolveAddressRequestSchema.safeParse({ lat: 34.05, lng: -118.24, zoom: 14 }).success).toBe(
-      false,
-    )
+    expect(
+      ResolveAddressRequestSchema.safeParse({ lat: 34.05, lng: -118.24, zoom: 14 }).success,
+    ).toBe(false)
     expect(ResolveAddressRequestSchema.safeParse({ lat: 91, lng: -118.24 }).success).toBe(false)
 
     expect(
@@ -152,7 +147,14 @@ describe("event and report address source fields", () => {
       lng: -118.24,
       scheduledAt: "2026-10-01T17:00:00.000Z",
       status: "upcoming",
-      organizer: { id: UUID, name: "Ada", handle: "ada", followers: 0, following: 0, isFollowing: false },
+      organizer: {
+        id: UUID,
+        name: "Ada",
+        handle: "ada",
+        followers: 0,
+        following: 0,
+        isFollowing: false,
+      },
       going: 3,
       joined: false,
       bring: [],
@@ -189,12 +191,15 @@ describe("event and report address source fields", () => {
       }).success,
     ).toBe(false)
     expect(
-      UpdateCleanupRequestSchema.parse({ id: UUID, address: "Meet at the gate", addressSource: "manual" })
-        .addressSource,
+      UpdateCleanupRequestSchema.parse({
+        id: UUID,
+        address: "Meet at the gate",
+        addressSource: "manual",
+      }).addressSource,
     ).toBe("manual")
-    expect(
-      UpdateCleanupRequestSchema.safeParse({ id: UUID, addressSource: "typed" }).success,
-    ).toBe(false)
+    expect(UpdateCleanupRequestSchema.safeParse({ id: UUID, addressSource: "typed" }).success).toBe(
+      false,
+    )
   })
 
   it("carries addrSource and addrPrecision on the report DTO", () => {

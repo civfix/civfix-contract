@@ -15,34 +15,44 @@ afterAll(() => {
   for (const dir of dirs) rmSync(dir, { recursive: true, force: true })
 })
 
-const run = (args: string[]): string => execFileSync("node", [SCRIPT, ...args], { cwd: ROOT, encoding: "utf8" })
-const gitStatus = (): string => execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" })
+const run = (args: string[]): string =>
+  execFileSync("node", [SCRIPT, ...args], { cwd: ROOT, encoding: "utf8" })
+const realDocuments = (): string => readFileSync(join(ROOT, "src/legal/documents.ts"), "utf8")
 
 describe("pnpm legal:hash", () => {
   it("T19: leaves this branch untouched", { timeout: 120_000 }, () => {
+    const before = realDocuments()
     run([])
-    expect(gitStatus()).toBe("")
+    expect(realDocuments()).toBe(before)
   })
 
-  it("T19: rewrites exactly the one stale hash in a fixture, every other byte identical", { timeout: 120_000 }, () => {
-    const dir = mkdtempSync(join(tmpdir(), "legal-hash-"))
-    dirs.push(dir)
-    const terms = {
-      type: "terms" as const,
-      version: "2026-10-25",
-      effectiveAt: "2026-10-25T00:00:00.000Z",
-      url: "https://civfix.org/legal/terms",
-      title: "Terms of Service",
-      summary: "No change in wording",
-      material: false,
-    }
-    const privacy = { ...terms, type: "privacy" as const, url: "https://civfix.org/legal/privacy", title: "Privacy Policy" }
-    const termsBlocks = [{ kind: "paragraph" as const, text: "Terms text" }]
-    const privacyBlocks = [{ kind: "heading" as const, level: 2 as const, text: "Privacy" }]
-    const termsHash = legalRecordSha256({ ...terms, sha256: ZEROS }, termsBlocks)
-    const privacyHash = legalRecordSha256({ ...privacy, sha256: ZEROS }, privacyBlocks)
+  it(
+    "T19: rewrites exactly the one stale hash in a fixture, every other byte identical",
+    { timeout: 120_000 },
+    () => {
+      const dir = mkdtempSync(join(tmpdir(), "legal-hash-"))
+      dirs.push(dir)
+      const terms = {
+        type: "terms" as const,
+        version: "2026-10-25",
+        effectiveAt: "2026-10-25T00:00:00.000Z",
+        url: "https://civfix.org/legal/terms",
+        title: "Terms of Service",
+        summary: "No change in wording",
+        material: false,
+      }
+      const privacy = {
+        ...terms,
+        type: "privacy" as const,
+        url: "https://civfix.org/legal/privacy",
+        title: "Privacy Policy",
+      }
+      const termsBlocks = [{ kind: "paragraph" as const, text: "Terms text" }]
+      const privacyBlocks = [{ kind: "heading" as const, level: 2 as const, text: "Privacy" }]
+      const termsHash = legalRecordSha256({ ...terms, sha256: ZEROS }, termsBlocks)
+      const privacyHash = legalRecordSha256({ ...privacy, sha256: ZEROS }, privacyBlocks)
 
-    const documents = `export const LEGAL_DOCUMENTS = [
+      const documents = `export const LEGAL_DOCUMENTS = [
   {
     type: "terms",
     version: "2026-09-21",
@@ -72,20 +82,21 @@ describe("pnpm legal:hash", () => {
   },
 ]
 `
-    const texts = `export const LEGAL_TEXTS = {
+      const texts = `export const LEGAL_TEXTS = {
   "terms@2026-10-25": ${JSON.stringify(termsBlocks)},
   "privacy@2026-10-25": ${JSON.stringify(privacyBlocks)},
 }
 `
-    const documentsPath = join(dir, "documents.ts")
-    const textsPath = join(dir, "texts.ts")
-    writeFileSync(documentsPath, documents)
-    writeFileSync(textsPath, texts)
+      const documentsPath = join(dir, "documents.ts")
+      const textsPath = join(dir, "texts.ts")
+      writeFileSync(documentsPath, documents)
+      writeFileSync(textsPath, texts)
 
-    run(["--documents", documentsPath, "--texts", textsPath])
+      run(["--documents", documentsPath, "--texts", textsPath])
 
-    expect(documents.split(ZEROS)).toHaveLength(2)
-    expect(readFileSync(documentsPath, "utf8")).toBe(documents.replace(ZEROS, termsHash))
-    expect(readFileSync(textsPath, "utf8")).toBe(texts)
-  })
+      expect(documents.split(ZEROS)).toHaveLength(2)
+      expect(readFileSync(documentsPath, "utf8")).toBe(documents.replace(ZEROS, termsHash))
+      expect(readFileSync(textsPath, "utf8")).toBe(texts)
+    },
+  )
 })

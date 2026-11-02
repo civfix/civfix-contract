@@ -80,7 +80,8 @@ describe("LegalBlockSchema", () => {
   })
 
   it("T9: takes only one non-blank line that reads as one paragraph", () => {
-    for (const block of inlinePlaces("1\\. Definitions")) expect(ok(block), JSON.stringify(block)).toBe(true)
+    for (const block of inlinePlaces("1\\. Definitions"))
+      expect(ok(block), JSON.stringify(block)).toBe(true)
     for (const text of ["line one\nline two", "- item", "1. item", "", "   "]) {
       for (const block of inlinePlaces(text)) expect(ok(block), JSON.stringify(block)).toBe(false)
     }

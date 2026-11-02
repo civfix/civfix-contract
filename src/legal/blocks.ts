@@ -1,5 +1,9 @@
 import { z } from "zod"
-import { MARKDOWN_SUBSET_MAX_CHARS, parseMarkdownInline, parseMarkdownSubset } from "../markdown/parse.js"
+import {
+  MARKDOWN_SUBSET_MAX_CHARS,
+  parseMarkdownInline,
+  parseMarkdownSubset,
+} from "../markdown/parse.js"
 
 // The renderer parses inline text leniently: an unsafe link shows as its label, `![` and HTML show as
 // literal text, a line break joins the lines and control characters are dropped. Legal text is shown
@@ -18,7 +22,8 @@ function inlineTextProblem(text: string): string | null {
   if (IMAGE.test(text)) return "contains an image"
   const nodes = parseMarkdownSubset(text)
   if (nodes.length !== 1 || nodes[0]?.type !== "paragraph") return "does not read as one paragraph"
-  if (parseMarkdownInline(text).unsafeHrefs.length > 0) return "links to something other than a safe https URL"
+  if (parseMarkdownInline(text).unsafeHrefs.length > 0)
+    return "links to something other than a safe https URL"
   return null
 }
 
@@ -66,4 +71,5 @@ const LegalBlockObjectSchema = z.discriminatedUnion("kind", [
     }),
 ])
 export type LegalBlock = z.infer<typeof LegalBlockObjectSchema>
-export const LegalBlockSchema: z.ZodType<LegalBlock, unknown> = LegalBlockObjectSchema
+export type LegalBlockInput = z.input<typeof LegalBlockObjectSchema>
+export const LegalBlockSchema: z.ZodType<LegalBlock, LegalBlockInput> = LegalBlockObjectSchema

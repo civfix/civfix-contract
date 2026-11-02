@@ -47,19 +47,24 @@ function withEpicEntry(
 /** A registry of one terms version: the seeded entry for a pre-epic version string, a new one otherwise. */
 function onlyTermsEntry(version: string): LegalRegistry {
   const seeded = PRE_EPIC.find((entry) => entry.type === "terms" && entry.version === version)
-  if (seeded === undefined) return withEpicEntry({ documents: [], texts: {}, published: {} }, "terms", version)
+  if (seeded === undefined)
+    return withEpicEntry({ documents: [], texts: {}, published: {} }, "terms", version)
   return { documents: [seeded], texts: {}, published: { [keyOf(seeded)]: seeded.sha256 } }
 }
 
 function expectNamed(registry: LegalRegistry, key: string): void {
   const problems = legalRegistryProblems(registry)
-  expect(problems.some((problem) => problem.includes(key)), problems.join("\n")).toBe(true)
+  expect(
+    problems.some((problem) => problem.includes(key)),
+    problems.join("\n"),
+  ).toBe(true)
 }
 
 describe("LEGAL_DOCUMENTS", () => {
   it("T10: keeps every version newest last per type", () => {
     const byType = new Map<string, string[]>()
-    for (const entry of LEGAL_DOCUMENTS) byType.set(entry.type, [...(byType.get(entry.type) ?? []), entry.effectiveAt])
+    for (const entry of LEGAL_DOCUMENTS)
+      byType.set(entry.type, [...(byType.get(entry.type) ?? []), entry.effectiveAt])
     for (const times of byType.values()) {
       for (let i = 1; i < times.length; i++) {
         expect(Date.parse(times[i] as string)).toBeGreaterThan(Date.parse(times[i - 1] as string))
@@ -73,7 +78,10 @@ describe("legal registry invariants", () => {
     const registry = realRegistry()
     const terms = registry.documents.find((entry) => keyOf(entry) === "terms@2026-09-21")
     expect(terms).toBeDefined()
-    expectNamed({ ...registry, documents: [...registry.documents, { ...(terms as LegalDocumentVersion) }] }, "terms@2026-09-21")
+    expectNamed(
+      { ...registry, documents: [...registry.documents, { ...(terms as LegalDocumentVersion) }] },
+      "terms@2026-09-21",
+    )
   })
 
   it("T12: takes YYYY-MM-DD and YYYY-MM-DD-<n> from 2, refuses every other version string", () => {
@@ -86,12 +94,19 @@ describe("legal registry invariants", () => {
   })
 
   it("T13: refuses material Cookies and Subprocessors versions, takes a material Terms version", () => {
-    expectNamed(withEpicEntry(realRegistry(), "cookies", "2026-11-01", { material: true }), "cookies@2026-11-01")
+    expectNamed(
+      withEpicEntry(realRegistry(), "cookies", "2026-11-01", { material: true }),
+      "cookies@2026-11-01",
+    )
     expectNamed(
       withEpicEntry(realRegistry(), "subprocessors", "2026-11-01", { material: true }),
       "subprocessors@2026-11-01",
     )
-    expect(legalRegistryProblems(withEpicEntry(realRegistry(), "terms", "2026-11-01", { material: true }))).toEqual([])
+    expect(
+      legalRegistryProblems(
+        withEpicEntry(realRegistry(), "terms", "2026-11-01", { material: true }),
+      ),
+    ).toEqual([])
   })
 
   it("T14: requires title, summary and material on new versions and refuses them on pre-epic ones", () => {
@@ -144,13 +159,22 @@ describe("legal registry invariants", () => {
     const { ["terms@2026-11-01"]: _dropped, ...textsWithout } = epic.texts
     expectNamed({ ...epic, texts: textsWithout }, "terms@2026-11-01")
 
-    expectNamed({ ...epic, texts: { ...epic.texts, "privacy@2026-11-01": BLOCKS } }, "privacy@2026-11-01")
+    expectNamed(
+      { ...epic, texts: { ...epic.texts, "privacy@2026-11-01": BLOCKS } },
+      "privacy@2026-11-01",
+    )
 
-    expectNamed({ ...epic, texts: { ...epic.texts, "cookies@2026-09-16": BLOCKS } }, "cookies@2026-09-16")
+    expectNamed(
+      { ...epic, texts: { ...epic.texts, "cookies@2026-09-16": BLOCKS } },
+      "cookies@2026-09-16",
+    )
 
     expectNamed({ ...epic, texts: { ...epic.texts, "terms@2026-11-01": [] } }, "terms@2026-11-01")
     expectNamed(
-      { ...epic, texts: { ...epic.texts, "terms@2026-11-01": [{ kind: "paragraph", text: "<b>x</b>" }] } },
+      {
+        ...epic,
+        texts: { ...epic.texts, "terms@2026-11-01": [{ kind: "paragraph", text: "<b>x</b>" }] },
+      },
       "terms@2026-11-01",
     )
 
@@ -164,7 +188,9 @@ describe("legal registry invariants", () => {
     const wrong = "a".repeat(64)
     expectNamed(
       {
-        documents: epic.documents.map((entry) => (keyOf(entry) === "terms@2026-11-01" ? { ...entry, sha256: wrong } : entry)),
+        documents: epic.documents.map((entry) =>
+          keyOf(entry) === "terms@2026-11-01" ? { ...entry, sha256: wrong } : entry,
+        ),
         texts: epic.texts,
         published: { ...epic.published, "terms@2026-11-01": wrong },
       },
@@ -187,7 +213,12 @@ describe("legal registry invariants", () => {
     )
 
     expectNamed(
-      { ...registry, documents: registry.documents.filter((entry) => keyOf(entry) !== "subprocessors@2026-09-06") },
+      {
+        ...registry,
+        documents: registry.documents.filter(
+          (entry) => keyOf(entry) !== "subprocessors@2026-09-06",
+        ),
+      },
       "subprocessors@2026-09-06",
     )
 

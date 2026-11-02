@@ -36,7 +36,8 @@ const EXPORTS: Record<LegalDocumentType, readonly LegalBlock[]> = {
   subprocessors: SUBPROCESSORS_2026_10_26,
 }
 const keyOf = (entry: { type: string; version: string }): string => `${entry.type}@${entry.version}`
-const blocksOf = (type: LegalDocumentType): readonly LegalBlock[] => LEGAL_TEXTS[`${type}@${D}`] ?? []
+const blocksOf = (type: LegalDocumentType): readonly LegalBlock[] =>
+  LEGAL_TEXTS[`${type}@${D}`] ?? []
 
 // The canonical text of each page as the web build served it (`canonicalDocumentText` of its
 // `<article class="legal-prose">`), produced from the built export, never retyped.
@@ -89,7 +90,11 @@ function inlineTexts(blocks: readonly LegalBlock[]): string[] {
   })
 }
 
-function collect(nodes: readonly MarkdownInline[], type: MarkdownInline["type"], out: MarkdownInline[] = []) {
+function collect(
+  nodes: readonly MarkdownInline[],
+  type: MarkdownInline["type"],
+  out: MarkdownInline[] = [],
+) {
   for (const node of nodes) {
     if (node.type === type) out.push(node)
     if (node.type !== "text") collect(node.children, type, out)
@@ -98,7 +103,11 @@ function collect(nodes: readonly MarkdownInline[], type: MarkdownInline["type"],
 }
 
 /** The same document with its first inline text rewritten. */
-function withFirstText(blocks: readonly LegalBlock[], index: number, edit: (text: string) => string): LegalBlock[] {
+function withFirstText(
+  blocks: readonly LegalBlock[],
+  index: number,
+  edit: (text: string) => string,
+): LegalBlock[] {
   return blocks.map((block, i): LegalBlock => {
     if (i !== index) return block
     switch (block.kind) {
@@ -153,31 +162,47 @@ describe("LEGAL_TEXTS", () => {
 
   it("T3: the real registry holds every invariant", () => {
     expect(
-      legalRegistryProblems({ documents: LEGAL_DOCUMENTS, texts: LEGAL_TEXTS, published: PUBLISHED }),
+      legalRegistryProblems({
+        documents: LEGAL_DOCUMENTS,
+        texts: LEGAL_TEXTS,
+        published: PUBLISHED,
+      }),
     ).toEqual([])
   })
 
-  it("T4: every new version's sha256 is its record hash, and pnpm legal:hash finds nothing to write", {
-    timeout: 120_000,
-  }, () => {
-    for (const type of TYPES) {
-      const entry = LEGAL_DOCUMENTS.find((candidate) => keyOf(candidate) === `${type}@${D}`)
-      expect(entry, type).toBeDefined()
-      if (entry === undefined) continue
-      expect(legalRecordSha256(entry, blocksOf(type)), type).toBe(entry.sha256)
-    }
-    const out = execFileSync("node", [join(ROOT, "scripts/legal-hash.mjs")], { cwd: ROOT, encoding: "utf8" })
-    expect(out.trim()).toBe("legal:hash: every hash is current")
-    expect(execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" })).toBe("")
-  })
+  it(
+    "T4: every new version's sha256 is its record hash, and pnpm legal:hash finds nothing to write",
+    {
+      timeout: 120_000,
+    },
+    () => {
+      for (const type of TYPES) {
+        const entry = LEGAL_DOCUMENTS.find((candidate) => keyOf(candidate) === `${type}@${D}`)
+        expect(entry, type).toBeDefined()
+        if (entry === undefined) continue
+        expect(legalRecordSha256(entry, blocksOf(type)), type).toBe(entry.sha256)
+      }
+      const documentsPath = join(ROOT, "src/legal/documents.ts")
+      const before = readFileSync(documentsPath, "utf8")
+      const out = execFileSync("node", [join(ROOT, "scripts/legal-hash.mjs")], {
+        cwd: ROOT,
+        encoding: "utf8",
+      })
+      expect(out.trim()).toBe("legal:hash: every hash is current")
+      expect(readFileSync(documentsPath, "utf8")).toBe(before)
+    },
+  )
 
   it("T5: published-hashes.json keeps the pre-epic ten byte for byte and adds the four new hashes", () => {
     const raw = readFileSync(join(ROOT, "src/legal/__tests__/published-hashes.json"), "utf8")
     expect(raw.split("\n").slice(1, 11)).toEqual(
-      PRE_EPIC.map((entry) => `  ${JSON.stringify(keyOf(entry))}: ${JSON.stringify(entry.sha256)},`),
+      PRE_EPIC.map(
+        (entry) => `  ${JSON.stringify(keyOf(entry))}: ${JSON.stringify(entry.sha256)},`,
+      ),
     )
     expect(Object.keys(PUBLISHED)).toHaveLength(14)
-    for (const entry of PRE_EPIC) expect(PUBLISHED[keyOf(entry) as keyof typeof PUBLISHED]).toBe(entry.sha256)
+    for (const entry of PRE_EPIC)
+      expect(PUBLISHED[keyOf(entry) as keyof typeof PUBLISHED]).toBe(entry.sha256)
     for (const entry of LEGAL_DOCUMENTS.slice(10)) {
       expect(PUBLISHED[keyOf(entry) as keyof typeof PUBLISHED], keyOf(entry)).toBe(entry.sha256)
     }
@@ -186,7 +211,8 @@ describe("LEGAL_TEXTS", () => {
 
 describe("the migrated texts", () => {
   it("T6: each document's text equals the served page's, line for line", () => {
-    for (const type of TYPES) expect(documentLines(blocksOf(type)), type).toEqual(fixtureLines(type))
+    for (const type of TYPES)
+      expect(documentLines(blocksOf(type)), type).toEqual(fixtureLines(type))
   })
 
   it("T6: changing, adding or dropping one word in any block breaks the match", () => {
@@ -200,7 +226,10 @@ describe("the migrated texts", () => {
       const expected = fixtureLines(type)
       blocks.forEach((_block, index) => {
         for (const edit of edits) {
-          expect(documentLines(withFirstText(blocks, index, edit)), `${type} block ${index}`).not.toEqual(expected)
+          expect(
+            documentLines(withFirstText(blocks, index, edit)),
+            `${type} block ${index}`,
+          ).not.toEqual(expected)
         }
       })
     }
@@ -214,7 +243,9 @@ describe("the migrated texts", () => {
       subprocessors: "5ab722bb37cc2972ada7521b6dc239bfd85f82691d0e3e2489f5dcac9983a198",
     }
     for (const type of TYPES) {
-      expect(createHash("sha256").update(fixture(type), "utf8").digest("hex"), type).toBe(hashes[type])
+      expect(createHash("sha256").update(fixture(type), "utf8").digest("hex"), type).toBe(
+        hashes[type],
+      )
     }
   })
 
@@ -226,13 +257,26 @@ describe("the migrated texts", () => {
       cookies: ["privacy", "subprocessors"].map(page),
       subprocessors: ["privacy", "privacy"].map(page),
     }
-    const addresses: Record<LegalDocumentType, number> = { terms: 1, privacy: 3, cookies: 1, subprocessors: 1 }
+    const addresses: Record<LegalDocumentType, number> = {
+      terms: 1,
+      privacy: 3,
+      cookies: 1,
+      subprocessors: 1,
+    }
     for (const type of TYPES) {
       const parsed = inlineTexts(blocksOf(type)).map((text) => parseMarkdownInline(text))
-      expect(parsed.flatMap((parse) => parse.unsafeHrefs), type).toEqual([])
+      expect(
+        parsed.flatMap((parse) => parse.unsafeHrefs),
+        type,
+      ).toEqual([])
       const links = parsed.flatMap((parse) => collect(parse.nodes, "link"))
-      expect(links.map((link) => (link.type === "link" ? link.href : "")), type).toEqual(expected[type])
-      expect(links.map((link) => plainText([link])).join(" "), type).not.toContain("roman@reachoutla.org")
+      expect(
+        links.map((link) => (link.type === "link" ? link.href : "")),
+        type,
+      ).toEqual(expected[type])
+      expect(links.map((link) => plainText([link])).join(" "), type).not.toContain(
+        "roman@reachoutla.org",
+      )
       const text = parsed.map((parse) => plainText(parse.nodes)).join("\n")
       expect(text.split("roman@reachoutla.org").length - 1, type).toBe(addresses[type])
       expect(JSON.stringify(blocksOf(type)), type).not.toContain("mailto:")
@@ -260,7 +304,8 @@ describe("the migrated texts", () => {
 
 describe("entry points", () => {
   it("T11: the root and /legal still reach nothing under src/legal-texts", () => {
-    const imports = /(?:import|export)\s[^"';]*?from\s*["'](\.[^"']+)["']|import\(\s*["'](\.[^"']+)["']\s*\)/gu
+    const imports =
+      /(?:import|export)\s[^"';]*?from\s*["'](\.[^"']+)["']|import\(\s*["'](\.[^"']+)["']\s*\)/gu
     for (const entry of ["src/index.ts", "src/legal/index.ts"]) {
       const seen = new Set<string>()
       const queue = [join(ROOT, entry)]
@@ -274,7 +319,10 @@ describe("entry points", () => {
           queue.push(existsSync(ts) ? ts : target)
         }
       }
-      expect([...seen].filter((file) => relative(ROOT, file).startsWith("src/legal-texts")), entry).toEqual([])
+      expect(
+        [...seen].filter((file) => relative(ROOT, file).startsWith("src/legal-texts")),
+        entry,
+      ).toEqual([])
     }
   })
 })

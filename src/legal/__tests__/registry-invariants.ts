@@ -10,7 +10,7 @@ export interface LegalRegistry {
   published: Readonly<Record<string, string>>
 }
 
-// Seeded before DECISIONS §66 from the web pages' text: no title, summary, material or blocks, and a hash
+// Seeded before DECISIONS §68 from the web pages' text: no title, summary, material or blocks, and a hash
 // nothing here can recompute.
 const PRE_EPIC_KEYS: ReadonlySet<string> = new Set([
   "terms@2026-09-06",
@@ -30,7 +30,7 @@ const BlocksSchema = z.array(LegalBlockSchema).min(1)
 
 const keyOf = (entry: { type: string; version: string }): string => `${entry.type}@${entry.version}`
 
-/** Every way the registry breaks DECISIONS §66, each naming its `type@version`; empty when it holds. */
+/** Every way the registry breaks DECISIONS §68, each naming its `type@version`; empty when it holds. */
 export function legalRegistryProblems({ documents, texts, published }: LegalRegistry): string[] {
   const problems: string[] = []
   const keys = new Set<string>()
@@ -48,7 +48,9 @@ export function legalRegistryProblems({ documents, texts, published }: LegalRegi
     const effectiveAt = Date.parse(entry.effectiveAt)
     const previous = lastEffectiveAt.get(entry.type)
     if (previous !== undefined && !(effectiveAt > previous)) {
-      problems.push(`${key}: effectiveAt is not after the previous ${entry.type} version (newest last)`)
+      problems.push(
+        `${key}: effectiveAt is not after the previous ${entry.type} version (newest last)`,
+      )
     }
     lastEffectiveAt.set(entry.type, effectiveAt)
 
@@ -56,11 +58,14 @@ export function legalRegistryProblems({ documents, texts, published }: LegalRegi
       problems.push(`${key}: ${entry.type} versions are never material`)
     }
 
-    const described = [entry.title, entry.summary, entry.material].filter((field) => field !== undefined).length
+    const described = [entry.title, entry.summary, entry.material].filter(
+      (field) => field !== undefined,
+    ).length
     const blocks = texts[key]
     if (PRE_EPIC_KEYS.has(key)) {
-      if (described > 0) problems.push(`${key}: a version from before §66 has no title, summary or material`)
-      if (blocks !== undefined) problems.push(`${key}: a version from before §66 has no blocks`)
+      if (described > 0)
+        problems.push(`${key}: a version from before §68 has no title, summary or material`)
+      if (blocks !== undefined) problems.push(`${key}: a version from before §68 has no blocks`)
     } else if (described < 3) {
       problems.push(`${key}: a new version needs title, summary and material`)
     } else if (blocks === undefined) {
@@ -68,7 +73,9 @@ export function legalRegistryProblems({ documents, texts, published }: LegalRegi
     } else {
       const parsed = BlocksSchema.safeParse(blocks)
       if (!parsed.success) {
-        problems.push(`${key}: blocks are invalid: ${parsed.error.issues.map((issue) => issue.message).join("; ")}`)
+        problems.push(
+          `${key}: blocks are invalid: ${parsed.error.issues.map((issue) => issue.message).join("; ")}`,
+        )
       } else if (legalRecordSha256(entry, parsed.data) !== entry.sha256) {
         problems.push(`${key}: sha256 differs from the recomputed record hash; run pnpm legal:hash`)
       }
@@ -78,12 +85,15 @@ export function legalRegistryProblems({ documents, texts, published }: LegalRegi
     if (publishedSha256 === undefined) {
       problems.push(`${key}: missing from published-hashes.json`)
     } else if (publishedSha256 !== entry.sha256) {
-      problems.push(`${key}: sha256 differs from the published hash; a published version never changes`)
+      problems.push(
+        `${key}: sha256 differs from the published hash; a published version never changes`,
+      )
     }
   }
 
   for (const key of Object.keys(texts)) {
-    if (!keys.has(key)) problems.push(`${key}: LEGAL_TEXTS entry with no version in LEGAL_DOCUMENTS`)
+    if (!keys.has(key))
+      problems.push(`${key}: LEGAL_TEXTS entry with no version in LEGAL_DOCUMENTS`)
   }
   for (const key of Object.keys(published)) {
     if (!keys.has(key)) problems.push(`${key}: published version removed from LEGAL_DOCUMENTS`)

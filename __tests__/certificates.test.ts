@@ -274,4 +274,3 @@ describe("certificate response schemas (tolerant)", () => {
     )
   })
 })
-

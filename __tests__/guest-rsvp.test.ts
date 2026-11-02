@@ -134,7 +134,7 @@ describe("the honeypot is accepted at the boundary and flagged server-side", () 
 
   it("matches the AnonReportRequest honeypot idiom rather than 422ing the bot", () => {
     const shape = GuestRsvpRequestRequestSchema.shape
-    expect(shape.website.isOptional()).toBe(true)
+    expect(shape.website.safeParse(undefined).success).toBe(true)
     expect(shape.website.def.type).toBe("optional")
   })
 })
@@ -182,12 +182,12 @@ describe("GuestRsvpVerifyRequestSchema code union", () => {
   })
 
   it("rejects codes between the two accepted lengths and beyond the max", () => {
-    expect(
-      GuestRsvpVerifyRequestSchema.safeParse({ ...verifyBase, code: "12345" }).success,
-    ).toBe(false)
-    expect(
-      GuestRsvpVerifyRequestSchema.safeParse({ ...verifyBase, code: "1234567" }).success,
-    ).toBe(false)
+    expect(GuestRsvpVerifyRequestSchema.safeParse({ ...verifyBase, code: "12345" }).success).toBe(
+      false,
+    )
+    expect(GuestRsvpVerifyRequestSchema.safeParse({ ...verifyBase, code: "1234567" }).success).toBe(
+      false,
+    )
     expect(
       GuestRsvpVerifyRequestSchema.safeParse({ ...verifyBase, code: "a".repeat(19) }).success,
     ).toBe(false)
@@ -378,9 +378,9 @@ describe("guest response shapes", () => {
       sent: true,
       resendAfterSec: 30,
     })
-    expect(GuestRsvpRequestResponseSchema.safeParse({ sent: false, resendAfterSec: 30 }).success).toBe(
-      false,
-    )
+    expect(
+      GuestRsvpRequestResponseSchema.safeParse({ sent: false, resendAfterSec: 30 }).success,
+    ).toBe(false)
   })
 
   it("refuses to mint a manage token the cancel endpoint would reject", () => {
@@ -412,21 +412,23 @@ describe("guest response shapes", () => {
       joinedAt: "2026-06-01T17:00:00.000Z",
       cancelledAt: null,
     }
-    expect(CleanupGuestDTOSchema.safeParse({ ...base, email: null, phone: null }).success).toBe(true)
+    expect(CleanupGuestDTOSchema.safeParse({ ...base, email: null, phone: null }).success).toBe(
+      true,
+    )
     expect(CleanupGuestDTOSchema.safeParse({ ...base, phone: null }).success).toBe(false)
     expect(CleanupGuestDTOSchema.safeParse({ ...base, email: null }).success).toBe(false)
   })
 })
 
 describe("typed client wiring for the new endpoints", () => {
-  function harness() {
+  function harness(...replies: unknown[]) {
     const calls: Array<{ url: string; body: unknown }> = []
-    const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+    const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
       calls.push({
-        url: String(url),
-        body: init?.body === undefined ? undefined : JSON.parse(String(init.body)),
+        url,
+        body: typeof init?.body === "string" ? JSON.parse(init.body) : undefined,
       })
-      return new Response(JSON.stringify({}), {
+      return new Response(JSON.stringify(replies[calls.length - 1]), {
         status: 200,
         headers: { "content-type": "application/json" },
       })
@@ -435,7 +437,7 @@ describe("typed client wiring for the new endpoints", () => {
   }
 
   it("fills :id from the body on the guest RSVP writes and keeps it in the payload", async () => {
-    const { calls, client } = harness()
+    const { calls, client } = harness({ sent: true, resendAfterSec: 60 })
     await client.guestRsvpRequest({
       id: UUID,
       name: "Ada",
@@ -448,7 +450,10 @@ describe("typed client wiring for the new endpoints", () => {
   })
 
   it("consumes :id from the query on the paged reads", async () => {
-    const { calls, client } = harness()
+    const { calls, client } = harness(
+      { items: [], nextCursor: null },
+      { guests: [], count: 0, nextCursor: null },
+    )
     await client.getProfileEvents({ id: "ada", limit: 10 })
     expect(calls[0]?.url).toBe("https://api.civfix.test/v1/people/ada/events?limit=10")
 

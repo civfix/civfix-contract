@@ -6,7 +6,10 @@ describe("parseMarkdownSubset inline spans", () => {
     expect(parseMarkdownSubset("****x**")).toEqual([
       {
         type: "paragraph",
-        children: [{ type: "text", value: "*" }, { type: "strong", children: [{ type: "text", value: "*x" }] }],
+        children: [
+          { type: "text", value: "*" },
+          { type: "strong", children: [{ type: "text", value: "*x" }] },
+        ],
       },
     ])
   })
@@ -44,7 +47,11 @@ describe("parseMarkdownSubset inline spans", () => {
             type: "em",
             children: [
               { type: "text", value: "c " },
-              { type: "link", href: "https://civfix.org/x", children: [{ type: "text", value: "d" }] },
+              {
+                type: "link",
+                href: "https://civfix.org/x",
+                children: [{ type: "text", value: "d" }],
+              },
               { type: "text", value: " e" },
             ],
           },
@@ -106,11 +113,17 @@ describe("parseMarkdownSubset inline spans", () => {
   })
 
   it("balances parentheses in an href and leaves an unterminated one literal", () => {
-    expect(parseMarkdownSubset("[a](https://civfix.org/x_(y)) and [b](https://civfix.org/(z")).toEqual([
+    expect(
+      parseMarkdownSubset("[a](https://civfix.org/x_(y)) and [b](https://civfix.org/(z"),
+    ).toEqual([
       {
         type: "paragraph",
         children: [
-          { type: "link", href: "https://civfix.org/x_(y)", children: [{ type: "text", value: "a" }] },
+          {
+            type: "link",
+            href: "https://civfix.org/x_(y)",
+            children: [{ type: "text", value: "a" }],
+          },
           { type: "text", value: " and [b](https://civfix.org/(z" },
         ],
       },
@@ -118,10 +131,14 @@ describe("parseMarkdownSubset inline spans", () => {
   })
 
   it("leaves an empty label and a bracket not followed by a parenthesis literal", () => {
-    expect(parseMarkdownSubset("[  ](https://civfix.org/x) [ok] (https://civfix.org) [ok]")).toEqual([
+    expect(
+      parseMarkdownSubset("[  ](https://civfix.org/x) [ok] (https://civfix.org) [ok]"),
+    ).toEqual([
       {
         type: "paragraph",
-        children: [{ type: "text", value: "[  ](https://civfix.org/x) [ok] (https://civfix.org) [ok]" }],
+        children: [
+          { type: "text", value: "[  ](https://civfix.org/x) [ok] (https://civfix.org) [ok]" },
+        ],
       },
     ])
   })
@@ -148,7 +165,10 @@ describe("parseMarkdownSubset inline spans", () => {
     expect(parseMarkdownSubset("_a *b_ c*")).toEqual([
       {
         type: "paragraph",
-        children: [{ type: "em", children: [{ type: "text", value: "a *b" }] }, { type: "text", value: " c*" }],
+        children: [
+          { type: "em", children: [{ type: "text", value: "a *b" }] },
+          { type: "text", value: " c*" },
+        ],
       },
     ])
   })
@@ -158,7 +178,11 @@ describe("parseMarkdownSubset inline spans", () => {
       {
         type: "paragraph",
         children: [
-          { type: "link", href: "https://civfix.org/b", children: [{ type: "text", value: "a [b" }] },
+          {
+            type: "link",
+            href: "https://civfix.org/b",
+            children: [{ type: "text", value: "a [b" }],
+          },
           { type: "text", value: " c](https://civfix.org/a)" },
         ],
       },
@@ -191,7 +215,9 @@ describe("parseMarkdownSubset inline spans", () => {
   })
 
   it("folds a continuation line into its list item and parses its inline spans", () => {
-    expect(parseMarkdownSubset("- item *em\n  continued **strong**\n- [l](https://civfix.org/l) tail")).toEqual([
+    expect(
+      parseMarkdownSubset("- item *em\n  continued **strong**\n- [l](https://civfix.org/l) tail"),
+    ).toEqual([
       {
         type: "list",
         ordered: false,
@@ -206,7 +232,11 @@ describe("parseMarkdownSubset inline spans", () => {
           {
             type: "listItem",
             children: [
-              { type: "link", href: "https://civfix.org/l", children: [{ type: "text", value: "l" }] },
+              {
+                type: "link",
+                href: "https://civfix.org/l",
+                children: [{ type: "text", value: "l" }],
+              },
               { type: "text", value: " tail" },
             ],
           },

@@ -13,7 +13,11 @@ const USER = "11111111-1111-1111-1111-111111111111"
 
 describe("WsServerMessageSchema realtime additions", () => {
   it("accepts a typing frame", () => {
-    const parsed = WsServerMessageSchema.safeParse({ type: "typing", cleanupId: ROOM, userId: USER })
+    const parsed = WsServerMessageSchema.safeParse({
+      type: "typing",
+      cleanupId: ROOM,
+      userId: USER,
+    })
     expect(parsed.success).toBe(true)
   })
 
@@ -69,22 +73,34 @@ describe("WsServerMessageSchema realtime additions", () => {
       }).success,
     ).toBe(true)
     expect(
-      WsServerMessageSchema.safeParse({ type: "typing", cleanupId: ROOM, roomKind: "dm", userId: USER })
-        .success,
+      WsServerMessageSchema.safeParse({
+        type: "typing",
+        cleanupId: ROOM,
+        roomKind: "dm",
+        userId: USER,
+      }).success,
     ).toBe(true)
   })
 
   it("accepts roomKind 'group'", () => {
     expect(
-      WsServerMessageSchema.safeParse({ type: "typing", cleanupId: ROOM, roomKind: "group", userId: USER })
-        .success,
+      WsServerMessageSchema.safeParse({
+        type: "typing",
+        cleanupId: ROOM,
+        roomKind: "group",
+        userId: USER,
+      }).success,
     ).toBe(true)
   })
 
   it("rejects an unknown roomKind", () => {
     expect(
-      WsServerMessageSchema.safeParse({ type: "typing", cleanupId: ROOM, roomKind: "bogus", userId: USER })
-        .success,
+      WsServerMessageSchema.safeParse({
+        type: "typing",
+        cleanupId: ROOM,
+        roomKind: "bogus",
+        userId: USER,
+      }).success,
     ).toBe(false)
   })
 
@@ -110,10 +126,45 @@ describe("WsServerMessageSchema realtime additions", () => {
 
   it("still accepts every pre-signal frame (backward-compat lock)", () => {
     // The signal variant lives in the SAME union; the other frames must keep parsing unchanged.
-    expect(WsServerMessageSchema.safeParse({ type: "presence", cleanupId: ROOM, userId: USER, state: "join" }).success).toBe(true)
-    expect(WsServerMessageSchema.safeParse({ type: "typing", cleanupId: ROOM, userId: USER }).success).toBe(true)
-    expect(WsServerMessageSchema.safeParse({ type: "ack", clientId: "c1", message: { id: ROOM, cleanupId: ROOM, from: { id: USER, name: "U", handle: null, bio: null, avatar: null, followers: 0, following: 0, isFollowing: false }, body: "hi", kind: "text", attachments: null, createdAt: "2026-01-01T00:00:00.000Z", editedAt: null } }).success).toBe(true)
-    expect(WsServerMessageSchema.safeParse({ type: "error", code: "BAD_FRAME", message: "no" }).success).toBe(true)
+    expect(
+      WsServerMessageSchema.safeParse({
+        type: "presence",
+        cleanupId: ROOM,
+        userId: USER,
+        state: "join",
+      }).success,
+    ).toBe(true)
+    expect(
+      WsServerMessageSchema.safeParse({ type: "typing", cleanupId: ROOM, userId: USER }).success,
+    ).toBe(true)
+    expect(
+      WsServerMessageSchema.safeParse({
+        type: "ack",
+        clientId: "c1",
+        message: {
+          id: ROOM,
+          cleanupId: ROOM,
+          from: {
+            id: USER,
+            name: "U",
+            handle: null,
+            bio: null,
+            avatar: null,
+            followers: 0,
+            following: 0,
+            isFollowing: false,
+          },
+          body: "hi",
+          kind: "text",
+          attachments: null,
+          createdAt: "2026-01-01T00:00:00.000Z",
+          editedAt: null,
+        },
+      }).success,
+    ).toBe(true)
+    expect(
+      WsServerMessageSchema.safeParse({ type: "error", code: "BAD_FRAME", message: "no" }).success,
+    ).toBe(true)
   })
 
   it("UserSignalSchema rejects an unknown extra key (.strict)", () => {
@@ -146,9 +197,9 @@ describe("WsClientMessageSchema DM roomKind additions stay backward compatible",
   })
 
   it("accepts a DM join/send/typing frame carrying roomKind:'dm'", () => {
-    expect(WsClientMessageSchema.safeParse({ type: "join", cleanupId: ROOM, roomKind: "dm" }).success).toBe(
-      true,
-    )
+    expect(
+      WsClientMessageSchema.safeParse({ type: "join", cleanupId: ROOM, roomKind: "dm" }).success,
+    ).toBe(true)
     expect(
       WsClientMessageSchema.safeParse({
         type: "send",
@@ -166,8 +217,12 @@ describe("WsClientMessageSchema DM roomKind additions stay backward compatible",
   it("accepts a bare ack (legacy) AND a room-scoped ack (cleanupId + roomKind)", () => {
     expect(WsClientMessageSchema.safeParse({ type: "ack", upToId: ROOM }).success).toBe(true)
     expect(
-      WsClientMessageSchema.safeParse({ type: "ack", upToId: ROOM, cleanupId: ROOM, roomKind: "dm" })
-        .success,
+      WsClientMessageSchema.safeParse({
+        type: "ack",
+        upToId: ROOM,
+        cleanupId: ROOM,
+        roomKind: "dm",
+      }).success,
     ).toBe(true)
   })
 })

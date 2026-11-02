@@ -22,6 +22,7 @@ import { adminUserEndpoints, adminUserHoursEndpoints } from "./endpoints/admin/u
 import { adminModerationEndpoints } from "./endpoints/admin/moderation.js"
 import { adminMailEndpoints, adminInboxEndpoints } from "./endpoints/admin/mail.js"
 import { adminAnalyticsEndpoints } from "./endpoints/admin/analytics.js"
+import { adminDevEndpoints } from "./endpoints/admin/dev.js"
 import { hostAdminEndpoints } from "./endpoints/admin/host-oversight.js"
 import { hostOrganizationEndpoints } from "./endpoints/host/organizations.js"
 import { hostTeamEndpoints } from "./endpoints/host/team.js"
@@ -33,7 +34,12 @@ import { hostBroadcastEndpoints } from "./endpoints/host/broadcasts.js"
 import { hostAnalyticsEndpoints } from "./endpoints/host/analytics.js"
 
 export type { EndpointAuth, EndpointDef, HttpMethod } from "./endpoints/def.js"
-export { adminInboxEndpoints, adminReportChatEndpoints, adminUserHoursEndpoints, hostAdminEndpoints }
+export {
+  adminInboxEndpoints,
+  adminReportChatEndpoints,
+  adminUserHoursEndpoints,
+  hostAdminEndpoints,
+}
 
 export const coreEndpoints: typeof systemEndpoints &
   typeof authEndpoints &
@@ -57,7 +63,8 @@ export const coreEndpoints: typeof systemEndpoints &
   typeof adminUserEndpoints &
   typeof adminModerationEndpoints &
   typeof adminMailEndpoints &
-  typeof adminAnalyticsEndpoints = {
+  typeof adminAnalyticsEndpoints &
+  typeof adminDevEndpoints = {
   ...systemEndpoints,
   ...authEndpoints,
   ...reportEndpoints,
@@ -81,6 +88,7 @@ export const coreEndpoints: typeof systemEndpoints &
   ...adminModerationEndpoints,
   ...adminMailEndpoints,
   ...adminAnalyticsEndpoints,
+  ...adminDevEndpoints,
 }
 
 export const hostEndpoints: typeof hostOrganizationEndpoints &
@@ -118,7 +126,7 @@ export const endpoints: typeof coreEndpoints &
 export type Endpoints = typeof endpoints
 export type EndpointName = keyof Endpoints
 
-export type RequestOf<N extends EndpointName> = Endpoints[N]["request"] extends z.ZodTypeAny
+export type RequestOf<N extends EndpointName> = Endpoints[N]["request"] extends z.ZodType
   ? z.infer<Endpoints[N]["request"]>
   : never
 

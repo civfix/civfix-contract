@@ -46,11 +46,11 @@ export const DEFAULT_RELATIVE_UNITS: RelativeUnitLabels = {
 
 export interface RelativeAgoOptions {
   /** Label for the just-now bucket (< 60s, or a future time). Defaults to "now". */
-  justNow?: string
+  justNow?: string | undefined
   /** Localized unit suffixes; any omitted one falls back to `DEFAULT_RELATIVE_UNITS`. */
-  units?: Partial<RelativeUnitLabels>
+  units?: { [K in keyof RelativeUnitLabels]?: RelativeUnitLabels[K] | undefined } | undefined
   /** Absolute formatter used past the one-week threshold instead of "<N>w". Receives the parsed Date. */
-  absoluteFallback?: (d: Date) => string
+  absoluteFallback?: ((d: Date) => string) | undefined
 }
 
 function toEpochMs(value: Date | string | number): number | null {
@@ -342,11 +342,7 @@ export function eventChip(
  * Short weekday like "Sat", or "" for an invalid input. `weekdays` is a 7-length localized array
  * indexed by `Date#getDay()`; omitted, `WEEKDAYS` applies.
  */
-export function dowLabel(
-  iso: string,
-  weekdays?: readonly string[],
-  timeZone?: string,
-): string {
+export function dowLabel(iso: string, weekdays?: readonly string[], timeZone?: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ""
   const labels = weekdays ?? WEEKDAYS
@@ -431,15 +427,15 @@ export function timeRangeLabel(
 
 export interface EventWhenInput {
   scheduledAt: string
-  endsAt?: string | null
-  timezone?: string | null
+  endsAt?: string | null | undefined
+  timezone?: string | null | undefined
 }
 
 export interface EventWhenOptions {
-  locale?: string
-  weekdays?: readonly string[]
-  viewerTimeZone?: string
-  now?: number
+  locale?: string | undefined
+  weekdays?: readonly string[] | undefined
+  viewerTimeZone?: string | undefined
+  now?: number | undefined
 }
 
 export interface EventWhenParts {
@@ -612,9 +608,7 @@ export function datetimeLocalFromIso(iso: string | null | undefined, timeZone: s
 }
 
 export type DatetimeLocalValue =
-  | { kind: "empty" }
-  | { kind: "instant"; iso: string }
-  | { kind: "invalid" }
+  { kind: "empty" } | { kind: "instant"; iso: string } | { kind: "invalid" }
 
 const DATETIME_LOCAL = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/
 

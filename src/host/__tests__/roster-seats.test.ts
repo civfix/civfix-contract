@@ -51,10 +51,16 @@ describe("nextCheckinSeat", () => {
   it("checks in the first open seat, and none once every seat is in", () => {
     expect(
       nextCheckinSeat({
-        seats: [seat({ id: "a", checkedInAt: "2026-03-01T10:00:00.000Z" }), seat({ id: "b" }), seat({ id: "c" })],
+        seats: [
+          seat({ id: "a", checkedInAt: "2026-03-01T10:00:00.000Z" }),
+          seat({ id: "b" }),
+          seat({ id: "c" }),
+        ],
       }),
     ).toBe("b")
-    expect(nextCheckinSeat({ seats: [seat({ id: "a", checkedInAt: "2026-03-01T10:00:00.000Z" })] })).toBeNull()
+    expect(
+      nextCheckinSeat({ seats: [seat({ id: "a", checkedInAt: "2026-03-01T10:00:00.000Z" })] }),
+    ).toBeNull()
     expect(nextCheckinSeat({ seats: [seat({ id: "a", status: "cancelled" })] })).toBeNull()
   })
 })
@@ -81,14 +87,16 @@ describe("attendeeDisplayName", () => {
     expect(attendeeDisplayName(row({ guestName: "Ann" }), NAMES)).toBe("Ann")
     expect(attendeeDisplayName(row({}), NAMES)).toBe("Guest")
     expect(attendeeDisplayName(row({ person: person({ name: "Bo" }) }), NAMES)).toBe("Bo")
-    expect(attendeeDisplayName(row({ person: person({ deleted: true }) }), NAMES)).toBe("Deleted user")
+    expect(attendeeDisplayName(row({ person: person({ deleted: true }) }), NAMES)).toBe(
+      "Deleted user",
+    )
   })
 
   it("leaves each host its own fallback copy", () => {
     const blank = { guest: "", deleted: "Deleted User" }
     expect(attendeeDisplayName({ person: null, guestName: null }, blank)).toBe("")
-    expect(attendeeDisplayName({ person: person({ deleted: true }), guestName: "Ann" }, blank)).toBe(
-      "Deleted User",
-    )
+    expect(
+      attendeeDisplayName({ person: person({ deleted: true }), guestName: "Ann" }, blank),
+    ).toBe("Deleted User")
   })
 })

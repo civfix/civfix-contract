@@ -19,7 +19,6 @@ import {
   endpoints,
 } from "../src/index.js"
 
-
 const UUID = "123e4567-e89b-12d3-a456-426614174000"
 const OTHER_UUID = "123e4567-e89b-12d3-a456-426614174001"
 const ISO = "2026-09-16T12:00:00.000Z"
@@ -37,9 +36,9 @@ describe("event announcements contract", () => {
       expect(BroadcastSegmentSchema.safeParse(parsed).success, kind).toBe(true)
       expect(announcementAudienceToSegment(parsed)).toEqual(parsed)
     }
-    expect(AnnouncementAudienceSchema.safeParse({ kind: "ticket_types", ids: [UUID] }).success).toBe(
-      false,
-    )
+    expect(
+      AnnouncementAudienceSchema.safeParse({ kind: "ticket_types", ids: [UUID] }).success,
+    ).toBe(false)
     expect(AnnouncementAudienceSchema.safeParse({ kind: "guests_only" }).success).toBe(false)
     expect(AnnouncementAudienceSchema.safeParse({ kind: "slots", ids: [] }).success).toBe(false)
   })
@@ -114,11 +113,11 @@ describe("event announcements contract", () => {
     expect(endpoints.createEventAnnouncement.csrf).toBe(true)
     expect(endpoints.listEventAnnouncements.path).toBe("/cleanups/:id/announcements")
     expect(endpoints.listEventAnnouncements.auth).toBe("optional")
-    expect(endpoints.getEventAnnouncement.path).toBe(
-      "/cleanups/:id/announcements/:announcementId",
-    )
+    expect(endpoints.getEventAnnouncement.path).toBe("/cleanups/:id/announcements/:announcementId")
     expect(endpoints.getEventAnnouncement.auth).toBe("optional")
-    expect(ListEventAnnouncementsRequestSchema.safeParse({ id: UUID, limit: 20 }).success).toBe(true)
+    expect(ListEventAnnouncementsRequestSchema.safeParse({ id: UUID, limit: 20 }).success).toBe(
+      true,
+    )
     expect(
       GetEventAnnouncementRequestSchema.safeParse({ id: UUID, announcementId: OTHER_UUID }).success,
     ).toBe(true)

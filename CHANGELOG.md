@@ -1,17 +1,69 @@
 # @civfix/contract
 
+## 0.70.0
+
+### Minor Changes
+
+- Legal documents served by the API (DECISIONS §68). All additive: the registry goes from 360 to 364 entries, none of them admin.
+
+  - `LEGAL_DOCUMENTS` holds every version ever published, newest last per type, and a version entry gains optional `title`, `summary` and `material`, set on every version written from now on.
+  - `LegalBlockSchema` (on the root and `/legal`): a document's body is headings, paragraphs, lists and tables whose inline text is the contract's inline markdown.
+  - New subpath `@civfix/contract/legal-texts`: `LEGAL_TEXTS` (each version's blocks by `type@version`) and `legalRecordSha256`, the hash of a version's whole record.
+  - New schemas: `LegalDocumentDTO`, `GetLegalDocumentsResponse`, `GetLegalDocumentRequest`, `GetLegalDocumentResponse`, `MyLegalStatusResponse`, `AcceptLegalRequest`, `AcceptLegalResponse` and `LegalVersionOutdatedDetails`.
+  - New endpoints: `getLegalDocuments`, `getLegalDocument`, `getMyLegalStatus` and `acceptLegal`.
+  - An error reply can carry an optional `details` object; a malformed `details` is dropped without losing the rest of the error.
+
+## 0.69.0
+
+### Minor Changes
+
+- Notification settings, the notification center and direct push data (DECISIONS §67). All additive: the registry goes from 352 to 360 entries, none of them admin.
+
+  - Eleven notification categories: `NotificationCategorySchema`, `NotificationCategorySettingSchema` (`{ enabled, push, email }`, strict), `NOTIFICATION_SECTIONS` (five sections whose ids are the Android channel ids) and `NOTIFICATION_CATEGORY_DEFAULTS`.
+  - New endpoints: `getNotificationSettings` (`GET /notifications/settings`) and `updateNotificationSettings` (`PATCH /notifications/settings`, a strict patch) answering `NotificationSettingsDTO`; `getNotificationUnread` (`GET /notifications/unread`); `markAllNotificationsRead` (`POST /notifications/read-all`); `dismissNotification` (`DELETE /notifications/:id`); `getPushWebConfig` (`GET /push/web-config`); and the public one-click pair `unsubscribeNotificationEmail` (`POST /notifications/email-unsubscribe`) and `openUnsubscribeNotificationEmail` (`GET`, a 302).
+  - `PushMessageDataSchema`, the data every push carries (`kind: "notification"` or `"clear"`), with `encodePushMessageData` / `decodePushMessageData` for FCM's flat string map; decoding returns `null` on a malformed map and never throws.
+  - `NotificationTypeSchema` appends `chat_mention`.
+  - The prefs endpoints and `NotificationPrefsDTO` are unchanged.
+
 ## 0.68.0
 
 ### Minor Changes
 
-- Legal documents served by the API (DECISIONS §66). All additive: the registry goes from 341 to 345 entries, none of them admin.
+- Developer console, runtime flags and the app config (DECISIONS §66). All additive: the registry goes from 341 to 352 entries, 10 of them admin.
 
-  - `LEGAL_DOCUMENTS` holds every version ever published, newest last per type (the ten seeded since 2026-09-06), and a version entry gains optional `title`, `summary` and `material`, set on every version written from now on. `currentLegalVersion(type, now)` returns the newest version in effect at `now`; `legalDocument`, `currentVersion` and `isCurrent` answer for the version in effect now and are for the backend only: clients get versions from the API.
-  - `LegalBlockSchema` (on the root and `/legal`): a document's body is headings, paragraphs, lists and tables whose inline text is the contract's inline markdown, refusing HTML, images, line breaks and links that are not safe https URLs.
-  - New subpath `@civfix/contract/legal-texts`: `LEGAL_TEXTS` (each version's blocks by `type@version`, empty until the documents move in) and `legalRecordSha256`, the hash of a version's whole record. Only the backend imports it. `pnpm legal:hash` writes the hashes into the metadata.
-  - New schemas: `LegalDocumentDTO`, `GetLegalDocumentsResponse`, `GetLegalDocumentRequest`, `GetLegalDocumentResponse`, `MyLegalStatusResponse`, `AcceptLegalRequest`, `AcceptLegalResponse`, and `LEGAL_VERSION_OUTDATED` with `LegalVersionOutdatedDetails`. `LegalDocumentVersionDTO` gains optional `title`, `summary`, `material`, `acceptedCount` and `activeAccounts`.
-  - New endpoints: `getLegalDocuments` (`GET /legal/documents`) and `getLegalDocument` (`GET /legal/documents/:type/:version`), public; `getMyLegalStatus` (`GET /me/legal`) and `acceptLegal` (`POST /me/legal/accept`, csrf), auth required.
-  - An error reply can carry an optional `details` object: `AppError`, `toJSON`, `AppErrorSchema`, `parseError` and `toAppError` carry it, and a malformed `details` is dropped without losing the rest of the error.
+  - `RUNTIME_FLAGS`, a fixed registry of eight operator-set flags (`host_messaging_kill_switch`, `outreach_digest_enabled`, `report_autoforward_enabled`, `min_app_version_ios`, `min_app_version_android`, `app_store_url_ios`, `announcement_text`, `announcement_level`), with `RuntimeFlagKey`, `RuntimeFlagValueSchema` (boolean, string or null) and `runtimeFlagValueSchema(key)`, the per-flag value check. Strings are trimmed and never empty, so "not set" is always null; an unknown key accepts nothing.
+  - `getAppConfig` (`GET /app/config`, auth optional) returning `AppConfigResponse`: minimum app versions, store links and the announcement.
+  - Operator endpoints under `/admin/dev`, all auth required and csrf on every mutation: `adminListRuntimeFlags` and `adminSetRuntimeFlag` (`RuntimeFlagStateDTO`, `AdminSetRuntimeFlagRequest`), `adminDevOverview` (`AdminDevOverviewResponse`), `adminDevJobs` and `adminDevRunJob` (`AdminDevJobsResponse`, `AdminDevRunJobResponse`), and the staging test tools `adminDevListForceUpdate`, `adminDevSetForceUpdate`, `adminDevTestPush`, `adminDevTestEmail` and `adminDevResetFirstRun`, whose request schemas are strict and trim and validate the email.
+
+## 0.67.0
+
+### Minor Changes
+
+- Schemas typed by name now name their input as well as their output (DECISIONS §65). The 108 schemas annotated `z.ZodType<Output, unknown>` to stay under the TS7056 declaration cap are now `z.ZodType<Output, OutputInput>`, with each input type exported next to its output (`OrganizationRefDTOInput`, `CleanupDTOInput`, `EventInsightsInput`, and so on). No endpoint's response input is `unknown` any more (117 were), so `z.input` of a response, as the backend uses to type route replies, is the real shape. Runtime behavior is unchanged, and so is every exported output type and every endpoint's inferred request and response type. The emitted `.d.ts` grows from 2.58 MB to 4.19 MB.
+
+## 0.66.0
+
+### Minor Changes
+
+- Link fields accept only http and https (DECISIONS §64). The new `HttpUrlSchema` trims, then accepts `http:` and `https:` links only, and rejects `javascript:`, `data:`, `file:`, `vbscript:`, `blob:` and scheme-relative `//host` links; it is exported with `HTTP_URL_MAX_LENGTH` (2048). `SuggestContactRequest.formUrl` and the `formUrl` of `PatchJurisdictionRequest`, `SaveContactsRequest` and `SaveDraftRequest` use it capped at 2048 characters, with their optional and nullable behavior unchanged. `JurisdictionDirectoryDTO.form` and `MailAttachment.url` use it with no length cap; no server sends anything else there.
+
+## 0.65.0
+
+### Minor Changes
+
+- Zod 4 API modernization (DECISIONS §63). The schemas use zod 4's top-level string formats (`z.email()`, `z.url()`, `z.iso.datetime()`, `z.iso.date()`), `z.looseObject` instead of `.passthrough()`, string issue codes instead of `z.ZodIssueCode`, and `z.ZodType` instead of `z.ZodTypeAny`; the no-op `.finite()` is gone. Runtime behavior is unchanged: every schema accepts and rejects the same inputs, parses to the same output and reports the same issues. The inferred types of every exported schema and every endpoint's request and response are unchanged. What changes in the emitted `.d.ts` is the schema class types (an email field is a `ZodEmail` rather than a `ZodString`, a URL a `ZodURL`, a timestamp a `ZodISODateTime`), and the default type parameters of `EndpointDef` are now `z.ZodType` (output `unknown`) instead of `z.ZodTypeAny` (output `any`).
+
+## 0.64.2
+
+### Patch Changes
+
+- Photon and Mapbox geocoding responses are parsed with zod instead of cast: a feature without two numeric coordinates is skipped, a malformed name or address field is ignored as if absent, and a body that is not a feature collection resolves no suggestions, so a bad provider response can no longer put a non-string label or a non-numeric coordinate into a `GeoSuggestion`. `legalDocument` now refuses an inherited key such as `"toString"` with the same `RangeError` as any other unknown type (it used to return the prototype function), and the typed client refuses a top-level function or symbol query value with a `VALIDATION` `AppError` instead of sending its text. `byErrorCode` reads a `null` table entry as missing and returns the fallback, as it already did for `undefined`. Valid inputs behave exactly as before, and the exported types are unchanged.
+
+## 0.64.1
+
+### Patch Changes
+
+- Hand-written option and input types now say `| undefined` on their optional properties, so a consumer that turns on `exactOptionalPropertyTypes` can pass a possibly-undefined value without building the object conditionally: `AppErrorOptions`, `ToAppErrorOptions`, `CreateApiClientOptions`, `RequestArgs`, `GeoSuggestion`, `SuggestOptions`, `AuthContext.anonSessionId`, `RelativeAgoOptions`, `EventWhenInput`, `EventWhenOptions`, `EventWindowLike`, `EventPhaseClock`, `IcsEventInput`, `SmsBodyOptions`, `BroadcastLinkOptions`, `SuppressOptions`, `BreakdownOptions`, `ArrivalsCurveOptions`, `ParseMarkdownOptions`, `SafeHttpsUrlOptions`, and the value parameters of `rejectAroundWithBefore` and `refineSalesWindow`. This only loosens the types; no shape or runtime behavior changes.
 
 ## 0.64.0
 

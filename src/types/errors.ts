@@ -1,4 +1,3 @@
-
 export enum ErrorCode {
   UNAUTHORIZED = "UNAUTHORIZED",
   FORBIDDEN = "FORBIDDEN",
@@ -39,10 +38,10 @@ export const ERROR_HTTP_STATUS: Record<ErrorCode, number> = {
 export type AppErrorDetails = Record<string, unknown>
 
 export interface AppErrorOptions {
-  httpStatus?: number
-  fields?: Record<string, string>
-  details?: AppErrorDetails
-  requestId?: string
+  httpStatus?: number | undefined
+  fields?: Record<string, string> | undefined
+  details?: AppErrorDetails | undefined
+  requestId?: string | undefined
   cause?: unknown
 }
 
@@ -178,7 +177,7 @@ function objectDetails(details: unknown): AppErrorDetails | undefined {
 
 export interface ToAppErrorOptions {
   /** Message for a value that carries none of its own (an empty message, or a non-Error throw). */
-  fallbackMessage?: string
+  fallbackMessage?: string | undefined
 }
 
 const UNKNOWN_ERROR_MESSAGE = "Unknown error"
@@ -235,8 +234,7 @@ export function byErrorCode<Value>(
   fallback: Value,
 ): Value {
   if (!isErrorCode(code)) return fallback
-  const value = table[code]
-  return value === undefined ? fallback : value
+  return table[code] ?? fallback
 }
 
 export function errorCopyKey<Value>(

@@ -95,7 +95,6 @@ describe("AppError", () => {
     expect(err).toBeInstanceOf(DeadlineError)
     expect(err).toBeInstanceOf(AppError)
     expect(err.isDeadline()).toBe(true)
-
   })
 
   it("serializes to the wire envelope and validates against AppErrorSchema", () => {
@@ -322,7 +321,9 @@ describe("appErrorCode", () => {
 
   it("is undefined for anything the contract does not recognise as an AppError", () => {
     expect(appErrorCode(new TypeError("Failed to fetch"))).toBeUndefined()
-    expect(appErrorCode(Object.assign(new Error("no such file"), { code: "ENOENT" }))).toBeUndefined()
+    expect(
+      appErrorCode(Object.assign(new Error("no such file"), { code: "ENOENT" })),
+    ).toBeUndefined()
     expect(appErrorCode({ name: "AppError", code: "SOMETHING_NEW", message: "x" })).toBeUndefined()
     expect(appErrorCode({ name: "AppError", code: "RATE_LIMITED" })).toBeUndefined()
     expect(appErrorCode("RATE_LIMITED")).toBeUndefined()
@@ -342,8 +343,12 @@ describe("appErrorFields", () => {
 
   it("is undefined when there are no string fields or the value is not an AppError", () => {
     expect(appErrorFields(AppError.conflict())).toBeUndefined()
-    expect(appErrorFields({ code: ErrorCode.VALIDATION, message: "bad", fields: {} })).toBeUndefined()
-    expect(appErrorFields({ code: ErrorCode.VALIDATION, message: "bad", fields: ["email"] })).toBeUndefined()
+    expect(
+      appErrorFields({ code: ErrorCode.VALIDATION, message: "bad", fields: {} }),
+    ).toBeUndefined()
+    expect(
+      appErrorFields({ code: ErrorCode.VALIDATION, message: "bad", fields: ["email"] }),
+    ).toBeUndefined()
     expect(appErrorFields({ fields: { email: "invalid" } })).toBeUndefined()
     expect(appErrorFields(new Error("boom"))).toBeUndefined()
   })

@@ -1,6 +1,6 @@
 import type { LegalBlock } from "../legal/blocks.js"
 
-// Terms of Service 2026-10-26: the text of the 2026-09-21 web page, word for word (DECISIONS §66).
+// Terms of Service 2026-10-26: the text of the 2026-09-21 web page, word for word (DECISIONS §68).
 // "501(\u200cc)(3)" keeps the page's zero-width non-joiner, which stops "(c)" turning into ©; the hash covers it.
 export const TERMS_2026_10_26: readonly LegalBlock[] = [
   { kind: "heading", level: 2, text: "1\\. Who we are and what these terms cover" },

@@ -102,13 +102,13 @@ export interface DerivedHourPanel {
 }
 
 export interface SuppressOptions {
-  k?: number
-  suppressPoints?: boolean
+  k?: number | undefined
+  suppressPoints?: boolean | undefined
 }
 
 export interface BreakdownOptions {
-  k?: number
-  totalPublishable?: boolean
+  k?: number | undefined
+  totalPublishable?: boolean | undefined
 }
 
 export interface BreakdownClosure {
@@ -119,9 +119,9 @@ export interface BreakdownClosure {
 }
 
 export interface ArrivalsCurveOptions extends SuppressOptions {
-  bucketMinutes?: number
-  fromMinutes?: number
-  toMinutes?: number
+  bucketMinutes?: number | undefined
+  fromMinutes?: number | undefined
+  toMinutes?: number | undefined
 }
 
 function dayToUtcMs(day: string): number {
@@ -151,7 +151,9 @@ export function enumerateDays(range: DayRange): string[] {
   if (to < from) throw new RangeError("enumerateDays expects range.from <= range.to")
   const span = Math.round((to - from) / MS_PER_DAY) + 1
   if (span > MAX_SERIES_DAYS) {
-    throw new RangeError(`enumerateDays refuses an unbounded range (${span} days > ${MAX_SERIES_DAYS})`)
+    throw new RangeError(
+      `enumerateDays refuses an unbounded range (${span} days > ${MAX_SERIES_DAYS})`,
+    )
   }
   const days: string[] = []
   for (let i = 0; i < span; i++) days.push(utcMsToDay(from + i * MS_PER_DAY))
@@ -307,7 +309,9 @@ export function breakdownClosure(
   const totals = totalsByKey(rows)
   let total = 0
   for (const value of totals.values()) total += value
-  const ordered = [...totals.entries()].sort((a, b) => (b[1] - a[1]) || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+  const ordered = [...totals.entries()].sort(
+    (a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0),
+  )
   const totalPublishable = options.totalPublishable !== false && total >= k
   const values = ordered.map(([, value]) => value)
   const hidden = totalPublishable ? secondarySuppression(values, k) : values.map(() => true)
@@ -329,7 +333,10 @@ export function breakdownClosure(
   }
 }
 
-export function breakdown(rows: readonly KeyCount[], options: BreakdownOptions = {}): DerivedPanel<DerivedBreakdownRow> {
+export function breakdown(
+  rows: readonly KeyCount[],
+  options: BreakdownOptions = {},
+): DerivedPanel<DerivedBreakdownRow> {
   const closure = breakdownClosure(rows, options)
   return {
     panelSuppressed: closure.panelSuppressed,
@@ -338,7 +345,10 @@ export function breakdown(rows: readonly KeyCount[], options: BreakdownOptions =
   }
 }
 
-export function funnel(steps: readonly KeyCount[], options: SuppressOptions = {}): DerivedPanel<DerivedFunnelStep> {
+export function funnel(
+  steps: readonly KeyCount[],
+  options: SuppressOptions = {},
+): DerivedPanel<DerivedFunnelStep> {
   const k = normalizeK(options.k)
   const monotonic: { key: string; count: number }[] = []
   let ceiling = Number.POSITIVE_INFINITY
@@ -373,7 +383,9 @@ export function arrivalsCurve(
   if (to <= from) throw new RangeError("arrivalsCurve expects fromMinutes < toMinutes")
   const bucketCount = Math.ceil((to - from) / bucket)
   if (bucketCount > MAX_ARRIVAL_BUCKETS) {
-    throw new RangeError(`arrivalsCurve refuses ${bucketCount} buckets (max ${MAX_ARRIVAL_BUCKETS})`)
+    throw new RangeError(
+      `arrivalsCurve refuses ${bucketCount} buckets (max ${MAX_ARRIVAL_BUCKETS})`,
+    )
   }
   const counts = new Array<number>(bucketCount).fill(0)
   for (const offset of offsetsMinutes) {
@@ -401,7 +413,10 @@ export function arrivalsCurve(
   }
 }
 
-export function bestDayTime(cells: readonly DayTimeCount[], k: number = K_SUPPRESS): DerivedBestDayTime | null {
+export function bestDayTime(
+  cells: readonly DayTimeCount[],
+  k: number = K_SUPPRESS,
+): DerivedBestDayTime | null {
   const threshold = normalizeK(k)
   const totals = new Map<string, number>()
   for (const cell of cells) {

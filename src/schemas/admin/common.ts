@@ -60,7 +60,10 @@ export const ADMIN_REPORT_STATUS_LABELS = {
   rejected: "Removed",
 } as const
 
-export const ADMIN_REPORT_STATUS_TRANSITIONS: Record<AdminReportStatus, readonly AdminReportStatus[]> = {
+export const ADMIN_REPORT_STATUS_TRANSITIONS: Record<
+  AdminReportStatus,
+  readonly AdminReportStatus[]
+> = {
   submitted: ["held", "published"],
   held: ["published"],
   published: ["acknowledged", "in_progress", "held"],
