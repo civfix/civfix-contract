@@ -58,8 +58,9 @@ export const RUNTIME_FLAGS = [
   },
   {
     key: "report_autoforward_enabled",
-    label: "Report auto-forward",
-    description: "Forwards new reports to the city contact automatically when they are filed.",
+    label: "Suggest the city in discussions",
+    description:
+      "Suggests the city when residents mention someone in a report's discussion. A message that tags the city is emailed to it right away, without operator approval. Reports themselves reach the city only when an operator approves them.",
     type: "boolean",
     default: false,
     envFallback: "REPORT_AUTOFORWARD_ENABLED",

@@ -92,8 +92,8 @@ describe("runtime flag registry", () => {
       ],
       ["Outreach digest", "Sends the daily digest of new reports to city contacts."],
       [
-        "Report auto-forward",
-        "Forwards new reports to the city contact automatically when they are filed.",
+        "Suggest the city in discussions",
+        "Suggests the city when residents mention someone in a report's discussion. A message that tags the city is emailed to it right away, without operator approval. Reports themselves reach the city only when an operator approves them.",
       ],
       [
         "Minimum iOS version",

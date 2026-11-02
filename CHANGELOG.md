@@ -1,5 +1,22 @@
 # @civfix/contract
 
+## 0.71.1
+
+### Patch Changes
+
+- The `report_autoforward_enabled` flag's developer-console label and description now say it gates only the @city suggestion in report discussions: "Suggest the city in discussions".
+
+## 0.71.0
+
+### Minor Changes
+
+- City filing (DECISIONS §69). All additive: the registry goes from 364 to 374 entries, all ten of them admin.
+
+  - New `src/schemas/admin/filings.ts`: the enums `FilingChannel`, `FilingStatus`, `FilingMethod`, `FilingGroup`, `FilingEvidenceKind` and `FilingReason`; `AdminFilingDTO`, `FilingEvidenceDTO` (its `url` expires after 15 minutes), `FilingRouteInput` (validated: a portal route's `formUrl` is a public https URL outside civfix, `statusSenderDomains` is 0-5 distinct lowercased hostnames), `FilingRouteDTO`, `FilingSettingsDTO`, and the limits `FILING_NOTE_MAX`, `FILING_REQUEST_TYPE_HINT_MAX`, `FILING_SENDER_DOMAINS_MAX`, `FILING_ROUTES_MAX`, `FILING_LIST_PAGE_MAX` and `FILING_CASE_ID_PATTERN`.
+  - New operator endpoints, each with its `…Request` / `…Response` schemas: `fileReport` (`POST /admin/reports/:id/file`), `listFilings` (`GET /admin/filings`), `getFiling` (`GET /admin/filings/:id`), `retryFiling`, `cancelFiling` and `recordManualFiling` (`POST /admin/filings/:id/retry|cancel|manual`), `getFilingSettings` and `setFilingSettings` (`GET` / `PUT /admin/filing-settings`), `listFilingRoutes` and `saveFilingRoutes` (`GET` / `PUT /admin/jurisdictions/:geoid/filing-routes`).
+  - `ReportDTO` gains `filing` (`ReportFilingDTO`, nullable and optional). `AdminReportDTO` gains `filing` and `filingRoute` (nullable and optional), and `HomeSummaryResponse` gains `filingsNeedsHuman` (default 0). Both are strict, so an admin build older than 0.71.0 logs a parse warning and uses the raw body once the backend sends them.
+  - `DEFAULT_FORWARD_BODY_TEMPLATE` drops its "Photo/Video Links" paragraph; the backend appends the links for media not attached. `{photoLinks}` and `{photoCount}` stay valid in templates.
+
 ## 0.70.0
 
 ### Minor Changes
