@@ -11,6 +11,11 @@ import {
   DeleteAccountResponseSchema,
   RequestDataExportResponseSchema,
 } from "../../schemas/social.js"
+import {
+  AcceptLegalRequestSchema,
+  AcceptLegalResponseSchema,
+  MyLegalStatusResponseSchema,
+} from "../../schemas/legal.js"
 
 export const accountEndpoints = {
   myProfile: def({
@@ -63,6 +68,24 @@ export const accountEndpoints = {
     path: "/me/data-export",
     request: null,
     response: RequestDataExportResponseSchema,
+    auth: "required",
+    csrf: true,
+    version: "v1",
+  }),
+  getMyLegalStatus: def({
+    method: "GET",
+    path: "/me/legal",
+    request: null,
+    response: MyLegalStatusResponseSchema,
+    auth: "required",
+    csrf: false,
+    version: "v1",
+  }),
+  acceptLegal: def({
+    method: "POST",
+    path: "/me/legal/accept",
+    request: AcceptLegalRequestSchema,
+    response: AcceptLegalResponseSchema,
     auth: "required",
     csrf: true,
     version: "v1",
