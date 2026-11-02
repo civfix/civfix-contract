@@ -11,6 +11,7 @@ export default defineConfig({
     "src/markdown/index.ts",
     "src/ics/index.ts",
     "src/legal/index.ts",
+    "src/legal-texts/index.ts",
   ],
   outDir: "dist",
   format: ["esm", "cjs"],

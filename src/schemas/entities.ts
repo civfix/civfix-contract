@@ -334,7 +334,7 @@ export const ReportDTOSchema = z.object({
   confirmedByMe: z.boolean().default(false),
   fixedCount: z.number().int().nonnegative().default(0),
   fixedByMe: z.boolean().default(false),
-  // Null until the report is filed with the city (DECISIONS §68); optional so an older server still parses.
+  // Null until the report is filed with the city (DECISIONS §69); optional so an older server still parses.
   filing: ReportFilingDTOSchema.nullable().optional(),
 })
 export type ReportDTO = z.infer<typeof ReportDTOSchema>
@@ -361,6 +361,12 @@ const LegalDocumentVersionDTOObjectSchema = z.object({
   sha256: z.string().min(1).max(128),
   effectiveAt: ISODateSchema,
   url: z.string(),
+  // Optional so an older server still parses (DECISIONS §68).
+  title: z.string().optional(),
+  summary: z.string().optional(),
+  material: z.boolean().optional(),
+  acceptedCount: z.number().int().nonnegative().nullable().optional(),
+  activeAccounts: z.number().int().nonnegative().nullable().optional(),
 })
 export type LegalDocumentVersionDTO = z.infer<typeof LegalDocumentVersionDTOObjectSchema>
 export type LegalDocumentVersionDTOInput = z.input<typeof LegalDocumentVersionDTOObjectSchema>
