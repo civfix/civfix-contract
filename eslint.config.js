@@ -1,5 +1,6 @@
 import eslint from "@eslint/js"
 import vitest from "@vitest/eslint-plugin"
+import { defineConfig } from "eslint/config"
 import tseslint from "typescript-eslint"
 
 // The @civfix/contract contract must stay framework-free: never import or re-export react / react-dom /
@@ -107,7 +108,7 @@ const TYPED_RULES = {
   "@typescript-eslint/no-deprecated": "error",
 }
 
-export default tseslint.config(
+export default defineConfig(
   {
     ignores: ["dist/**", "node_modules/**", "*.config.js", "*.config.ts"],
   },
@@ -122,6 +123,11 @@ export default tseslint.config(
       sourceType: "module",
     },
     rules: {
+      // ESLint 10's recommended set adds these; this upgrade keeps ESLint 9's rules (civfix/issue-tracker#289).
+      "no-unassigned-vars": "off",
+      "no-useless-assignment": "off",
+      "preserve-caught-error": "off",
+      "no-shadow-restricted-names": ["error", { reportGlobalThis: false }],
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",

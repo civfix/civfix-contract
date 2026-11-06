@@ -2740,3 +2740,10 @@ live in the backend routes: the registry has no field for them. The ten endpoint
 `listFilings`, `getFiling`, `retryFiling`, `cancelFiling`, `recordManualFiling`, `getFilingSettings`,
 `setFilingSettings`, `listFilingRoutes`, `saveFilingRoutes`) are in `src/client/endpoints/admin/filings.ts`;
 the registry moves from 364 to 374 entries, 129 of them under `/admin`.
+
+## 70. The build stays on tsup, moved to 9 (no release)
+
+Epic civfix/issue-tracker#288 (D9) replaced tsup with tsdown wherever tsdown builds the same files. Here it
+doesn't: tsdown stops emitting the empty source maps of the re-export-only entries (`client`, `datetime`,
+`host`), so the package stays on tsup, moved to 9. Its files match tsup 8's apart from content-hashed chunk
+names. §59's rule still applies: `require` of every exports entry is re-checked after a tsup upgrade.
