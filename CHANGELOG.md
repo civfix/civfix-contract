@@ -1,5 +1,11 @@
 # @civfix/contract
 
+## 0.72.0
+
+### Minor Changes
+
+- A notification can say who it is about. `NotificationDTO` gains `actor` (`NotificationActorDTO`, nullable and optional): the person's `id`, `name`, `handle`, `avatar`, `avatarUrl` and `isFollowing` (the viewer follows them), with `PersonDTO`'s field names. Additive: a notification without `actor` still parses, so older servers and apps keep working.
+
 ## 0.71.1
 
 ### Patch Changes

@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { IdSchema, ISODateSchema, pageResponse, PushPlatformSchema } from "./common.js"
+import { PersonDTOSchema } from "./entities.js"
 import { OkResponseSchema } from "./internal-fields.js"
 import { UnsubscribeTokenSchema } from "./host/broadcasts.js"
 
@@ -29,6 +30,18 @@ export const NotificationTypeSchema = z.enum([
 ])
 export type NotificationType = z.infer<typeof NotificationTypeSchema>
 
+// The person a notification is about (a new follower, someone who liked or replied), shaped as a slice
+// of PersonDTO so a row can show their photo and offer Follow back or Message without another request.
+export const NotificationActorDTOSchema = PersonDTOSchema.pick({
+  id: true,
+  name: true,
+  handle: true,
+  avatar: true,
+  avatarUrl: true,
+  isFollowing: true,
+})
+export type NotificationActorDTO = z.infer<typeof NotificationActorDTOSchema>
+
 export const NotificationDTOSchema = z.object({
   id: IdSchema,
   type: NotificationTypeSchema,
@@ -37,6 +50,8 @@ export const NotificationDTOSchema = z.object({
   read: z.boolean(),
   createdAt: ISODateSchema,
   link: z.string().nullable().optional(),
+  /** Optional so an older server parses; null when the notification is about no one in particular. */
+  actor: NotificationActorDTOSchema.nullable().optional(),
 })
 export type NotificationDTO = z.infer<typeof NotificationDTOSchema>
 
